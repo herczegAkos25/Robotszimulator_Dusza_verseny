@@ -12,6 +12,7 @@ namespace Robotszimulator.Core
         public required int RobotOszlop { get; init; }
         public required Irany Irany { get; init; }
         public required bool[,] Felfedezett { get; init; }
+        public required string[][] Grid { get; init; }
         public required int Arany { get; init; }
         public required int Szenzor { get; init; }
         public required int NaploHossz { get; init; }

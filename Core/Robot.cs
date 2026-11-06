@@ -20,6 +20,7 @@ namespace Robotszimulator.Core
         private Terkep terkep;
         private string[][] aktualisGrid;
         public bool[,] Felfedezett => terkep.Felfedezett;
+        public string[][] Grid => aktualisGrid;
 
         public Robot(Terkep terkep)
         {

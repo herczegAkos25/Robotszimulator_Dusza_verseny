@@ -34,6 +34,8 @@ namespace Robotszimulator
 
         public void Futtatas()
         {
+            Pillanatkep(-1);
+
             try
             {
                 BlokkVegrehajtas(0, program.Count);
@@ -281,7 +283,10 @@ namespace Robotszimulator
         {
             if (token == "true") return true;
             if (token == "false") return false;
-            if (char.IsDigit(token[0])) return int.Parse(token, CultureInfo.InvariantCulture);
+            if (char.IsDigit(token[0]) && int.TryParse(token, NumberStyles.Integer, CultureInfo.InvariantCulture, out int szamErtek))
+            {
+                return szamErtek;
+            }
             if (valtozok.ContainsKey(token)) return valtozok[token];
 
             throw new FutasHiba("E_UNINITIALIZED");
@@ -307,6 +312,7 @@ namespace Robotszimulator
                 RobotOszlop = robot.Oszlop,
                 Irany = robot.AktualisIrany,
                 Felfedezett = (bool[,])robot.Felfedezett.Clone(),
+                Grid = robot.Grid.Select(sor => (string[])sor.Clone()).ToArray(),
                 Arany = robot.KibanyaszottAranySzam,
                 Szenzor = robot.Szenzor(),
                 NaploHossz = Naplo.Count,
