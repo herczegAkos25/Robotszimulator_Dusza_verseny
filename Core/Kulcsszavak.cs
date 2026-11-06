@@ -18,5 +18,11 @@ namespace Robotszimulator.Core
             if (string.IsNullOrWhiteSpace(nev)) return false;
             return Lista.Contains(nev);
         }
+
+        public static bool ErvenyesAzonosito(string s) =>
+        !string.IsNullOrEmpty(s)
+        && char.IsAsciiLetter(s[0])
+        && s.All(char.IsAsciiLetterOrDigit)
+        && !IsKulcsszo(s);
     }
 }

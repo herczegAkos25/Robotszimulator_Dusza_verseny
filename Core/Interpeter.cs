@@ -16,6 +16,7 @@ namespace Robotszimulator
         private int utasitasSzamlalo = 0;
         private bool leallitva = false;
         private bool limitElerve = false;
+        public IReadOnlyDictionary<string, object> Valtozok => valtozok;
 
         public Interpreter(List<Sor> prog, Robot r)
         {
