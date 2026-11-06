@@ -1,5 +1,5 @@
-﻿using System;
-using System.IO;
+﻿using Robotszimulator.Core;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -10,6 +10,8 @@ namespace Robotszimulator
     {
         private Beolvas beolvas = new Beolvas();
         private const double CellaMeret = 40; // Egy mező mérete pixelben
+        private Terkep terkep = new Terkep();
+        private Futtato futtato = new Futtato();
 
         public MainWindow()
         {
@@ -101,6 +103,7 @@ namespace Robotszimulator
                     TerkepCanvas.Children.Add(cella);
                 }
             }
+            futtato.Betoltes(); 
         }
     }
 }
