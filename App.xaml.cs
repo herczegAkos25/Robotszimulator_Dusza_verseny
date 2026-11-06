@@ -1,14 +1,16 @@
-﻿using System.Configuration;
+﻿using Robotszimulator.Beolvasas;
+using Robotszimulator.Core;
+using Robotszimulator.Core.Robotszimulator.Core;
+using System.Configuration;
 using System.Data;
+using System.IO;
 using System.Windows;
 
 namespace Robotszimulator
 {
     /// <summary>
-    /// Interaction logic for App.xaml
+    /// Az App.xaml logikai kódja
     /// </summary>
-    using System.Windows;
-
     public partial class App : Application
     {
         protected override void OnStartup(StartupEventArgs e)
@@ -35,7 +37,7 @@ namespace Robotszimulator
 
             if (AppSettings.IsQuietMode)
             {
-                RunQuietMode();
+                CsendesModFuttatas();
                 Current.Shutdown();
             }
             else
@@ -45,10 +47,30 @@ namespace Robotszimulator
             }
         }
 
-        private void RunQuietMode()
+        private void CsendesModFuttatas()
         {
-            // Itt már bárhol elérhetitek az AppSettings.InputFilePath és OutputFilePath értékeket
-            // pl. MineScriptInterpreter.Execute(AppSettings.InputFilePath, AppSettings.OutputFilePath);
+            // 1. Beolvasás elindítása
+            // 1. Beolvasás elindítása
+            Beolvas b = new Beolvas();
+            b.Beolvasas(); // Beolvassa az AppSettings.InputFilePath fájlt
+
+            // 2. A Terkep osztály feltöltése a beolvasott adatokkal
+            Terkep terkep = new Terkep();
+            terkep.SetTerkepMeret(b.TerkepSor, b.TerkepOszlop);
+            terkep.TerkepLista = b.TerkepLista;
+            terkep.ErtekMeghatarozas();
+
+            // 3. A Robot példányosítása a felkészített térképpel
+            Robot robot = new Robot(terkep);
+
+            // 4. Az Interpreter (értelmező) példányosítása a beolvasott programkóddal és a robottal
+            Interpreter interpreter = new Interpreter(b.ProgramLista, robot);
+
+            // 5. A MineScript program lefuttatása
+            interpreter.Futtatas();
+
+            // 6. A keletkezett napló kiírása a kimeneti fájlba
+            File.WriteAllLines(AppSettings.OutputFilePath, interpreter.Naplo);
         }
     }
 }
