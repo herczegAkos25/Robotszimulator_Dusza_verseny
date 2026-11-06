@@ -7,8 +7,10 @@ namespace Robotszimulator
 {
     public class Beolvas
     {
-        Terkep terkep = new Terkep();
-        public List<string> ProgramLista { get; private set; } = new List<string>();
+        public int TerkepSor { get; private set; }
+        public int TerkepOszlop { get; private set; }
+        public List<string> TerkepLista { get; private set; } = new List<string>();
+        public List<Sor> ProgramLista { get; private set; } = new();
 
         public void Beolvasas()
         {
@@ -33,10 +35,10 @@ namespace Robotszimulator
 
                 while (!sr.EndOfStream)
                 {
-                    string sor = sr.ReadLine();
-                    if (!string.IsNullOrWhiteSpace(sor))
+                    string line = sr.ReadLine();
+                    if (!string.IsNullOrEmpty(line))
                     {
-                        ProgramLista.Add(sor);
+                        ProgramLista.Add(Sor.Parse(line));
                     }
                 }
             }

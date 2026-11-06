@@ -4,7 +4,13 @@ using System.Text;
 
 namespace Robotszimulator.Core
 {
-    internal class FutasiHiba
+    public class FutasHiba : Exception
     {
+        public string Kod { get; }
+
+        public FutasHiba(string kod)
+        {
+            Kod = kod;
+        }
     }
 }
