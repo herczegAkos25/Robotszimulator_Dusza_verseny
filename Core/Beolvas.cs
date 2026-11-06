@@ -46,6 +46,9 @@ namespace Robotszimulator
                     }
                 }
             }
+
+            // Mátrix és pozíciók feltöltése a beolvasott adatokból
+            Terkep.ErtekMeghatarozas();
         }
     }
 }

@@ -5,8 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Robotszimulator"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-
+        Title="Robot Szimulátor" Height="500" Width="800">
+    <Grid Background="Gray">
+        
+        <Canvas x:Name="TerkepCanvas" 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center" 
+                Background="White"/>
     </Grid>
 </Window>
