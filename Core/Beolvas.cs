@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Robotszimulator.Beolvasas;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -9,7 +10,7 @@ namespace Robotszimulator
         public int TerkepSor { get; private set; }
         public int TerkepOszlop { get; private set; }
         public List<string> TerkepLista { get; private set; } = new List<string>();
-        public List<string> ProgramLista { get; private set; } = new List<string>();
+        public List<Sor> ProgramLista { get; private set; } = new();
 
         public void Beolvasas()
         {
@@ -36,9 +37,9 @@ namespace Robotszimulator
                 while (!sr.EndOfStream)
                 {
                     string line = sr.ReadLine();
-                    if (!string.IsNullOrWhiteSpace(line))
+                    if (!string.IsNullOrEmpty(line))
                     {
-                        ProgramLista.Add(line);
+                        ProgramLista.Add(Sor.Parse(line));
                     }
                 }
             }
