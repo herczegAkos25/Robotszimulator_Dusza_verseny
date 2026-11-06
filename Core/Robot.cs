@@ -19,7 +19,6 @@ namespace Robotszimulator.Core
         public Irany AktualisIrany { get; private set; }
         public int KibanyaszottAranySzam { get; private set; }
         private Terkep terkep;
-        private bool[,] felfedezettMezok;
         private string[][] aktualisGrid;
 
         public Robot(Terkep terkep)
@@ -31,7 +30,6 @@ namespace Robotszimulator.Core
         public void InicializalasKezdoTerkepbol()
         {
             aktualisGrid = terkep.Grid;
-            felfedezettMezok = new bool[terkep.TerkepSor, terkep.TerkepOszlop];
 
             for (int sorIndex = 0; sorIndex < terkep.TerkepSor; sorIndex++)
             {
@@ -51,7 +49,7 @@ namespace Robotszimulator.Core
                             case "v": AktualisIrany = Irany.Del; break;
                         }
 
-                        felfedezettMezok[sorIndex, oszlopIndex] = true;
+                        terkep.MezoFelfedezve(oszlopIndex, sorIndex);
                         aktualisGrid[sorIndex][oszlopIndex] = ".";
                     }
                 }
@@ -82,7 +80,7 @@ namespace Robotszimulator.Core
                     case Irany.Del: kovetkezoSor++; break;
                 }
 
-                if (kovetkezoSor < 0 || kovetkezoSor >= terkep.TerkepSor || kovetkezoOszlop < 0 || kovetkezoOszlop >= terkep.TerkepOszlop)
+                if (!terkep.BelulVan(kovetkezoOszlop, kovetkezoSor))
                 {
                     throw new FutasHiba("E_BEDROCK_HIT");
                 }
@@ -94,7 +92,7 @@ namespace Robotszimulator.Core
 
                 Oszlop = kovetkezoOszlop;
                 Sor = kovetkezoSor;
-                felfedezettMezok[Sor, Oszlop] = true;
+                terkep.MezoFelfedezve(Oszlop, Sor);
             }
         }
 
@@ -113,6 +111,31 @@ namespace Robotszimulator.Core
 
         public bool isThere(int objektumTipus)
         {
+            var (celOszlop, celSor) = CelKoordinataKiszamitas();
+
+            if (!terkep.BelulVan(celOszlop, celSor))
+            {
+                return objektumTipus == 1;
+            }
+
+            terkep.MezoFelfedezve(celOszlop, celSor);
+            return CellaVizsgalat(celOszlop, celSor, objektumTipus);
+        }
+
+        public bool Szenzor(int objektumTipus)
+        {
+            var (celOszlop, celSor) = CelKoordinataKiszamitas();
+
+            if (!terkep.BelulVan(celOszlop, celSor))
+            {
+                return objektumTipus == 1;
+            }
+
+            return CellaVizsgalat(celOszlop, celSor, objektumTipus);
+        }
+
+        private (int, int) CelKoordinataKiszamitas()
+        {
             int celOszlop = Oszlop;
             int celSor = Sor;
 
@@ -123,15 +146,12 @@ namespace Robotszimulator.Core
                 case Irany.Eszak: celSor--; break;
                 case Irany.Del: celSor++; break;
             }
+            return (celOszlop, celSor);
+        }
 
-            if (celSor < 0 || celSor >= terkep.TerkepSor || celOszlop < 0 || celOszlop >= terkep.TerkepOszlop)
-            {
-                return objektumTipus == 1;
-            }
-
-            felfedezettMezok[celSor, celOszlop] = true;
-
-            string celCella = aktualisGrid[celSor][celOszlop];
+        private bool CellaVizsgalat(int oszlop, int sor, int objektumTipus)
+        {
+            string celCella = aktualisGrid[sor][oszlop];
 
             return objektumTipus switch
             {
@@ -140,11 +160,6 @@ namespace Robotszimulator.Core
                 2 => celCella == "@",
                 _ => throw new FutasHiba("E_BAD_ARG")
             };
-        }
-
-        public bool VanMezoFelfedezve(int sorIndex, int oszlopIndex)
-        {
-            return felfedezettMezok[sorIndex, oszlopIndex];
         }
     }
 }

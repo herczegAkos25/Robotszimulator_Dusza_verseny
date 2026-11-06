@@ -65,5 +65,13 @@ namespace Robotszimulator.Core
         {
             return sor >= 0 && sor < TerkepSor && oszlop >= 0 && oszlop < TerkepOszlop;
         }
+
+        public void MezoFelfedezve(int oszlop, int sor)
+        {
+            if (BelulVan(oszlop, sor))
+            {
+                Felfedezett[sor, oszlop] = true;
+            }
+        }
     }
 }
