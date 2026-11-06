@@ -1,14 +1,15 @@
-﻿using System.Configuration;
+﻿using Robotszimulator.Beolvasas;
+using Robotszimulator.Core;
+using System.Configuration;
 using System.Data;
+using System.IO;
 using System.Windows;
 
 namespace Robotszimulator
 {
     /// <summary>
-    /// Interaction logic for App.xaml
+    /// Az App.xaml logikai kódja
     /// </summary>
-    using System.Windows;
-
     public partial class App : Application
     {
         protected override void OnStartup(StartupEventArgs e)
@@ -35,7 +36,7 @@ namespace Robotszimulator
 
             if (AppSettings.IsQuietMode)
             {
-                RunQuietMode();
+                CsendesModFuttatas();
                 Current.Shutdown();
             }
             else
@@ -45,10 +46,20 @@ namespace Robotszimulator
             }
         }
 
-        private void RunQuietMode()
+        private void CsendesModFuttatas()
         {
-            // Itt már bárhol elérhetitek az AppSettings.InputFilePath és OutputFilePath értékeket
-            // pl. MineScriptInterpreter.Execute(AppSettings.InputFilePath, AppSettings.OutputFilePath);
+            // 1. Beolvasás elindítása
+            Beolvas beolvas = new Beolvas();
+            beolvas.Beolvasas(); // Az AppSettings.InputFilePath-et használja
+
+            // 2. Robot és Értelmező előkészítése
+            Robot robot = new Robot(beolvas.TerkepLista, beolvas.TerkepSor, beolvas.TerkepOszlop);
+            Interpreter interpreter = new Interpreter(beolvas.ProgramLista, robot);
+
+            // 3. Futtatás és a napló kiírása a kimeneti fájlba
+            interpreter.Futtatas();
+
+            File.WriteAllLines(AppSettings.OutputFilePath, interpreter.Naplo);
         }
     }
 }
