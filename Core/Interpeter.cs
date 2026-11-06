@@ -143,7 +143,8 @@ namespace Robotszimulator
                 switch (t[0])
                 {
                     case "print":
-                        sorBejegyzes += " print " + Megjelenit(Olvas(t[1]));
+                        sorBejegyzes += " print";
+                        sorBejegyzes += " " + Megjelenit(Olvas(t[1]));
                         break;
 
                     case "turn":

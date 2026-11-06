@@ -25,6 +25,8 @@ namespace Robotszimulator.Core
 
         public void ErtekMeghatarozas()
         {
+            Akadalyok.Clear();
+            Arany.Clear();
             Grid = new string[TerkepSor][];
             Felfedezett = new bool[TerkepSor, TerkepOszlop];
 
