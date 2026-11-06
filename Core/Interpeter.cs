@@ -143,7 +143,8 @@ namespace Robotszimulator
                 switch (t[0])
                 {
                     case "print":
-                        sorBejegyzes += " print " + Megjelenit(Olvas(t[1]));
+                        sorBejegyzes += " print";
+                        sorBejegyzes += " " + Megjelenit(Olvas(t[1]));
                         break;
 
                     case "turn":
@@ -151,7 +152,7 @@ namespace Robotszimulator
                         object nTurn = Olvas(t[2]);
                         sorBejegyzes += " " + Megjelenit(nTurn);
                         if (!(nTurn is int) || (int)nTurn < 0) throw new FutasHiba("E_BAD_ARG");
-                        robot.Turn((int)nTurn);
+                        robot.Turn_by((int)nTurn);
                         break;
 
                     case "step":
@@ -159,12 +160,12 @@ namespace Robotszimulator
                         object nStep = Olvas(t[2]);
                         sorBejegyzes += " " + Megjelenit(nStep);
                         if (!(nStep is int) || (int)nStep < 0) throw new FutasHiba("E_BAD_ARG");
-                        robot.Step((int)nStep);
+                        robot.Step_forward((int)nStep);
                         break;
 
                     case "mine":
                         sorBejegyzes += " mine here";
-                        robot.Mine();
+                        robot.Mine_here();
                         break;
 
                     case "set":
@@ -182,7 +183,7 @@ namespace Robotszimulator
                             if (!(w is int) || (int)w < 0 || (int)w > 2)
                                 throw new FutasHiba("E_BAD_ARG");
 
-                            ertek = robot.IsThere((int)w);
+                            ertek = robot.isThere((int)w);
                             sorBejegyzes += " " + Megjelenit(ertek);
                         }
                         else if (t[3] == "not")

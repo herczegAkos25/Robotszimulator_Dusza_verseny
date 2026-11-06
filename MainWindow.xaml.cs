@@ -20,9 +20,12 @@ namespace Robotszimulator
     {
         private Beolvas beolvas = new Beolvas();
         private Terkep terkep = new Terkep();
+        private Futtato futtato = new Futtato();
+
         public MainWindow()
         {
             InitializeComponent();
+            futtato.Betoltes(); 
         }
     }
 }

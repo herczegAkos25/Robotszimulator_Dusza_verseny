@@ -15,6 +15,8 @@ namespace Robotszimulator
 
         public void Beolvasas()
         {
+            TerkepLista.Clear();
+            ProgramLista.Clear();
             string bemenetFajl = AppSettings.InputFilePath;
             using (StreamReader sr = new StreamReader(bemenetFajl))
             {
