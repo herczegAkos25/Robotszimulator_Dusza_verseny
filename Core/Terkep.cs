@@ -28,11 +28,11 @@ namespace Robotszimulator.Core
             for (int sor = 0; sor < TerkepSor; sor++)
             {
                 Grid[sor] = new string[TerkepOszlop];
-                string currentLine = TerkepLista[sor];
+                string aktualisSor = TerkepLista[sor];
 
                 for (int oszlop = 0; oszlop < TerkepOszlop; oszlop++)
                 {
-                    char karakter = currentLine[oszlop];
+                    char karakter = aktualisSor[oszlop];
                     Grid[sor][oszlop] = karakter.ToString();
                     Point p = new Point(sor, oszlop);
 

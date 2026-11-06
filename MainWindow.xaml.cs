@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using Robotszimulator.Core;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -18,6 +19,7 @@ namespace Robotszimulator
     public partial class MainWindow : Window
     {
         private Beolvas beolvas = new Beolvas();
+        private Terkep terkep = new Terkep();
         public MainWindow()
         {
             InitializeComponent();
