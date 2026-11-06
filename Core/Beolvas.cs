@@ -1,4 +1,4 @@
-﻿using Robotszimulator.Beolvasas;
+﻿using Robotszimulator.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,23 +14,22 @@ namespace Robotszimulator
 
         public void Beolvasas()
         {
-            string inputFile = AppSettings.InputFilePath;
-            using (StreamReader sr = new StreamReader(inputFile))
+            string bemenetFajl = AppSettings.InputFilePath;
+            using (StreamReader sr = new StreamReader(bemenetFajl))
             {
-                string firstLine = sr.ReadLine();
-                if (firstLine != null)
+                string elsoSor = sr.ReadLine();
+                if (elsoSor != null)
                 {
-                    string[] parts = firstLine.Split(' ');
-                    TerkepSor = int.Parse(parts[0]);
-                    TerkepOszlop = int.Parse(parts[1]);
+                    string[] bontas = elsoSor.Split(' ');
+                    terkep.SetTerkepMeret(int.Parse(bontas[0]), int.Parse(bontas[1]));
                 }
 
-                for (int i = 0; i < TerkepSor; i++)
+                for (int i = 0; i < terkep.TerkepSor; i++)
                 {
-                    string line = sr.ReadLine();
-                    if (line != null)
+                    string sor = sr.ReadLine();
+                    if (sor != null)
                     {
-                        TerkepLista.Add(line);
+                        terkep.TerkepLista.Add(sor);
                     }
                 }
 

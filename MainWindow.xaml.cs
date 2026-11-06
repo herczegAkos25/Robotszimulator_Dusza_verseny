@@ -8,6 +8,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Point = System.Drawing.Point;
 
 namespace Robotszimulator
 {
@@ -20,19 +21,6 @@ namespace Robotszimulator
         public MainWindow()
         {
             InitializeComponent();
-        }
-
-        private void RunButton_Click(object sender, RoutedEventArgs e)
-        {
-            beolvas.Beolvasas();
-            foreach (var item in beolvas.TerkepLista)
-            {
-                InputTextBox.Text += item + "\n";
-            }
-            foreach (var item in beolvas.ProgramLista)
-            {
-                InputTextBox.Text += item + "\n";
-            }
         }
     }
 }
