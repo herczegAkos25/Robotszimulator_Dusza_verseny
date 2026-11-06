@@ -1,4 +1,5 @@
-﻿using Robotszimulator.Core;
+﻿using Robotszimulator.Beolvasas;
+using Robotszimulator.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,15 +22,16 @@ namespace Robotszimulator
                 if (elsoSor != null)
                 {
                     string[] bontas = elsoSor.Split(' ');
-                    terkep.SetTerkepMeret(int.Parse(bontas[0]), int.Parse(bontas[1]));
+                    TerkepSor = int.Parse(bontas[0]);
+                    TerkepOszlop = int.Parse(bontas[1]);
                 }
 
-                for (int i = 0; i < terkep.TerkepSor; i++)
+                for (int i = 0; i < TerkepSor; i++)
                 {
                     string sor = sr.ReadLine();
                     if (sor != null)
                     {
-                        terkep.TerkepLista.Add(sor);
+                        TerkepLista.Add(sor);
                     }
                 }
 
