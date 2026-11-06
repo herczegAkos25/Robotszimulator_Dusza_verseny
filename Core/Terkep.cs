@@ -61,7 +61,6 @@ namespace Robotszimulator.Core
                 }
             }
         }
-
         public bool BelulVan(int oszlop, int sor)
         {
             return sor >= 0 && sor < TerkepSor && oszlop >= 0 && oszlop < TerkepOszlop;
