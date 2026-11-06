@@ -18,7 +18,6 @@ namespace Robotszimulator.Core
         public int Sor { get; private set; }
         public Irany AktualisIrany { get; private set; }
         public int KibanyaszottAranySzam { get; private set; }
-
         private Terkep terkep;
         private bool[,] felfedezettMezok;
         private string[][] aktualisGrid;
@@ -60,7 +59,7 @@ namespace Robotszimulator.Core
             KibanyaszottAranySzam = 0;
         }
 
-        public void turn_by(int negyedfordulatSzam)
+        public void Turn_by(int negyedfordulatSzam)
         {
             int fordulat = negyedfordulatSzam % 4;
             int jelenlegiIranySzam = (int)AktualisIrany;
@@ -68,7 +67,7 @@ namespace Robotszimulator.Core
             AktualisIrany = (Irany)jelenlegiIranySzam;
         }
 
-        public void step_forward(int tavolsag)
+        public void Step_forward(int tavolsag)
         {
             for (int i = 0; i < tavolsag; i++)
             {
@@ -85,12 +84,12 @@ namespace Robotszimulator.Core
 
                 if (kovetkezoSor < 0 || kovetkezoSor >= terkep.TerkepSor || kovetkezoOszlop < 0 || kovetkezoOszlop >= terkep.TerkepOszlop)
                 {
-                    throw new FutasiHiba("E_BEDROCK_HIT");
+                    throw new FutasHiba("E_BEDROCK_HIT");
                 }
 
                 if (aktualisGrid[kovetkezoSor][kovetkezoOszlop] == "#")
                 {
-                    throw new FutasiHiba("E_BEDROCK_HIT");
+                    throw new FutasHiba("E_BEDROCK_HIT");
                 }
 
                 Oszlop = kovetkezoOszlop;
@@ -99,7 +98,7 @@ namespace Robotszimulator.Core
             }
         }
 
-        public void mine_here()
+        public void Mine_here()
         {
             if (aktualisGrid[Sor][Oszlop] == "@")
             {
@@ -108,7 +107,7 @@ namespace Robotszimulator.Core
             }
             else
             {
-                throw new FutasiHiba("E_NO_GOLD");
+                throw new FutasHiba("E_NO_GOLD");
             }
         }
 
@@ -139,7 +138,7 @@ namespace Robotszimulator.Core
                 0 => celCella == ".",
                 1 => celCella == "#",
                 2 => celCella == "@",
-                _ => throw new FutasiHiba("E_BAD_ARG")
+                _ => throw new FutasHiba("E_BAD_ARG")
             };
         }
 
