@@ -16,9 +16,23 @@ namespace Robotszimulator
     /// </summary>
     public partial class MainWindow : Window
     {
+        private Beolvas beolvas = new Beolvas();
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void RunButton_Click(object sender, RoutedEventArgs e)
+        {
+            beolvas.Beolvasas();
+            foreach (var item in beolvas.TerkepLista)
+            {
+                InputTextBox.Text += item + "\n";
+            }
+            foreach (var item in beolvas.ProgramLista)
+            {
+                InputTextBox.Text += item + "\n";
+            }
         }
     }
 }
