@@ -7,7 +7,7 @@ namespace Robotszimulator
 {
     public class Beolvas
     {
-        Terkep terkep = new Terkep();
+        public Terkep Terkep { get; private set; } = new Terkep();
         public List<string> ProgramLista { get; private set; } = new List<string>();
 
         public void Beolvasas()
@@ -19,15 +19,15 @@ namespace Robotszimulator
                 if (elsoSor != null)
                 {
                     string[] bontas = elsoSor.Split(' ');
-                    terkep.SetTerkepMeret(int.Parse(bontas[0]), int.Parse(bontas[1]));
+                    Terkep.SetTerkepMeret(int.Parse(bontas[0]), int.Parse(bontas[1]));
                 }
 
-                for (int i = 0; i < terkep.TerkepSor; i++)
+                for (int i = 0; i < Terkep.TerkepSor; i++)
                 {
                     string sor = sr.ReadLine();
                     if (sor != null)
                     {
-                        terkep.TerkepLista.Add(sor);
+                        Terkep.TerkepLista.Add(sor);
                     }
                 }
 
@@ -40,6 +40,9 @@ namespace Robotszimulator
                     }
                 }
             }
+
+            // Mátrix és pozíciók feltöltése a beolvasott adatokból
+            Terkep.ErtekMeghatarozas();
         }
     }
 }
