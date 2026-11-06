@@ -34,6 +34,16 @@ namespace Robotszimulator
                 AppSettings.OutputFilePath = args[1];
             }
 
+            if (AppSettings.InputFilePath == string.Empty || AppSettings.OutputFilePath == string.Empty)
+            {
+                if (!AppSettings.IsQuietMode)
+                {
+                    MessageBox.Show("Használat: robot.exe [-q] bemeneti_fajl naplo_fajl", "Robot szimulátor");
+                }
+                Shutdown(1);
+                return;
+            }
+
             if (AppSettings.IsQuietMode)
             {
                 CsendesModFuttatas();
@@ -41,24 +51,40 @@ namespace Robotszimulator
             }
             else
             {
-                var mainWindow = new MainWindow();
-                mainWindow.Show();
+                try
+                {
+                    var mainWindow = new MainWindow();
+                    mainWindow.Show();
+                }
+                catch (Exception hiba)
+                {
+                    MessageBox.Show(hiba.Message, "Robot szimulátor");
+                    Shutdown(1);
+                }
             }
         }
 
         private void CsendesModFuttatas()
         {
+            var futtato = new Futtato();
+
             try
             {
-                var f = new Futtato();
-                f.Betoltes();
-                f.Inditas();
-                f.Interpreter.Futtatas();
-                File.WriteAllLines(AppSettings.OutputFilePath, f.Interpreter.Naplo);
+                futtato.Betoltes();
+                futtato.Inditas();
+                futtato.Interpreter.Futtatas();
+                futtato.NaploKiiras();
             }
             catch (Exception)
             {
-                File.WriteAllLines(AppSettings.OutputFilePath, new[] { "EOR" });
+                if (futtato.Interpreter != null)
+                {
+                    futtato.NaploKiiras();
+                }
+                else
+                {
+                    File.WriteAllLines(AppSettings.OutputFilePath, new[] { "EOR" });
+                }
             }
         }
     }

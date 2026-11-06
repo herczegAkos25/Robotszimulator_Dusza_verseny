@@ -2,6 +2,7 @@
 using Robotszimulator.Core;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace Robotszimulator
 {
@@ -12,6 +13,10 @@ namespace Robotszimulator
         private Robot robot;
 
         public List<string> Naplo { get; private set; } = new List<string>();
+        public List<string> Konzol { get; private set; } = new List<string>();
+        public IReadOnlyDictionary<string, object> Valtozok => valtozok;
+        public string? HibaKod { get; private set; }
+        public int HibaSor { get; private set; }
 
         private int utasitasSzamlalo = 0;
         private bool leallitva = false;
@@ -25,22 +30,35 @@ namespace Robotszimulator
 
         public void Futtatas()
         {
-            BlokkVegrehajtas(0, program.Count);
-
-            // Ha nem az 1000 soros limit miatt állt meg, a végére kerül az EOR
-            if (!limitElerve)
+            try
             {
-                Naplo.Add("EOR");
+                BlokkVegrehajtas(0, program.Count);
+            }
+            finally
+            {
+                // Ha nem az 1000 soros limit miatt állt meg, a végére kerül az EOR
+                if (!limitElerve)
+                {
+                    Naplo.Add("EOR");
+                }
             }
         }
 
+        // --- Hiba rögzítése a felületnek ---
+        private void HibaRogzites(int sorIndex, string kod)
+        {
+            HibaKod = kod;
+            HibaSor = sorIndex + 1;
+            leallitva = true;
+        }
+
         // --- Korlát ellenőrzése (1000 sor) ---
-        private bool KeresesElott()
+        private bool KeresesElott(int sorIndex)
         {
             if (utasitasSzamlalo >= 1000)
             {
                 Naplo.Add("INSTRUCTION_COUNT_LIMIT_EXCEEDED");
-                leallitva = true;
+                HibaRogzites(sorIndex, "INSTRUCTION_COUNT_LIMIT_EXCEEDED");
                 limitElerve = true;
                 return false;
             }
@@ -91,7 +109,7 @@ namespace Robotszimulator
                     }
                     else if (!leallitva && vanElse)
                     {
-                        if (KeresesElott())
+                        if (KeresesElott(thenEnd))
                         {
                             Naplo.Add((thenEnd + 1).ToString());
                             BlokkVegrehajtas(thenEnd + 1, elseEnd);
@@ -110,7 +128,7 @@ namespace Robotszimulator
         // --- Feltétel kiértékelése ---
         private bool FeltetelKiertekeles(int i)
         {
-            if (!KeresesElott()) return false;
+            if (!KeresesElott(i)) return false;
             string sorBejegyzes = (i + 1).ToString();
             bool eredmeny = false;
 
@@ -123,7 +141,7 @@ namespace Robotszimulator
             catch (FutasHiba e)
             {
                 sorBejegyzes += " " + e.Kod;
-                leallitva = true;
+                HibaRogzites(i, e.Kod);
             }
 
             Naplo.Add(sorBejegyzes);
@@ -133,7 +151,7 @@ namespace Robotszimulator
         // --- Utasítások végrehajtása ---
         private void EgyszeruUtasitasVegrehajtas(int i)
         {
-            if (!KeresesElott()) return;
+            if (!KeresesElott(i)) return;
 
             string[] t = program[i].szavak;
             string sorBejegyzes = (i + 1).ToString();
@@ -144,7 +162,9 @@ namespace Robotszimulator
                 {
                     case "print":
                         sorBejegyzes += " print";
-                        sorBejegyzes += " " + Megjelenit(Olvas(t[1]));
+                        string kiirandoErtek = Megjelenit(Olvas(t[1]));
+                        sorBejegyzes += " " + kiirandoErtek;
+                        Konzol.Add(kiirandoErtek);
                         break;
 
                     case "turn":
@@ -208,7 +228,7 @@ namespace Robotszimulator
             catch (FutasHiba e)
             {
                 sorBejegyzes += " " + e.Kod;
-                leallitva = true;
+                HibaRogzites(i, e.Kod);
             }
 
             Naplo.Add(sorBejegyzes);
@@ -253,7 +273,7 @@ namespace Robotszimulator
         {
             if (token == "true") return true;
             if (token == "false") return false;
-            if (char.IsDigit(token[0])) return int.Parse(token);
+            if (char.IsDigit(token[0])) return int.Parse(token, CultureInfo.InvariantCulture);
             if (valtozok.ContainsKey(token)) return valtozok[token];
 
             throw new FutasHiba("E_UNINITIALIZED");
@@ -263,7 +283,8 @@ namespace Robotszimulator
         private static string Megjelenit(object ertek)
         {
             if (ertek is bool b) return b ? "true" : "false";
-            return ertek.ToString();
+            if (ertek is int szam) return szam.ToString(CultureInfo.InvariantCulture);
+            return ertek.ToString() ?? string.Empty;
         }
     }
 }
