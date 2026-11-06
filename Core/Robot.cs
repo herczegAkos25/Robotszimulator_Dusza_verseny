@@ -19,6 +19,7 @@ namespace Robotszimulator.Core
         public int KibanyaszottAranySzam { get; private set; }
         private Terkep terkep;
         private string[][] aktualisGrid;
+        public bool[,] Felfedezett => terkep.Felfedezett;
 
         public Robot(Terkep terkep)
         {

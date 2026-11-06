@@ -9,6 +9,7 @@ namespace Robotszimulator.Core
         public Terkep Terkep { get; private set; }
         public Robot Robot { get; private set; }
         public Interpreter Interpreter { get; private set; }
+        public bool Nyomkovetes { get; set; }
 
         public void Betoltes()
         {
@@ -27,7 +28,7 @@ namespace Robotszimulator.Core
             Terkep.TerkepLista = Beolvas.TerkepLista;
             Terkep.ErtekMeghatarozas();
             Robot = new Robot(Terkep);
-            Interpreter = new Interpreter(program, Robot);
+            Interpreter = new Interpreter(program, Robot) { Nyomkovetes = Nyomkovetes };
         }
 
         public void NaploKiiras()
