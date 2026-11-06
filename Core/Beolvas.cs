@@ -23,7 +23,7 @@ namespace Robotszimulator
                 string elsoSor = sr.ReadLine();
                 if (elsoSor != null)
                 {
-                    string[] bontas = elsoSor.Split(' ');
+                    string[] bontas = elsoSor.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                     TerkepSor = int.Parse(bontas[0]);
                     TerkepOszlop = int.Parse(bontas[1]);
                 }
@@ -40,13 +40,13 @@ namespace Robotszimulator
                 while (!sr.EndOfStream)
                 {
                     string line = sr.ReadLine();
-                    if (!string.IsNullOrEmpty(line))
+                    if (!string.IsNullOrWhiteSpace(line))
                     {
                         ProgramLista.Add(Sor.Parse(line));
                     }
                 }
             }
-            
+
         }
     }
 }

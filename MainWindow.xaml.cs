@@ -8,9 +8,7 @@ namespace Robotszimulator
 {
     public partial class MainWindow : Window
     {
-        private Beolvas beolvas = new Beolvas();
         private const double CellaMeret = 40;
-        private Terkep terkep = new Terkep();
         private Futtato futtato = new Futtato();
 
         public MainWindow()

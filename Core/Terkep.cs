@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 
 namespace Robotszimulator.Core
 {
@@ -9,10 +8,6 @@ namespace Robotszimulator.Core
         public List<string> TerkepLista { get; set; } = new List<string>();
         public int TerkepSor { get; private set; }
         public int TerkepOszlop { get; private set; }
-
-        public List<Point> Akadalyok { get; } = new List<Point>();
-        public List<Point> Arany { get; } = new List<Point>();
-        public Point Robothelye { get; set; }
 
         public string[][] Grid { get; private set; }
         public bool[,] Felfedezett { get; private set; }
@@ -25,8 +20,6 @@ namespace Robotszimulator.Core
 
         public void ErtekMeghatarozas()
         {
-            Akadalyok.Clear();
-            Arany.Clear();
             Grid = new string[TerkepSor][];
             Felfedezett = new bool[TerkepSor, TerkepOszlop];
 
@@ -37,33 +30,22 @@ namespace Robotszimulator.Core
 
                 for (int oszlop = 0; oszlop < TerkepOszlop; oszlop++)
                 {
-                    char karakter = aktualisSor[oszlop];
-                    Grid[sor][oszlop] = karakter.ToString();
-
-                    Point p = new Point(oszlop, sor);
-
-                    switch (karakter)
-                    {
-                        case '#':
-                            Akadalyok.Add(p);
-                            break;
-                        case '@':
-                            Arany.Add(p);
-                            break;
-                        case '<':
-                        case '>':
-                        case '^':
-                        case 'v':
-                            Robothelye = p;
-                            Felfedezett[sor, oszlop] = true;
-                            break;
-                    }
+                    Grid[sor][oszlop] = aktualisSor[oszlop].ToString();
                 }
             }
         }
+
         public bool BelulVan(int oszlop, int sor)
         {
             return sor >= 0 && sor < TerkepSor && oszlop >= 0 && oszlop < TerkepOszlop;
+        }
+
+        public void MezoFelfedezve(int oszlop, int sor)
+        {
+            if (BelulVan(oszlop, sor))
+            {
+                Felfedezett[sor, oszlop] = true;
+            }
         }
     }
 }
