@@ -1,5 +1,6 @@
 ﻿using Robotszimulator.Beolvasas;
 using Robotszimulator.Core;
+using Robotszimulator.Core.Robotszimulator.Core;
 using System.Configuration;
 using System.Data;
 using System.IO;
@@ -49,16 +50,26 @@ namespace Robotszimulator
         private void CsendesModFuttatas()
         {
             // 1. Beolvasás elindítása
-            Beolvas beolvas = new Beolvas();
-            beolvas.Beolvasas(); // Az AppSettings.InputFilePath-et használja
+            // 1. Beolvasás elindítása
+            Beolvas b = new Beolvas();
+            b.Beolvasas(); // Beolvassa az AppSettings.InputFilePath fájlt
 
-            // 2. Robot és Értelmező előkészítése
-            Robot robot = new Robot(beolvas.TerkepLista, beolvas.TerkepSor, beolvas.TerkepOszlop);
-            Interpreter interpreter = new Interpreter(beolvas.ProgramLista, robot);
+            // 2. A Terkep osztály feltöltése a beolvasott adatokkal
+            Terkep terkep = new Terkep();
+            terkep.SetTerkepMeret(b.TerkepSor, b.TerkepOszlop);
+            terkep.TerkepLista = b.TerkepLista;
+            terkep.ErtekMeghatarozas();
 
-            // 3. Futtatás és a napló kiírása a kimeneti fájlba
+            // 3. A Robot példányosítása a felkészített térképpel
+            Robot robot = new Robot(terkep);
+
+            // 4. Az Interpreter (értelmező) példányosítása a beolvasott programkóddal és a robottal
+            Interpreter interpreter = new Interpreter(b.ProgramLista, robot);
+
+            // 5. A MineScript program lefuttatása
             interpreter.Futtatas();
 
+            // 6. A keletkezett napló kiírása a kimeneti fájlba
             File.WriteAllLines(AppSettings.OutputFilePath, interpreter.Naplo);
         }
     }
