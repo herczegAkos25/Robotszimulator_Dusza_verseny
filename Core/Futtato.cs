@@ -31,6 +31,37 @@ namespace Robotszimulator.Core
             Interpreter = new Interpreter(program, Robot) { Nyomkovetes = Nyomkovetes };
         }
 
+        public void KezziFordulas(int negyedfordulatSzam)
+        {
+            Robot.Turn_by(negyedfordulatSzam);
+        }
+
+        public string? KezziLepes(int tavolsag)
+        {
+            try
+            {
+                Robot.Step_forward(tavolsag);
+                return null;
+            }
+            catch (FutasHiba hiba)
+            {
+                return hiba.Kod;
+            }
+        }
+
+        public string? KezziBanyaszat()
+        {
+            try
+            {
+                Robot.Mine_here();
+                return null;
+            }
+            catch (FutasHiba hiba)
+            {
+                return hiba.Kod;
+            }
+        }
+
         public void NaploKiiras()
         {
             File.WriteAllLines(AppSettings.OutputFilePath, Interpreter.Naplo);
