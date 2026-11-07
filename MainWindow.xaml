@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Robotszimulator"
         mc:Ignorable="d"
-        Title="Robot Szimulátor" Height="800" Width="1000" WindowState="Maximized" Background="Black">
+        Title="Robot Szimulátor" Height="800" Width="1000" WindowState="Maximized" Background="Black"
+        Icon="Logo.png">
 
     <Window.Resources>
         <!-- Sötét kártya stílus -->
