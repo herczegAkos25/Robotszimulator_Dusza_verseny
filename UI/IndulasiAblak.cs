@@ -101,14 +101,14 @@ namespace Robotszimulator.UI
             szoveg.AppendLine(Logo.Replace("\r", ""));
             Sor("", 14);
 
-            Folyamat("Downloading MineScript interpreter", "1.2 MB", 22);
-            Folyamat("Downloading robot simulator", "3.4 MB", 22);
-            Folyamat("Downloading block editor assets", "0.8 MB", 22);
-            Folyamat("Downloading WPF runtime components", "12.7 MB", 26);
-            Folyamat("Downloading UI theme and icons", "2.1 MB", 22);
+            Folyamat("Downloading MineScript interpreter", "247,5 KB", 22);
+            Folyamat("Downloading Robot simulator", "214,5 KB", 22);
+            Folyamat("Downloading Block editor assets", "47 KB", 22);
+            Folyamat("Downloading WPF runtime components", "6,4 MB", 26);
+            Folyamat("Downloading UI theme and icons", "7 KB", 22);
             Folyamat("Installing map renderer", "", 18);
             Folyamat("Installing tracer", "", 18);
-            Folyamat("Installing block editor", "", 18);
+            Folyamat("Installing Block editor", "", 18);
             Folyamat("Installing UI controls", "", 18);
             Folyamat("Installing sensor panel", "", 18);
             Folyamat("Loading UI stylesheets", "", 16);
