@@ -6,9 +6,27 @@
         xmlns:local="clr-namespace:Robotszimulator"
         mc:Ignorable="d"
         Title="Robot Szimulátor" Height="800" Width="1000" WindowState="Maximized" Background="Black" Foreground="White"
-        Icon="Logo.png" PreviewKeyDown="Ablak_PreviewKeyDown">
+        Icon="Logo.png" PreviewKeyDown="Ablak_PreviewKeyDown" SourceInitialized="Ablak_SourceInitialized">
 
     <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="LogikaiLathatosag"/>
+        <DataTemplate x:Key="ReszSablon">
+            <Grid Margin="0,0,5,0" VerticalAlignment="Center">
+                <TextBlock x:Name="Szo" Text="{Binding Szoveg}" Foreground="#1E1E1E" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                <Border x:Name="Mezo" Visibility="Collapsed" Background="White" BorderBrush="#BFC5CE" BorderThickness="1" CornerRadius="4" Padding="7,1">
+                    <TextBlock Text="{Binding Szoveg}" Foreground="#3B4048" FontSize="12"/>
+                </Border>
+            </Grid>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding Mezo}" Value="True">
+                    <Setter TargetName="Szo" Property="Visibility" Value="Collapsed"/>
+                    <Setter TargetName="Mezo" Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+        <ItemsPanelTemplate x:Key="VizszintesPanel">
+            <StackPanel Orientation="Horizontal"/>
+        </ItemsPanelTemplate>
         <!-- Sötét kártya stílus -->
         <Style x:Key="DarkCard" TargetType="Border">
             <Setter Property="Background" Value="#21252B"/>
@@ -17,36 +35,6 @@
             <Setter Property="Margin" Value="6"/>
             <Setter Property="BorderBrush" Value="#282C34"/>
             <Setter Property="BorderThickness" Value="1"/>
-        </Style>
-
-        <!-- Sötét gomb stílus -->
-        <Style x:Key="DarkButton" TargetType="Button">
-            <Setter Property="Background" Value="#282C34"/>
-            <Setter Property="Foreground" Value="#E6EDF3"/>
-            <Setter Property="Padding" Value="12,6"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="5" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#3A3F4B"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- Kiemelt Futtatás gomb -->
-        <Style x:Key="RunButton" TargetType="Button" BasedOn="{StaticResource DarkButton}">
-            <Setter Property="Background" Value="#D19A66"/>
-            <Setter Property="Foreground" Value="#1E1E1E"/>
-            <Setter Property="FontWeight" Value="Bold"/>
         </Style>
 
         <Style TargetType="GridViewColumnHeader">
@@ -319,19 +307,21 @@
                     </Grid>
 
                     <!-- Blokk eszközök -->
-                    <StackPanel x:Name="pnlBlokkEszkozok" DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
-                        <ComboBox x:Name="cbHely" Width="150" SelectedIndex="0" VerticalContentAlignment="Center" Margin="0,0,8,0">
+                    <WrapPanel x:Name="pnlBlokkEszkozok" DockPanel.Dock="Top" Margin="0,0,0,4">
+                        <ComboBox x:Name="cbHely" Width="150" SelectedIndex="0" VerticalContentAlignment="Center" Margin="0,0,8,4">
                             <ComboBoxItem Content="A kijelölt után"/>
                             <ComboBoxItem Content="A kijelölt belsejébe"/>
                             <ComboBoxItem Content="A kijelölt else ágába"/>
                             <ComboBoxItem Content="A kijelölt elé"/>
                         </ComboBox>
-                        <Button Content="+ Blokk" Style="{StaticResource RunButton}" Padding="10,4" Margin="0,0,8,0" Click="BtnBlokkHozzaadas_Click"/>
-                        <Button Content="▲" ToolTip="Fel" Style="{StaticResource DarkButton}" Padding="9,4" Margin="0,0,4,0" Click="BtnBlokkFel_Click"/>
-                        <Button Content="▼" ToolTip="Le" Style="{StaticResource DarkButton}" Padding="9,4" Margin="0,0,4,0" Click="BtnBlokkLe_Click"/>
-                        <Button Content="✎" ToolTip="Szerkesztés" Style="{StaticResource DarkButton}" Padding="9,4" Margin="0,0,4,0" Click="BtnBlokkSzerkesztes_Click"/>
-                        <Button Content="🗑" ToolTip="Törlés" Style="{StaticResource DarkButton}" Padding="9,4" Click="BtnBlokkTorles_Click"/>
-                    </StackPanel>
+                        <Button Content="+ Blokk" Style="{StaticResource RunButton}" Padding="10,4" Margin="0,0,8,4" Click="BtnBlokkHozzaadas_Click"/>
+                        <Button Content="▲" ToolTip="Fel" Style="{StaticResource DarkButton}" Padding="9,4" Margin="0,0,4,4" Click="BtnBlokkFel_Click"/>
+                        <Button Content="▼" ToolTip="Le" Style="{StaticResource DarkButton}" Padding="9,4" Margin="0,0,4,4" Click="BtnBlokkLe_Click"/>
+                        <Button Content="✎" ToolTip="Szerkesztés" Style="{StaticResource DarkButton}" Padding="9,4" Margin="0,0,4,4" Click="BtnBlokkSzerkesztes_Click"/>
+                        <Button Content="🗑" ToolTip="Törlés" Style="{StaticResource DarkButton}" Padding="9,4" Margin="0,0,4,4" Click="BtnBlokkTorles_Click"/>
+                        <Button Content="→" ToolTip="Be a szomszédos while/if blokkba (előző blokk végére, vagy a következő elejére)" Style="{StaticResource DarkButton}" Padding="9,4" Margin="0,0,4,4" Click="BtnBlokkBe_Click"/>
+                        <Button Content="←" ToolTip="Ki a szülő while/if blokkból (mögé)" Style="{StaticResource DarkButton}" Padding="9,4" Margin="0,0,4,4" Click="BtnBlokkKi_Click"/>
+                    </WrapPanel>
 
                     <!-- Blokkok listája és szöveges nézet -->
                     <Grid>
@@ -363,7 +353,12 @@
                                         <TextBlock Text="{Binding Sorszam}" Width="26" Foreground="#5C6370" VerticalAlignment="Center"/>
                                         <Border Width="{Binding BalMargo}"/>
                                         <Border Background="{Binding Szin}" BorderBrush="{Binding Keret}" BorderThickness="2" CornerRadius="4" Padding="8,4">
-                                            <TextBlock Text="{Binding Szoveg}" Foreground="#1E1E1E" FontWeight="SemiBold"/>
+                                            <StackPanel Orientation="Horizontal">
+                                                <ItemsControl ItemsSource="{Binding Reszek}" ItemTemplate="{StaticResource ReszSablon}" ItemsPanel="{StaticResource VizszintesPanel}" VerticalAlignment="Center"/>
+                                                <Border Background="#FFE8B3" BorderBrush="#E0A93B" BorderThickness="1" CornerRadius="5" Padding="6,1,1,1" Margin="0,0,0,0" Visibility="{Binding ErtekLathato, Converter={StaticResource LogikaiLathatosag}}">
+                                                    <ItemsControl ItemsSource="{Binding ErtekReszek}" ItemTemplate="{StaticResource ReszSablon}" ItemsPanel="{StaticResource VizszintesPanel}" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </StackPanel>
                                         </Border>
                                     </StackPanel>
                                 </DataTemplate>

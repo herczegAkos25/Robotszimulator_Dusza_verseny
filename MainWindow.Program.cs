@@ -3,6 +3,7 @@ using Robotszimulator.Core;
 using Robotszimulator.UI;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -240,6 +241,11 @@ namespace Robotszimulator
             if (ablak.NaploMentes) NaploMentese();
         }
 
+        private void Ablak_SourceInitialized(object? sender, EventArgs e)
+        {
+            SotetCimsor.Beallit(this);
+        }
+
         private void Ablak_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.S && Keyboard.Modifiers == ModifierKeys.Control)
@@ -304,22 +310,74 @@ namespace Robotszimulator
             if (!szovegBeallitas) MentettsegBeallitasa(true);
         }
 
-        private void BtnBlokkHozzaadas_Click(object sender, RoutedEventArgs e)
+        private static SolidColorBrush Ecset(string hex)
         {
-            var menu = new ContextMenu();
-            foreach (BlokkTipus tipus in Enum.GetValues<BlokkTipus>())
-            {
-                BlokkTipus kivalasztott = tipus;
-                var elem = new MenuItem { Header = BlokkAblak.Nev(tipus) };
-                elem.Click += (kuldo, esemeny) => UjBlokkHozzaadasa(kivalasztott);
-                menu.Items.Add(elem);
-            }
-
-            menu.PlacementTarget = (UIElement)sender;
-            menu.IsOpen = true;
+            return new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex));
         }
 
-        private void UjBlokkHozzaadasa(BlokkTipus tipus)
+        private void BtnBlokkHozzaadas_Click(object sender, RoutedEventArgs e)
+        {
+            var lista = new StackPanel();
+            var ablak = new Popup
+            {
+                PlacementTarget = (UIElement)sender,
+                Placement = PlacementMode.Bottom,
+                StaysOpen = false,
+                AllowsTransparency = true
+            };
+
+            void Elem(string nev, string leiras, string szin, Action muvelet)
+            {
+                var pont = new Border { Width = 10, Height = 22, CornerRadius = new CornerRadius(3), Background = Ecset(szin), Margin = new Thickness(0, 0, 10, 0) };
+                var cim = new TextBlock { Text = nev, Foreground = Ecset("#E6EDF3"), VerticalAlignment = VerticalAlignment.Center };
+                var megjegyzes = new TextBlock { Text = leiras, Foreground = Ecset("#7D8594"), FontSize = 11, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(14, 0, 0, 0) };
+                DockPanel.SetDock(megjegyzes, Dock.Right);
+
+                var sor = new DockPanel { LastChildFill = true };
+                sor.Children.Add(megjegyzes);
+                sor.Children.Add(pont);
+                sor.Children.Add(cim);
+
+                var elem = new Border { Child = sor, Padding = new Thickness(8, 6, 8, 6), CornerRadius = new CornerRadius(6), Background = Brushes.Transparent, Cursor = Cursors.Hand };
+                elem.MouseEnter += (kuldo, esemeny) => elem.Background = Ecset("#323843");
+                elem.MouseLeave += (kuldo, esemeny) => elem.Background = Brushes.Transparent;
+                elem.MouseLeftButtonUp += (kuldo, esemeny) =>
+                {
+                    ablak.IsOpen = false;
+                    muvelet();
+                };
+                lista.Children.Add(elem);
+            }
+
+            void Elvalaszto()
+            {
+                lista.Children.Add(new Border { Height = 1, Background = Ecset("#3A3F4B"), Margin = new Thickness(4, 5, 4, 5) });
+            }
+
+            Elem("set", "változó beállítása", "#61AFEF", () => UjBlokkHozzaadasa(BlokkTipus.Set));
+            Elem("step forward", "lépés előre", "#E5C07B", () => UjBlokkHozzaadasa(BlokkTipus.StepForward));
+            Elem("turn by", "fordulás balra", "#E5C07B", () => UjBlokkHozzaadasa(BlokkTipus.TurnBy));
+            Elem("mine here", "bányászás", "#E5C07B", () => UjBlokkHozzaadasa(BlokkTipus.MineHere));
+            Elem("print", "kiírás", "#C678DD", () => UjBlokkHozzaadasa(BlokkTipus.Print));
+            Elvalaszto();
+            Elem("if", "feltétel", "#98C379", () => UjBlokkHozzaadasa(BlokkTipus.If));
+            Elem("if-else", "feltétel, két ággal", "#98C379", () => UjBlokkHozzaadasa(BlokkTipus.If, true));
+            Elem("while", "ciklus", "#98C379", () => UjBlokkHozzaadasa(BlokkTipus.While));
+
+            ablak.Child = new Border
+            {
+                Child = lista,
+                Width = 270,
+                Padding = new Thickness(6),
+                CornerRadius = new CornerRadius(8),
+                Background = Ecset("#262A32"),
+                BorderBrush = Ecset("#3A3F4B"),
+                BorderThickness = new Thickness(1)
+            };
+            ablak.IsOpen = true;
+        }
+
+        private void UjBlokkHozzaadasa(BlokkTipus tipus, bool ifElse = false)
         {
             Blokk? uj;
 
@@ -335,6 +393,11 @@ namespace Robotszimulator
             }
 
             if (uj == null) return;
+
+            if (ifElse)
+            {
+                uj.VanElse = true;
+            }
 
             try
             {
@@ -422,6 +485,48 @@ namespace Robotszimulator
             {
                 MentettsegBeallitasa(true);
                 BlokkokFrissitese(sor.Blokk);
+            }
+        }
+
+        private void BtnBlokkBe_Click(object sender, RoutedEventArgs e)
+        {
+            BlokkSor? sor = KijeloltSor();
+            if (sor == null || sor.ElseSor)
+            {
+                AllapotsorBeallitas("Előbb jelölj ki egy (nem else) blokkot", true);
+                return;
+            }
+
+            if (blokkProgram.BeleMozgat(sor.Blokk))
+            {
+                MentettsegBeallitasa(true);
+                BlokkokFrissitese(sor.Blokk);
+                AllapotsorBeallitas("Blokk áthelyezve a szomszédos blokkba", false);
+            }
+            else
+            {
+                AllapotsorBeallitas("Nincs szomszédos while/if blokk, vagy nem fér bele (legfeljebb 3 szint)", true);
+            }
+        }
+
+        private void BtnBlokkKi_Click(object sender, RoutedEventArgs e)
+        {
+            BlokkSor? sor = KijeloltSor();
+            if (sor == null || sor.ElseSor)
+            {
+                AllapotsorBeallitas("Előbb jelölj ki egy (nem else) blokkot", true);
+                return;
+            }
+
+            if (blokkProgram.KiMozgat(sor.Blokk))
+            {
+                MentettsegBeallitasa(true);
+                BlokkokFrissitese(sor.Blokk);
+                AllapotsorBeallitas("Blokk kivéve a szülő blokkból", false);
+            }
+            else
+            {
+                AllapotsorBeallitas("Ez a blokk nincs while/if blokkban", true);
             }
         }
 

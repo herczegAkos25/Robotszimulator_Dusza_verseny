@@ -182,6 +182,85 @@ namespace Robotszimulator.Core
             return true;
         }
 
+        public bool BeleMozgat(Blokk blokk)
+        {
+            List<Blokk> lista = Testverek(blokk);
+            int index = lista.IndexOf(blokk);
+            if (index < 0) return false;
+
+            Blokk? cel = null;
+            int beszurasIndex = 0;
+            if (index > 0 && lista[index - 1].Vezerlo)
+            {
+                cel = lista[index - 1];
+                beszurasIndex = cel.Gyerekek.Count;
+            }
+            else if (index + 1 < lista.Count && lista[index + 1].Vezerlo)
+            {
+                cel = lista[index + 1];
+            }
+            if (cel == null) return false;
+
+            Blokk? szulo = blokk.Szulo;
+            bool elseAgban = blokk.ElseAgban;
+            Kivesz(blokk);
+
+            if (!cel.BeszurhatoBelsejebe(blokk))
+            {
+                Visszarak(blokk, szulo, elseAgban, index);
+                return false;
+            }
+
+            cel.Hozzaad(blokk, false, beszurasIndex);
+            return true;
+        }
+
+        public bool KiMozgat(Blokk blokk)
+        {
+            Blokk? szulo = blokk.Szulo;
+            if (szulo == null) return false;
+
+            int szuloIndex = Testverek(szulo).IndexOf(szulo);
+            Blokk? nagyszulo = szulo.Szulo;
+            bool szuloElseAgban = szulo.ElseAgban;
+
+            szulo.Eltavolit(blokk);
+
+            if (nagyszulo == null)
+            {
+                Gyokerek.Insert(szuloIndex + 1, blokk);
+            }
+            else
+            {
+                nagyszulo.Hozzaad(blokk, szuloElseAgban, szuloIndex + 1);
+            }
+            return true;
+        }
+
+        private void Kivesz(Blokk blokk)
+        {
+            if (blokk.Szulo == null)
+            {
+                Gyokerek.Remove(blokk);
+            }
+            else
+            {
+                blokk.Szulo.Eltavolit(blokk);
+            }
+        }
+
+        private void Visszarak(Blokk blokk, Blokk? szulo, bool elseAgban, int index)
+        {
+            if (szulo == null)
+            {
+                Gyokerek.Insert(index, blokk);
+            }
+            else
+            {
+                szulo.Hozzaad(blokk, elseAgban, index);
+            }
+        }
+
         public string? Hiba()
         {
             foreach (BlokkSor sor in Lapit())

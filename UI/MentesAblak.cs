@@ -15,6 +15,7 @@ namespace Robotszimulator.UI
         public MentesAblak(bool vanNaplo)
         {
             Title = "Mentés";
+            SotetCimsor.Alkalmaz(this);
             SizeToContent = SizeToContent.WidthAndHeight;
             ResizeMode = ResizeMode.NoResize;
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
