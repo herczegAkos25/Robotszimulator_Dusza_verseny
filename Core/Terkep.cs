@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Robotszimulator.Core
 {
@@ -33,6 +34,12 @@ namespace Robotszimulator.Core
                     Grid[sor][oszlop] = aktualisSor[oszlop].ToString();
                 }
             }
+        }
+
+        public void Beallit(string[][] grid, bool[,] felfedezett)
+        {
+            Grid = grid.Select(sor => (string[])sor.Clone()).ToArray();
+            Felfedezett = (bool[,])felfedezett.Clone();
         }
 
         public bool BelulVan(int oszlop, int sor)

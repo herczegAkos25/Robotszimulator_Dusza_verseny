@@ -33,6 +33,12 @@ namespace Robotszimulator.Core
             Interpreter = new Interpreter(program, Robot) { Nyomkovetes = Nyomkovetes };
         }
 
+        public void KezziAllapotbol(Allapot allapot)
+        {
+            Inditas();
+            Robot.AllapotBeallit(allapot.Grid, allapot.Felfedezett, allapot.RobotSor, allapot.RobotOszlop, allapot.Irany, allapot.Arany);
+        }
+
         public void KezziFordulas(int negyedfordulatSzam)
         {
             Robot.Turn_by(negyedfordulatSzam);

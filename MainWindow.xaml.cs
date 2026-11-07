@@ -111,6 +111,7 @@ namespace Robotszimulator
             var allapot = allapotok[index];
 
             Megjelenites(allapot, interpreter);
+            NaploFajlba(interpreter, utolso ? interpreter.Naplo.Count : allapot.NaploHossz);
             SorKiemeles(allapot.Sor, allapot.HibaKod != null);
             if (utolso)
             {
@@ -365,7 +366,14 @@ namespace Robotszimulator
             try
             {
                 futtato.Nyomkovetes = false;
-                futtato.Inditas();
+                if (nyomkovetesAllapotok != null && nyomkovetesIndex >= 0 && nyomkovetesIndex < nyomkovetesAllapotok.Count)
+                {
+                    futtato.KezziAllapotbol(nyomkovetesAllapotok[nyomkovetesIndex]);
+                }
+                else
+                {
+                    futtato.Inditas();
+                }
             }
             catch (Exception ex)
             {
@@ -420,27 +428,7 @@ namespace Robotszimulator
 
         private void BtnMentes_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                SaveFileDialog sfd = new SaveFileDialog();
-                sfd.Title = "Kérem válassza ki a mentési helyet!";
-                sfd.Filter = "Szöveges fájl (*.txt)|*.txt|Minden fájl (*.*)|*.*";
-                sfd.FileName = AppSettings.OutputFilePath;
-                sfd.ShowDialog();
-                if (sfd.FileName != "")
-                {
-                    StreamWriter sw = new StreamWriter(sfd.FileName);
-                    for (int i = 0; i < Interpreter.Naplo.Count; i++)
-                    {
-                        File.WriteAllLines(AppSettings.OutputFilePath, Interpreter.Naplo);
-                    }
-                    sw.Close();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Hiba a napló mentésekor: " + ex.Message, "Hiba", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            MentesValasztassal();
         }
 
         private void BtnBetoltes_Click(object sender, RoutedEventArgs e)

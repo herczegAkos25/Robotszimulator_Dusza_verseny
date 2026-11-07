@@ -58,6 +58,16 @@ namespace Robotszimulator.Core
             KibanyaszottAranySzam = 0;
         }
 
+        public void AllapotBeallit(string[][] grid, bool[,] felfedezett, int sor, int oszlop, Irany irany, int arany)
+        {
+            terkep.Beallit(grid, felfedezett);
+            aktualisGrid = terkep.Grid;
+            Sor = sor;
+            Oszlop = oszlop;
+            AktualisIrany = irany;
+            KibanyaszottAranySzam = arany;
+        }
+
         public void Turn_by(int negyedfordulatSzam)
         {
             int fordulat = negyedfordulatSzam % 4;

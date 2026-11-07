@@ -16,6 +16,8 @@ namespace Robotszimulator
         private BlokkProgram blokkProgram = new BlokkProgram();
         private bool blokkNezet = true;
         private bool betoltve = false;
+        private bool nemMentett = false;
+        private bool szovegBeallitas = false;
 
         private BlokkSor? KijeloltSor()
         {
@@ -80,7 +82,7 @@ namespace Robotszimulator
             blokkNezet = true;
             lbBlokkok.Visibility = Visibility.Visible;
             pnlBlokkEszkozok.Visibility = Visibility.Visible;
-            tbProgramSzoveg.Visibility = Visibility.Collapsed;
+            gdSzovegNezet.Visibility = Visibility.Collapsed;
             btnBlokkNezet.Background = AktivGomb;
             btnSzovegNezet.Background = InaktivGomb;
         }
@@ -90,14 +92,167 @@ namespace Robotszimulator
             blokkNezet = false;
             lbBlokkok.Visibility = Visibility.Collapsed;
             pnlBlokkEszkozok.Visibility = Visibility.Collapsed;
-            tbProgramSzoveg.Visibility = Visibility.Visible;
+            gdSzovegNezet.Visibility = Visibility.Visible;
             btnBlokkNezet.Background = InaktivGomb;
             btnSzovegNezet.Background = AktivGomb;
         }
 
+        private void MentettsegBeallitasa(bool valtozott)
+        {
+            nemMentett = valtozott;
+            tbNemMentett.Visibility = valtozott ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void SzovegBeallitasa(string szoveg)
+        {
+            szovegBeallitas = true;
+            tbProgramSzoveg.Text = szoveg;
+            szovegBeallitas = false;
+        }
+
+        private void SorszamokFrissitese()
+        {
+            string[] sorok = tbProgramSzoveg.Text.Split('\n');
+            var kimenet = new System.Text.StringBuilder();
+            int szamlalo = 0;
+
+            for (int i = 0; i < sorok.Length; i++)
+            {
+                if (!string.IsNullOrWhiteSpace(sorok[i]))
+                {
+                    szamlalo++;
+                    kimenet.Append(szamlalo);
+                }
+
+                if (i < sorok.Length - 1) kimenet.Append('\n');
+            }
+
+            tbSorszamok.Text = kimenet.ToString();
+        }
+
+        private void TbProgramSzoveg_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            tbSorszamok.RenderTransform = new TranslateTransform(0, -e.VerticalOffset);
+        }
+
+        private bool ProgramMentese()
+        {
+            if (!betoltve)
+            {
+                AllapotsorBeallitas("Nincs betöltött bemeneti fájl, amit menteni lehetne", true);
+                return false;
+            }
+
+            string programSzoveg;
+            if (blokkNezet)
+            {
+                string? hiba = blokkProgram.Hiba();
+                if (hiba != null)
+                {
+                    AllapotsorBeallitas(hiba, true);
+                    return false;
+                }
+                programSzoveg = blokkProgram.Szoveg();
+            }
+            else
+            {
+                programSzoveg = tbProgramSzoveg.Text;
+            }
+
+            var ablak = new Microsoft.Win32.SaveFileDialog
+            {
+                Title = "Program mentése",
+                Filter = "Szöveges fájl (*.txt)|*.txt|Minden fájl (*.*)|*.*",
+                FileName = System.IO.Path.GetFileName(AppSettings.InputFilePath),
+                InitialDirectory = System.IO.Path.GetDirectoryName(System.IO.Path.GetFullPath(AppSettings.InputFilePath))
+            };
+            if (ablak.ShowDialog() != true) return false;
+
+            try
+            {
+                var sorok = new List<string> { futtato.Beolvas.TerkepSor + " " + futtato.Beolvas.TerkepOszlop };
+                sorok.AddRange(futtato.Beolvas.TerkepLista);
+                sorok.AddRange(programSzoveg.Split('\n').Select(sor => sor.TrimEnd('\r')).Where(sor => !string.IsNullOrWhiteSpace(sor)));
+                System.IO.File.WriteAllLines(ablak.FileName, sorok);
+            }
+            catch (Exception hiba)
+            {
+                MessageBox.Show("A program mentése nem sikerült: " + hiba.Message, "Hiba", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+
+            MentettsegBeallitasa(false);
+            AllapotsorBeallitas("Program mentve: " + System.IO.Path.GetFileName(ablak.FileName), false);
+            return true;
+        }
+
+        private void NaploFajlba(Interpreter interpreter, int hossz)
+        {
+            if (string.IsNullOrEmpty(AppSettings.OutputFilePath)) return;
+
+            try
+            {
+                System.IO.File.WriteAllLines(AppSettings.OutputFilePath, interpreter.Naplo.Take(hossz));
+            }
+            catch (System.IO.IOException)
+            {
+            }
+        }
+
+        private bool NaploMentese()
+        {
+            if (futtato.Interpreter == null || futtato.Interpreter.Naplo.Count == 0)
+            {
+                AllapotsorBeallitas("Még nincs napló, előbb futtasd le a programot", true);
+                return false;
+            }
+
+            string alapNev = string.IsNullOrEmpty(AppSettings.OutputFilePath) ? "output.txt" : System.IO.Path.GetFileName(AppSettings.OutputFilePath);
+            var ablak = new Microsoft.Win32.SaveFileDialog
+            {
+                Title = "Napló mentése",
+                Filter = "Szöveges fájl (*.txt)|*.txt|Minden fájl (*.*)|*.*",
+                FileName = alapNev
+            };
+            if (ablak.ShowDialog() != true) return false;
+
+            try
+            {
+                System.IO.File.WriteAllLines(ablak.FileName, futtato.Interpreter.Naplo);
+            }
+            catch (Exception hiba)
+            {
+                MessageBox.Show("A napló mentése nem sikerült: " + hiba.Message, "Hiba", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+
+            AllapotsorBeallitas("Napló mentve: " + System.IO.Path.GetFileName(ablak.FileName), false);
+            return true;
+        }
+
+        private void MentesValasztassal()
+        {
+            bool vanNaplo = futtato.Interpreter != null && futtato.Interpreter.Naplo.Count > 0;
+            var ablak = new MentesAblak(vanNaplo) { Owner = this };
+            if (ablak.ShowDialog() != true) return;
+
+            if (ablak.ProgramMentes) ProgramMentese();
+            if (ablak.NaploMentes) NaploMentese();
+        }
+
+        private void Ablak_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.S && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                MentesValasztassal();
+                e.Handled = true;
+            }
+        }
+
         private void ProgramBetoltese()
         {
-            tbProgramSzoveg.Text = string.Join(Environment.NewLine, futtato.Program.Select(Blokk.SorSzoveg));
+            SzovegBeallitasa(string.Join(Environment.NewLine, futtato.Program.Select(Blokk.SorSzoveg)));
+            MentettsegBeallitasa(false);
 
             try
             {
@@ -137,14 +292,16 @@ namespace Robotszimulator
         {
             if (!blokkNezet) return;
 
-            tbProgramSzoveg.Text = blokkProgram.Szoveg();
+            SzovegBeallitasa(blokkProgram.Szoveg());
             SzovegNezetBe();
             AllapotsorBeallitas("Szöveg nézet", false);
         }
 
         private void TbProgramSzoveg_TextChanged(object sender, TextChangedEventArgs e)
         {
+            SorszamokFrissitese();
             NyomkovetesTorlese();
+            if (!szovegBeallitas) MentettsegBeallitasa(true);
         }
 
         private void BtnBlokkHozzaadas_Click(object sender, RoutedEventArgs e)
@@ -189,6 +346,7 @@ namespace Robotszimulator
                 return;
             }
 
+            MentettsegBeallitasa(true);
             BlokkokFrissitese(uj);
             cbHely.SelectedIndex = uj.Vezerlo ? 1 : 0;
             AllapotsorBeallitas("Blokk hozzáadva", false);
@@ -211,6 +369,7 @@ namespace Robotszimulator
             var ablak = new BlokkAblak(sor.Blokk.Tipus, sor.Blokk) { Owner = this };
             if (ablak.ShowDialog() == true)
             {
+                MentettsegBeallitasa(true);
                 BlokkokFrissitese(sor.Blokk);
                 AllapotsorBeallitas("Blokk módosítva", false);
             }
@@ -245,6 +404,7 @@ namespace Robotszimulator
                 blokkProgram.Torol(sor.Blokk);
             }
 
+            MentettsegBeallitasa(true);
             BlokkokFrissitese();
             AllapotsorBeallitas("Törölve", false);
         }
@@ -260,6 +420,7 @@ namespace Robotszimulator
 
             if (blokkProgram.Mozgat(sor.Blokk, irany))
             {
+                MentettsegBeallitasa(true);
                 BlokkokFrissitese(sor.Blokk);
             }
         }

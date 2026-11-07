@@ -6,7 +6,8 @@ namespace Robotszimulator.Core
     {
         Utana,
         Belsejebe,
-        ElseAgba
+        ElseAgba,
+        Elotte
     }
 
     public class BlokkProgram
@@ -114,6 +115,22 @@ namespace Robotszimulator.Core
                         throw new InvalidOperationException("A belsejébe csak if vagy while blokkot lehet beszúrni.");
                     }
                     cel.Hozzaad(uj);
+                    break;
+
+                case BeszurasMod.Elotte:
+                    if (kijelolt.ElseSor)
+                    {
+                        throw new InvalidOperationException("Az else sor elé nem lehet beszúrni, használd az else ágába beszúrást.");
+                    }
+                    if (cel.Szulo == null)
+                    {
+                        Gyokerek.Insert(Gyokerek.IndexOf(cel), uj);
+                    }
+                    else
+                    {
+                        List<Blokk> testverek = Testverek(cel);
+                        cel.Szulo.Hozzaad(uj, cel.ElseAgban, testverek.IndexOf(cel));
+                    }
                     break;
 
                 default:
