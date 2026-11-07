@@ -42,7 +42,6 @@ namespace Robotszimulator
             }
             finally
             {
-                // Ha nem az 1000 soros limit miatt állt meg, a végére kerül az EOR
                 if (!limitElerve)
                 {
                     Naplo.Add("EOR");
@@ -50,7 +49,6 @@ namespace Robotszimulator
             }
         }
 
-        // --- Hiba rögzítése a felületnek ---
         private void HibaRogzites(int sorIndex, string kod)
         {
             HibaKod = kod;
@@ -58,7 +56,6 @@ namespace Robotszimulator
             leallitva = true;
         }
 
-        // --- Korlát ellenőrzése (1000 sor) ---
         private bool KeresesElott(int sorIndex)
         {
             if (utasitasSzamlalo >= 1000)
@@ -73,7 +70,6 @@ namespace Robotszimulator
             return true;
         }
 
-        // --- Blokk határainak keresése ---
         private int BlokkVege(int honnan, int behuzas)
         {
             int j = honnan;
@@ -84,7 +80,6 @@ namespace Robotszimulator
             return j;
         }
 
-        // --- Blokkok végrehajtása ---
         private void BlokkVegrehajtas(int honnan, int meddig)
         {
             int i = honnan;
@@ -133,7 +128,6 @@ namespace Robotszimulator
             }
         }
 
-        // --- Feltétel kiértékelése ---
         private bool FeltetelKiertekeles(int i)
         {
             if (!KeresesElott(i)) return false;
@@ -157,7 +151,6 @@ namespace Robotszimulator
             return eredmeny;
         }
 
-        // --- Utasítások végrehajtása ---
         private void EgyszeruUtasitasVegrehajtas(int i)
         {
             if (!KeresesElott(i)) return;
@@ -226,7 +219,6 @@ namespace Robotszimulator
                             ertek = BinarisMuveletKiertekeles(t[3], t[4], t[5]);
                         }
 
-                        // Típusváltás ellenőrzése
                         if (valtozok.ContainsKey(t[1]) && valtozok[t[1]].GetType() != ertek.GetType())
                             throw new FutasHiba("E_TYPE_MISMATCH");
 
@@ -244,7 +236,6 @@ namespace Robotszimulator
             Pillanatkep(i);
         }
 
-        // --- Kétoperandusú kifejezések kiértékelése ---
         private object BinarisMuveletKiertekeles(string a, string op, string b)
         {
             bool aritmetikai = op == "+" || op == "-" || op == "*";
@@ -255,7 +246,7 @@ namespace Robotszimulator
             if ((aritmetikai || osszehasonlito) && !(x is int)) throw new FutasHiba("E_BAD_OPERAND");
             if (logikai && !(x is bool)) throw new FutasHiba("E_BAD_OPERAND");
 
-            object y = Olvas(b); // A 2. operandust akkor is beolvassa, ha az 1. alapján már tudható az eredmény!
+            object y = Olvas(b);
             if ((aritmetikai || osszehasonlito) && !(y is int)) throw new FutasHiba("E_BAD_OPERAND");
             if (logikai && !(y is bool)) throw new FutasHiba("E_BAD_OPERAND");
 
@@ -278,7 +269,6 @@ namespace Robotszimulator
             }
         }
 
-        // --- Token olvasása ---
         private object Olvas(string token)
         {
             if (token == "true") return true;
@@ -292,7 +282,6 @@ namespace Robotszimulator
             throw new FutasHiba("E_UNINITIALIZED");
         }
 
-        // --- Megjelenítési formátum a naplóhoz ---
         private static string Megjelenit(object ertek)
         {
             if (ertek is bool b) return b ? "true" : "false";
