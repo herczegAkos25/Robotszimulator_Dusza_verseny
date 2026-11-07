@@ -1,5 +1,6 @@
 ﻿using Robotszimulator.Beolvasas;
 using Robotszimulator.Core;
+using Robotszimulator.UI;
 using System.Configuration;
 using System.Data;
 using System.IO;
@@ -47,16 +48,25 @@ namespace Robotszimulator
             }
             else
             {
-                try
-                {
-                    var mainWindow = new MainWindow();
-                    mainWindow.Show();
-                }
-                catch (Exception hiba)
-                {
-                    MessageBox.Show(hiba.Message, "Robot szimulátor");
-                    Shutdown(1);
-                }
+                var indulas = new IndulasiAblak();
+                indulas.Befejezodott += () => FoablakMegnyitasa(indulas);
+                indulas.Show();
+            }
+        }
+
+        private void FoablakMegnyitasa(Window indulas)
+        {
+            try
+            {
+                var mainWindow = new MainWindow();
+                Current.MainWindow = mainWindow;
+                mainWindow.Show();
+                indulas.Close();
+            }
+            catch (Exception hiba)
+            {
+                MessageBox.Show(hiba.Message, "Robot szimulátor");
+                Shutdown(1);
             }
         }
 
