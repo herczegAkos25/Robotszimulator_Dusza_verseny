@@ -1,15 +1,20 @@
 ﻿using Microsoft.Win32;
 using Robotszimulator.Core;
+using Robotszimulator.UI;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace Robotszimulator
 {
     public partial class MainWindow : Window
     {
         private const double CellaMeret = 20;
+        private readonly TerkepKepek terkepKepek = new TerkepKepek();
+        private readonly Random veletlen = new Random();
+        private int[,]? cellaSorsok = null;
         private static readonly SolidColorBrush NormalSzin = new SolidColorBrush(Color.FromRgb(0x9D, 0xA5, 0xB4));
         private static readonly SolidColorBrush HibaSzin = new SolidColorBrush(Color.FromRgb(0xE0, 0x6C, 0x75));
 
@@ -174,6 +179,11 @@ namespace Robotszimulator
             int sorokSzama = grid.Length;
             int oszlopokSzama = grid[0].Length;
 
+            if (cellaSorsok == null || cellaSorsok.GetLength(0) != sorokSzama || cellaSorsok.GetLength(1) != oszlopokSzama)
+            {
+                SorsokUjrasorsolasa(sorokSzama, oszlopokSzama);
+            }
+
             TerkepCanvas.Children.Clear();
             TerkepCanvas.Width = oszlopokSzama * CellaMeret;
             TerkepCanvas.Height = sorokSzama * CellaMeret;
@@ -184,54 +194,100 @@ namespace Robotszimulator
                 {
                     string ertek = grid[r][c];
                     bool felfedezve = felfedezett[r, c];
+                    bool robotCella = r == robotSor && c == robotOszlop;
+
+                    string tipus = ertek switch
+                    {
+                        "#" => "fal",
+                        "@" => "arany",
+                        _ => "talaj"
+                    };
 
                     Border cella = new Border
                     {
                         Width = CellaMeret,
-                        Height = CellaMeret,
-                        BorderBrush = Brushes.DarkSlateGray,
-                        BorderThickness = new Thickness(0.5),
-                        Background = felfedezve ? Brushes.White : Brushes.Black
+                        Height = CellaMeret
                     };
 
-                    TextBlock szoveg = new TextBlock
-                    {
-                        HorizontalAlignment = HorizontalAlignment.Center,
-                        VerticalAlignment = VerticalAlignment.Center,
-                        FontSize = 14,
-                        FontWeight = FontWeights.Bold
-                    };
+                    Grid tartalom = new Grid();
+                    cella.Child = tartalom;
 
-                    if (felfedezve)
+                    var kep = terkepKepek.Betoltve ? terkepKepek.Kep(tipus, felfedezve || robotCella, cellaSorsok![r, c]) : null;
+
+                    if (kep != null)
                     {
-                        switch (ertek)
+                        if (tipus == "arany")
                         {
-                            case "#":
-                                cella.Background = Brushes.DarkGray;
-                                break;
-                            case "@":
-                                cella.Background = Brushes.Gold;
-                                szoveg.Text = "★";
-                                break;
+                            var talaj = terkepKepek.Kep("talaj", felfedezve || robotCella, cellaSorsok![r, c]);
+                            if (talaj != null)
+                            {
+                                tartalom.Children.Add(KepElem(talaj));
+                            }
                         }
-                    }
 
-                    if (r == robotSor && c == robotOszlop)
+                        tartalom.Children.Add(KepElem(kep));
+                    }
+                    else
                     {
-                        cella.Background = Brushes.LightSkyBlue;
-                        szoveg.Text = irany switch
-                        {
-                            Irany.Kelet => ">",
-                            Irany.Nyugat => "<",
-                            Irany.Észak => "^",
-                            _ => "v"
-                        };
+                        cella.BorderBrush = Brushes.DarkSlateGray;
+                        cella.BorderThickness = new Thickness(0.5);
+                        cella.Background = felfedezve ? Brushes.White : Brushes.Black;
+
+                        if (felfedezve && ertek == "#") cella.Background = Brushes.DarkGray;
+                        if (felfedezve && ertek == "@") cella.Background = Brushes.Gold;
                     }
 
-                    cella.Child = szoveg;
+                    if (robotCella)
+                    {
+                        tartalom.Children.Add(new Border
+                        {
+                            Background = Brushes.LightSkyBlue,
+                            Opacity = 0.6
+                        });
+
+                        tartalom.Children.Add(new TextBlock
+                        {
+                            HorizontalAlignment = HorizontalAlignment.Center,
+                            VerticalAlignment = VerticalAlignment.Center,
+                            FontSize = 14,
+                            FontWeight = FontWeights.Bold,
+                            Foreground = Brushes.Black,
+                            Text = irany switch
+                            {
+                                Irany.Kelet => ">",
+                                Irany.Nyugat => "<",
+                                Irany.Észak => "^",
+                                _ => "v"
+                            }
+                        });
+                    }
+
                     Canvas.SetLeft(cella, c * CellaMeret);
                     Canvas.SetTop(cella, r * CellaMeret);
                     TerkepCanvas.Children.Add(cella);
+                }
+            }
+        }
+
+        private static Image KepElem(BitmapSource kep)
+        {
+            var elem = new Image
+            {
+                Source = kep,
+                Stretch = Stretch.Fill
+            };
+            RenderOptions.SetBitmapScalingMode(elem, BitmapScalingMode.HighQuality);
+            return elem;
+        }
+
+        private void SorsokUjrasorsolasa(int sorokSzama, int oszlopokSzama)
+        {
+            cellaSorsok = new int[sorokSzama, oszlopokSzama];
+            for (int r = 0; r < sorokSzama; r++)
+            {
+                for (int c = 0; c < oszlopokSzama; c++)
+                {
+                    cellaSorsok[r, c] = veletlen.Next(0, 1000);
                 }
             }
         }
@@ -454,6 +510,7 @@ namespace Robotszimulator
             betoltve = true;
             kezziAllapotban = false;
             NyomkovetesTorlese();
+            cellaSorsok = null;
             EloAllapotMegjelenites("Betöltve: " + System.IO.Path.GetFileName(ofd.FileName), false);
             ProgramBetoltese();
         }

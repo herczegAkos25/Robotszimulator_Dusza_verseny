@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <Content Include="Logo.ico" />
+    <Content Include="Képek\**\*.png" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
