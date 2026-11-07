@@ -15,6 +15,7 @@ namespace Robotszimulator
         private bool lejatszasFut = false;
         private bool megallitasKerve = false;
         private bool kezziAllapotban = false;
+        private bool megallva = false;
 
         private List<Allapot>? nyomkovetesAllapotok = null;
         private Interpreter? nyomkovetesInterpreter = null;
@@ -248,17 +249,34 @@ namespace Robotszimulator
             if (lejatszasFut) return;
 
             lejatszasFut = true;
+            btnMegallitas.Content = "⏹ Megállítás";
 
             try
             {
-                if (!NyomkovetesInditas()) return;
+                // Ha még nincs nyomkövetési állapot, elindítjuk
+                if (nyomkovetesAllapotok == null)
+                {
+                    if (!NyomkovetesInditas()) return;
+                }
 
-                megallitasKerve = false;
+            megallva = false;
+            megallitasKerve = false;
                 var allapotok = nyomkovetesAllapotok!;
 
-                for (int i = 0; i < allapotok.Count; i++)
+                // Ott folytatjuk, ahol tartottunk (vagy elölről, ha vége volt)
+                if (nyomkovetesIndex >= allapotok.Count - 1)
                 {
-                    if (megallitasKerve) break;
+                    nyomkovetesIndex = 0;
+                }
+
+                for (int i = nyomkovetesIndex; i < allapotok.Count; i++)
+                {
+                    // Ha megállítást kértek, várakozunk amíg újra nem kattintanak a Folytatásra
+                    while (megallitasKerve)
+                    {
+                        await Task.Delay(100);
+                        if (!lejatszasFut) return; // Ha teljesen kiléptek / resetelték
+                    }
 
                     LepesMegjelenites(i);
 
@@ -269,6 +287,8 @@ namespace Robotszimulator
             finally
             {
                 lejatszasFut = false;
+                megallva = false;
+                btnMegallitas.Content = "⏹ Megállítás";
             }
         }
 
@@ -279,7 +299,17 @@ namespace Robotszimulator
 
         private void BtnMegallitas_Click(object sender, RoutedEventArgs e)
         {
-            megallitasKerve = true;
+            megallva = !megallva;
+            if (megallva)
+            {
+                megallitasKerve = true;
+                btnMegallitas.Content = "▶ Folytatás";
+            }
+            else
+            {
+                btnMegallitas.Content = "⏹ Megállítás";
+                megallitasKerve = false;
+            }
         }
 
         private void BtnKovetkezo_Click(object sender, RoutedEventArgs e)

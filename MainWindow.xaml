@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Robotszimulator"
         mc:Ignorable="d"
-        Title="Robot Szimulátor" Height="800" Width="1000" WindowState="Maximized" Background="Black">
+        Title="Robot Szimulátor" Height="800" Width="1100" WindowState="Maximized" Background="Black" Foreground="White">
 
     <Window.Resources>
         <!-- Sötét kártya stílus -->
@@ -47,6 +47,74 @@
             <Setter Property="Foreground" Value="#1E1E1E"/>
             <Setter Property="FontWeight" Value="Bold"/>
         </Style>
+
+        <Style TargetType="GridViewColumnHeader">
+            <Setter Property="Background" Value="#282C34"/>
+            <!-- Sötét háttér -->
+            <Setter Property="Foreground" Value="#E6EDF3"/>
+            <!-- Világos szöveg -->
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="BorderBrush" Value="#3A3F4B"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GridViewColumnHeader">
+                        <Border x:Name="HeaderBd" 
+                        Background="#282C34" 
+                        BorderBrush="{TemplateBinding BorderBrush}" 
+                        BorderThickness="{TemplateBinding BorderThickness}" 
+                        Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
+                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <!-- Amikor az egér a fejléc fölé ér (Hover) -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="HeaderBd" Property="Background" Value="#3A3F4B"/>
+                            </Trigger>
+                            <!-- Amikor rákattintanak / lenyomják -->
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="HeaderBd" Property="Background" Value="#4B5263"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ListViewItem">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#E6EDF3"/>
+            <Setter Property="Padding" Value="4,2"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListViewItem">
+                        <Border x:Name="Bd" 
+                            Background="{TemplateBinding Background}" 
+                            BorderBrush="{TemplateBinding BorderBrush}" 
+                            BorderThickness="{TemplateBinding BorderThickness}" 
+                            SnapsToDevicePixels="True" 
+                            CornerRadius="4" 
+                            Margin="2,1">
+                            <GridViewRowPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <!-- Egér húzása a sor felett (Hover) -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#2A2F3A"/>
+                            </Trigger>
+                            <!-- Amikor a sor ki van jelölve -->
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#3E4451"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Grid Margin="10">
@@ -68,7 +136,7 @@
                 <Button Content="💾 Mentés" Style="{StaticResource DarkButton}" Margin="0,0,8,0"/>
                 <Button Content="▶ Futtatás" Style="{StaticResource RunButton}" Margin="0,0,8,0" Click="BtnFuttatas_Click"/>
                 <Button Content="⏭ Nyomkövetés" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnNyomkovetes_Click"/>
-                <Button Content="⏹ Megállítás" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnMegallitas_Click"/>
+                <Button Content="⏹ Megállítás" Style="{StaticResource DarkButton}" Margin="0,0,8,0" x:Name="btnMegallitas" Click="BtnMegallitas_Click"/>
                 <Button Content="◀ Vissza" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnVissza_Click"/>
                 <Button Content="Következő ▶" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnKovetkezo_Click"/>
                 <TextBlock x:Name="tbLepesSzamlalo" Text="Lépés 0 / 0" VerticalAlignment="Center" Foreground="#9DA5B4" FontSize="12" Margin="0,0,16,0"/>
@@ -93,7 +161,7 @@
                 <DockPanel>
                     <!-- Fejléc és nézetváltó -->
                     <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
-                        <TextBlock Text="Program" FontWeight="Bold" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBlock Text="Program" FontWeight="Bold" FontSize="15" VerticalAlignment="Center" />
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                             <Button Content="Blokkok" Style="{StaticResource DarkButton}" Margin="0,0,4,0" Padding="8,4"/>
                             <Button Content="Szöveg" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Padding="8,4" Background="#1E1E1E"/>
@@ -102,30 +170,10 @@
                     </Grid>
 
                     <!-- Blokkok listája -->
-                    <ScrollViewer>
+                    
                         <StackPanel>
-                            <!-- Példa blokk sorok -->
-                            <!--<StackPanel Orientation="Horizontal" Margin="0,3">
-                                <TextBlock Text="1" Width="20" Foreground="#5C6370" VerticalAlignment="Center"/>
-                                <Border Background="#61AFEF" CornerRadius="4" Padding="8,4">
-                                    <TextBlock Text="set count to 0" Foreground="#1E1E1E" FontWeight="SemiBold"/>
-                                </Border>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,3">
-                                <TextBlock Text="2" Width="20" Foreground="#5C6370" VerticalAlignment="Center"/>
-                                <Border Background="#61AFEF" CornerRadius="4" Padding="8,4">
-                                    <TextBlock Text="set megy to true" Foreground="#1E1E1E" FontWeight="SemiBold"/>
-                                </Border>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,3">
-                                <TextBlock Text="3" Width="20" Foreground="#5C6370" VerticalAlignment="Center"/>
-                                <Border Background="#98C379" CornerRadius="4" Padding="8,4">
-                                    <TextBlock Text="while megy" Foreground="#1E1E1E" FontWeight="SemiBold"/>
-                                </Border>
-                            </StackPanel>-->
-                            <!-- További blokkok... -->
                         </StackPanel>
-                    </ScrollViewer>
+                    
                 </DockPanel>
             </Border>
 
@@ -143,16 +191,30 @@
                     <Grid Grid.Row="0" Margin="0,0,0,10">
                         <TextBlock Text="Szimulátor" FontWeight="Bold" FontSize="15" VerticalAlignment="Center"/>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                            <CheckBox Content="Felfedezett" Foreground="#9DA5B4" Margin="0,0,10,0"/>
-                            <CheckBox Content="Felfedezetlen" Foreground="#9DA5B4" Margin="0,0,10,0"/>
-                            <CheckBox Content="Fal" Foreground="#9DA5B4" Margin="0,0,10,0"/>
-                            <CheckBox Content="Arany" Foreground="#9DA5B4"/>
+                            <Canvas>
+                                <Rectangle Width="15" Height="15" Fill="White" Canvas.Right="0" Canvas.Bottom="5"/>
+                            </Canvas>
+                            <Label Content="Felfedezett" Foreground="#9DA5B4" Margin="0 0 20 0"/>
+                            <Canvas>
+                                <Rectangle Width="15" Height="15" Fill="Black" Canvas.Right="0" Canvas.Bottom="5"/>
+                            </Canvas>
+                            <Label Content="Felfedezetlen" Foreground="#9DA5B4" Margin="0,0,20,0"/>
+                            <Canvas>
+                                <Rectangle Width="15" Height="15" Fill="Gray" Canvas.Right="0" Canvas.Bottom="5"/>
+                            </Canvas>
+                            <Label Content="Fal" Foreground="#9DA5B4" Margin="0,0,20,0"/>
+                            <Canvas>
+                                <Rectangle Width="15" Height="15" Fill="#E5C07B" Canvas.Right="0" Canvas.Bottom="5"/>
+                            </Canvas>
+                            <Label Content="Arany" Foreground="#9DA5B4"/>
                         </StackPanel>
                     </Grid>
 
                     <!-- Térkép Canvas / Rács -->
-                    <Border Grid.Row="1" Background="#181A1F" CornerRadius="6" BorderBrush="#282C34" BorderThickness="1">
-                        <Canvas x:Name="TerkepCanvas" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Border Grid.Row="1" Background="#181A1F" CornerRadius="6" BorderBrush="#282C34" BorderThickness="1" ClipToBounds="True">
+                        <Viewbox Stretch="Uniform" Margin="10">
+                            <Canvas x:Name="TerkepCanvas" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Viewbox>
                     </Border>
 
                     <!-- Szenzor és statisztika adatok -->
@@ -227,7 +289,7 @@
             <Border Grid.Column="2" Style="{StaticResource DarkCard}">
                 <DockPanel>
                     <TextBlock Text="Változók" FontWeight="Bold" DockPanel.Dock="Top" Margin="0,0,0,8"/>
-                    <ListView x:Name="lvValtozok" Background="#181A1F" Foreground="#E6EDF3" BorderThickness="0">
+                    <ListView x:Name="lvValtozok" Background="#181A1F" Foreground="AliceBlue" BorderThickness="0" >
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Név" Width="90" DisplayMemberBinding="{Binding Name}"/>
