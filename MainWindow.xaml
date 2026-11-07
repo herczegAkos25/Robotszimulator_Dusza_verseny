@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Robotszimulator"
         mc:Ignorable="d"
-        Title="Robot Szimulátor" Height="800" Width="1100" WindowState="Maximized" Background="Black" Foreground="White">
+        Title="Robot Szimulátor" Height="800" Width="1000" WindowState="Maximized" Background="Black"
+        Icon="Logo.png">
 
     <Window.Resources>
         <!-- Sötét kártya stílus -->
@@ -132,8 +133,8 @@
         <!-- 0. FELSŐ VEZÉRLŐSÁV -->
         <Border Grid.Row="0" Style="{StaticResource DarkCard}" Margin="0,0,0,6" Padding="10,5">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <Button Content="📁 Betöltés" Style="{StaticResource DarkButton}" Margin="0,0,8,0"/>
-                <Button Content="💾 Mentés" Style="{StaticResource DarkButton}" Margin="0,0,8,0"/>
+                <Button Content="📁 Betöltés" Style="{StaticResource DarkButton}" Margin="0,0,8,0" x:Name="BtnBetoltes" Click="BtnBetoltes_Click"/>
+                <Button Content="💾 Mentés" Style="{StaticResource DarkButton}" Margin="0,0,8,0" x:Name="BtnMentes" Click="BtnMentes_Click" />
                 <Button Content="▶ Futtatás" Style="{StaticResource RunButton}" Margin="0,0,8,0" Click="BtnFuttatas_Click"/>
                 <Button Content="⏭ Nyomkövetés" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnNyomkovetes_Click"/>
                 <Button Content="⏹ Megállítás" Style="{StaticResource DarkButton}" Margin="0,0,8,0" x:Name="btnMegallitas" Click="BtnMegallitas_Click"/>
@@ -163,17 +164,68 @@
                     <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
                         <TextBlock Text="Program" FontWeight="Bold" FontSize="15" VerticalAlignment="Center" />
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button Content="Blokkok" Style="{StaticResource DarkButton}" Margin="0,0,4,0" Padding="8,4"/>
-                            <Button Content="Szöveg" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Padding="8,4" Background="#1E1E1E"/>
-                            <Button Content="+ Blokk hozzáadása" Style="{StaticResource RunButton}" Padding="10,4"/>
+                            <Button x:Name="btnBlokkNezet" Content="Blokkok" Style="{StaticResource DarkButton}" Margin="0,0,4,0" Padding="8,4" Background="#3A3F4B" Click="BtnBlokkNezet_Click"/>
+                            <Button x:Name="btnSzovegNezet" Content="Szöveg" Style="{StaticResource DarkButton}" Padding="8,4" Background="#1E1E1E" Click="BtnSzovegNezet_Click"/>
                         </StackPanel>
                     </Grid>
 
-                    <!-- Blokkok listája -->
-                    
-                        <StackPanel>
-                        </StackPanel>
-                    
+                    <!-- Blokk eszközök -->
+                    <StackPanel x:Name="pnlBlokkEszkozok" DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
+                        <ComboBox x:Name="cbHely" Width="140" SelectedIndex="0" VerticalContentAlignment="Center" Margin="0,0,8,0">
+                            <ComboBoxItem Content="A kijelölt után"/>
+                            <ComboBoxItem Content="A kijelölt belsejébe"/>
+                            <ComboBoxItem Content="A kijelölt else ágába"/>
+                        </ComboBox>
+                        <Button Content="+ Blokk" Style="{StaticResource RunButton}" Padding="10,4" Margin="0,0,8,0" Click="BtnBlokkHozzaadas_Click"/>
+                        <Button Content="▲" ToolTip="Fel" Style="{StaticResource DarkButton}" Padding="9,4" Margin="0,0,4,0" Click="BtnBlokkFel_Click"/>
+                        <Button Content="▼" ToolTip="Le" Style="{StaticResource DarkButton}" Padding="9,4" Margin="0,0,4,0" Click="BtnBlokkLe_Click"/>
+                        <Button Content="✎" ToolTip="Szerkesztés" Style="{StaticResource DarkButton}" Padding="9,4" Margin="0,0,4,0" Click="BtnBlokkSzerkesztes_Click"/>
+                        <Button Content="🗑" ToolTip="Törlés" Style="{StaticResource DarkButton}" Padding="9,4" Click="BtnBlokkTorles_Click"/>
+                    </StackPanel>
+
+                    <!-- Blokkok listája és szöveges nézet -->
+                    <Grid>
+                        <ListBox x:Name="lbBlokkok" Background="#181A1F" BorderThickness="0" HorizontalContentAlignment="Stretch"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 KeyDown="LbBlokkok_KeyDown" MouseDoubleClick="LbBlokkok_MouseDoubleClick">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Padding" Value="2"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <Border x:Name="Hatter" Background="Transparent" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsSelected" Value="True">
+                                                        <Setter TargetName="Hatter" Property="Background" Value="#2C313A"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Sorszam}" Width="26" Foreground="#5C6370" VerticalAlignment="Center"/>
+                                        <Border Width="{Binding BalMargo}"/>
+                                        <Border Background="{Binding Szin}" BorderBrush="{Binding Keret}" BorderThickness="2" CornerRadius="4" Padding="8,4">
+                                            <TextBlock Text="{Binding Szoveg}" Foreground="#1E1E1E" FontWeight="SemiBold"/>
+                                        </Border>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                        <TextBox x:Name="tbProgramSzoveg" Visibility="Collapsed" AcceptsReturn="True" FontFamily="Consolas" FontSize="13"
+                                 Background="#181A1F" Foreground="#E6EDF3" CaretBrush="White" BorderThickness="0"
+                                 TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                                 IsInactiveSelectionHighlightEnabled="True" SelectionBrush="#E06C75"
+                                 TextChanged="TbProgramSzoveg_TextChanged"/>
+                    </Grid>
                 </DockPanel>
             </Border>
 

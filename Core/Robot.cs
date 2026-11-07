@@ -6,9 +6,9 @@ namespace Robotszimulator.Core
     public enum Irany
     {
         Kelet,
-        Eszak,
+        Észak,
         Nyugat,
-        Del
+        Dél
     }
 
     public class Robot
@@ -45,9 +45,9 @@ namespace Robotszimulator.Core
                         switch (cella)
                         {
                             case ">": AktualisIrany = Irany.Kelet; break;
-                            case "^": AktualisIrany = Irany.Eszak; break;
+                            case "^": AktualisIrany = Irany.Észak; break;
                             case "<": AktualisIrany = Irany.Nyugat; break;
-                            case "v": AktualisIrany = Irany.Del; break;
+                            case "v": AktualisIrany = Irany.Dél; break;
                         }
 
                         terkep.MezoFelfedezve(oszlopIndex, sorIndex);
@@ -77,8 +77,8 @@ namespace Robotszimulator.Core
                 {
                     case Irany.Kelet: kovetkezoOszlop++; break;
                     case Irany.Nyugat: kovetkezoOszlop--; break;
-                    case Irany.Eszak: kovetkezoSor--; break;
-                    case Irany.Del: kovetkezoSor++; break;
+                    case Irany.Észak: kovetkezoSor--; break;
+                    case Irany.Dél: kovetkezoSor++; break;
                 }
 
                 if (!terkep.BelulVan(kovetkezoOszlop, kovetkezoSor))
@@ -160,8 +160,8 @@ namespace Robotszimulator.Core
             {
                 case Irany.Kelet: celOszlop++; break;
                 case Irany.Nyugat: celOszlop--; break;
-                case Irany.Eszak: celSor--; break;
-                case Irany.Del: celSor++; break;
+                case Irany.Észak: celSor--; break;
+                case Irany.Dél: celSor++; break;
             }
             return (celOszlop, celSor);
         }

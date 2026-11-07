@@ -6,10 +6,24 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <AssemblyName>robot</AssemblyName>
+    <ApplicationIcon>Logo.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Logo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Logo.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="WPF-UI" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Logo.png" />
   </ItemGroup>
 
 </Project>

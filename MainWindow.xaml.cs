@@ -1,4 +1,6 @@
-﻿using Robotszimulator.Core;
+﻿using Microsoft.Win32;
+using Robotszimulator.Core;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -11,6 +13,7 @@ namespace Robotszimulator
         private static readonly SolidColorBrush NormalSzin = new SolidColorBrush(Color.FromRgb(0x9D, 0xA5, 0xB4));
         private static readonly SolidColorBrush HibaSzin = new SolidColorBrush(Color.FromRgb(0xE0, 0x6C, 0x75));
 
+        private Interpreter Interpreter => futtato.Interpreter;
         private Futtato futtato = new Futtato();
         private bool lejatszasFut = false;
         private bool megallitasKerve = false;
@@ -25,16 +28,26 @@ namespace Robotszimulator
         {
             InitializeComponent();
 
-            if (string.IsNullOrEmpty(AppSettings.InputFilePath))
+            BlokkNezetBe();
+
+            if (string.IsNullOrEmpty(AppSettings.InputFilePath) && File.Exists("input.txt"))
             {
                 AppSettings.InputFilePath = "input.txt";
+            }
+
+            if (string.IsNullOrEmpty(AppSettings.InputFilePath))
+            {
+                AllapotsorBeallitas("Nincs betöltött bemeneti fájl, használd a Betöltés gombot", false);
+                return;
             }
 
             try
             {
                 futtato.Betoltes();
                 futtato.Inditas();
+                betoltve = true;
                 EloAllapotMegjelenites("Kezdőállapot", false);
+                ProgramBetoltese();
             }
             catch (Exception ex)
             {
@@ -47,6 +60,8 @@ namespace Robotszimulator
             var terkep = futtato.Terkep;
             var robot = futtato.Robot;
             if (terkep == null || terkep.Grid == null || robot == null) return;
+
+            SorKiemeles(0, false);
 
             Kirajzol(terkep.Grid, terkep.Felfedezett, robot.Sor, robot.Oszlop, robot.AktualisIrany);
             tbKibanyaszottArany.Text = robot.KibanyaszottAranySzam.ToString();
@@ -95,6 +110,7 @@ namespace Robotszimulator
             var allapot = allapotok[index];
 
             Megjelenites(allapot, interpreter);
+            SorKiemeles(allapot.Sor, allapot.HibaKod != null);
             if (utolso)
             {
                 TeljesNaploMegjelenites(interpreter);
@@ -208,14 +224,14 @@ namespace Robotszimulator
                         {
                             Irany.Kelet => ">",
                             Irany.Nyugat => "<",
-                            Irany.Eszak => "^",
+                            Irany.Észak => "^",
                             _ => "v"
                         };
                     }
 
                     cella.Child = szoveg;
                     Canvas.SetLeft(cella, c * CellaMeret);
-                    Canvas.SetTop(cella, r * CellaMeret);
+                    Canvas.SetTop(cella, r * CellaMeret); 
                     TerkepCanvas.Children.Add(cella);
                 }
             }
@@ -223,6 +239,8 @@ namespace Robotszimulator
 
         private bool NyomkovetesInditas()
         {
+            if (!ProgramAtvetele()) return false;
+
             megallitasKerve = true;
             kezziAllapotban = false;
 
@@ -329,6 +347,11 @@ namespace Robotszimulator
         private bool KezziElokeszites()
         {
             megallitasKerve = true;
+            if (!betoltve)
+            {
+                AllapotsorBeallitas("Nincs betöltött bemeneti fájl, használd a Betöltés gombot", true);
+                return false;
+            }
             if (kezziAllapotban) return true;
 
             try
@@ -386,5 +409,61 @@ namespace Robotszimulator
                 hibaKod == null ? "Kézi vezérlés: bányászás" : "Kézi vezérlés: nincs arany ezen a mezőn",
                 hibaKod != null);
         }
+
+        private void BtnMentes_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                SaveFileDialog sfd = new SaveFileDialog();
+                sfd.Title = "Kérem válassza ki a mentési helyet!";
+                sfd.Filter = "Szöveges fájl (*.txt)|*.txt|Minden fájl (*.*)|*.*";
+                sfd.FileName = AppSettings.OutputFilePath;
+                sfd.ShowDialog();
+                if (sfd.FileName != "")
+                {
+                    StreamWriter sw = new StreamWriter(sfd.FileName);
+                    for (int i = 0; i < Interpreter.Naplo.Count; i++)
+                    {
+                        File.WriteAllLines(AppSettings.OutputFilePath, Interpreter.Naplo);
+                    }
+                    sw.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Hiba a napló mentésekor: " + ex.Message, "Hiba", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnBetoltes_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Title = "Kérem válassza ki a fájlt!";
+            ofd.Filter = "Szöveges fájl (*.txt)|*.txt|Minden fájl (*.*)|*.*";
+            if (ofd.ShowDialog() != true) return;
+
+            string regiUtvonal = AppSettings.InputFilePath;
+            megallitasKerve = true;
+
+            try
+            {
+                AppSettings.InputFilePath = ofd.FileName;
+                futtato.Betoltes();
+                futtato.Inditas();
+            }
+            catch (Exception hiba)
+            {
+                AppSettings.InputFilePath = regiUtvonal;
+                MessageBox.Show("A fájl nem olvasható: " + hiba.Message, "Hiba", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            betoltve = true;
+            kezziAllapotban = false;
+            NyomkovetesTorlese();
+            EloAllapotMegjelenites("Betöltve: " + System.IO.Path.GetFileName(ofd.FileName), false);
+            ProgramBetoltese();
+        }
+
     }
 }
