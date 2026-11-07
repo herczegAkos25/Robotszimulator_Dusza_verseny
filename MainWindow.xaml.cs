@@ -72,6 +72,7 @@ namespace Robotszimulator
             lvValtozok.ItemsSource = null;
             tbLepesSzamlalo.Text = "Lépés – / –";
             AllapotsorBeallitas(uzenet, hiba);
+            btnMegallitas.IsEnabled = false;
         }
 
         private void Megjelenites(Allapot allapot, Interpreter interpreter)
@@ -231,7 +232,7 @@ namespace Robotszimulator
 
                     cella.Child = szoveg;
                     Canvas.SetLeft(cella, c * CellaMeret);
-                    Canvas.SetTop(cella, r * CellaMeret); 
+                    Canvas.SetTop(cella, r * CellaMeret);
                     TerkepCanvas.Children.Add(cella);
                 }
             }
@@ -266,22 +267,25 @@ namespace Robotszimulator
         {
             if (lejatszasFut) return;
 
+            btnMegallitas.IsEnabled = true;
             lejatszasFut = true;
             btnMegallitas.Content = "⏹ Megállítás";
 
             try
             {
-                // Ha még nincs nyomkövetési állapot, elindítjuk
                 if (nyomkovetesAllapotok == null)
                 {
-                    if (!NyomkovetesInditas()) return;
+                    if (!NyomkovetesInditas())
+                    {
+                        btnMegallitas.IsEnabled = false;
+                        return;
+                    }
                 }
 
-            megallva = false;
-            megallitasKerve = false;
+                megallva = false;
+                megallitasKerve = false;
                 var allapotok = nyomkovetesAllapotok!;
 
-                // Ott folytatjuk, ahol tartottunk (vagy elölről, ha vége volt)
                 if (nyomkovetesIndex >= allapotok.Count - 1)
                 {
                     nyomkovetesIndex = 0;
@@ -289,11 +293,10 @@ namespace Robotszimulator
 
                 for (int i = nyomkovetesIndex; i < allapotok.Count; i++)
                 {
-                    // Ha megállítást kértek, várakozunk amíg újra nem kattintanak a Folytatásra
                     while (megallitasKerve)
                     {
                         await Task.Delay(100);
-                        if (!lejatszasFut) return; // Ha teljesen kiléptek / resetelték
+                        if (!lejatszasFut) return;
                     }
 
                     LepesMegjelenites(i);
@@ -307,12 +310,17 @@ namespace Robotszimulator
                 lejatszasFut = false;
                 megallva = false;
                 btnMegallitas.Content = "⏹ Megállítás";
+                btnMegallitas.IsEnabled = false;
             }
         }
 
         private void BtnNyomkovetes_Click(object sender, RoutedEventArgs e)
         {
             NyomkovetesInditas();
+            lejatszasFut = false;
+            megallva = false;
+            btnMegallitas.Content = "⏹ Megállítás";
+            btnMegallitas.IsEnabled = false;
         }
 
         private void BtnMegallitas_Click(object sender, RoutedEventArgs e)

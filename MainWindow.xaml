@@ -116,6 +116,152 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- COMPLETE DARK COMBOBOX STYLE -->
+        <Style TargetType="ComboBox">
+            <Setter Property="Background" Value="#21252B"/>
+            <Setter Property="Foreground" Value="#E6EDF3"/>
+            <Setter Property="BorderBrush" Value="#3A3F4B"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid x:Name="MainGrid">
+                            <!-- Fő keret a zárt állapothoz -->
+                            <Border x:Name="Border" 
+                            Background="{TemplateBinding Background}" 
+                            BorderBrush="{TemplateBinding BorderBrush}" 
+                            BorderThickness="{TemplateBinding BorderThickness}" 
+                            CornerRadius="4"/>
+
+                            <Grid Margin="{TemplateBinding Padding}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="20"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- A kijelölt elem szövege -->
+                                <ContentPresenter x:Name="ContentSite"
+                                          IsHitTestVisible="False"
+                                          Content="{TemplateBinding SelectionBoxItem}"
+                                          ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                          ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                          Margin="0,0,5,0"
+                                          VerticalAlignment="Center"
+                                          HorizontalAlignment="Left"/>
+
+                                <!-- Nyíl ikon -->
+                                <Path x:Name="Arrow" 
+                              Grid.Column="1" 
+                              Data="M 0 0 L 4 4 L 8 0 Z" 
+                              Fill="#9DA5B4" 
+                              HorizontalAlignment="Center" 
+                              VerticalAlignment="Center"/>
+
+                                <!-- Átlátszó gomb a kattintás elkapásához -->
+                                <ToggleButton x:Name="ToggleButton" 
+                                      Grid.ColumnSpan="2" 
+                                      Focusable="False" 
+                                      ClickMode="Press" 
+                                      IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                                    <ToggleButton.Template>
+                                        <ControlTemplate TargetType="ToggleButton">
+                                            <Border Background="Transparent"/>
+                                        </ControlTemplate>
+                                    </ToggleButton.Template>
+                                </ToggleButton>
+                            </Grid>
+
+                            <!-- Lenyíló lista kerete (Popup) -->
+                            <Popup x:Name="PART_Popup" 
+                           AllowsTransparency="True" 
+                           IsOpen="{TemplateBinding IsDropDownOpen}" 
+                           Placement="Bottom" 
+                           PopupAnimation="Slide">
+                                <Border x:Name="DropDownBorder" 
+                                Background="#21252B" 
+                                BorderBrush="#3A3F4B" 
+                                BorderThickness="1" 
+                                CornerRadius="4" 
+                                Margin="0,2,0,0"
+                                MaxHeight="{TemplateBinding MaxDropDownHeight}" 
+                                MinWidth="{TemplateBinding ActualWidth}">
+                                    <ScrollViewer x:Name="DropDownScrollViewer" SnapsToDevicePixels="True" Margin="2">
+                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+
+                        <ControlTemplate.Triggers>
+                            <!-- Egér rámutatás a ComboBox-ra -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#2A2F3A"/>
+                                <Setter TargetName="Border" Property="BorderBrush" Value="#4B5263"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- COMBOBOX ELEMEK (ComboBoxItem) STÍLUSA -->
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Background" Value="#21252B"/>
+            <Setter Property="Foreground" Value="#E6EDF3"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="ItemBorder" 
+                        Background="{TemplateBinding Background}" 
+                        Padding="{TemplateBinding Padding}" 
+                        CornerRadius="3" 
+                        Margin="1">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="#2A2F3A"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="#3E4451"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ContextMenu">
+            <Setter Property="Background" Value="#21252B"/>
+            <Setter Property="Foreground" Value="#E6EDF3"/>
+            <Setter Property="BorderBrush" Value="#3A3F4B"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="4"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ContextMenu">
+                        <Border Background="{TemplateBinding Background}" 
+                        BorderBrush="{TemplateBinding BorderBrush}" 
+                        BorderThickness="{TemplateBinding BorderThickness}" 
+                        CornerRadius="4" 
+                        SnapsToDevicePixels="True">
+                            <!-- A StackPanel közvetlenül magába foglalja a menüpontokat, így eltűnik a bal oldali sáv -->
+                            <StackPanel IsItemsHost="True" 
+                                KeyboardNavigation.DirectionalNavigation="Cycle" 
+                                Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </Window.Resources>
 
     <Grid Margin="10">
@@ -136,15 +282,15 @@
                 <Button Content="📁 Betöltés" Style="{StaticResource DarkButton}" Margin="0,0,8,0" x:Name="BtnBetoltes" Click="BtnBetoltes_Click"/>
                 <Button Content="💾 Mentés" Style="{StaticResource DarkButton}" Margin="0,0,8,0" x:Name="BtnMentes" Click="BtnMentes_Click" />
                 <Button Content="▶ Futtatás" Style="{StaticResource RunButton}" Margin="0,0,8,0" Click="BtnFuttatas_Click"/>
-                <Button Content="⏭ Nyomkövetés" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnNyomkovetes_Click"/>
+                <Button Content="🔁 Újraindítás" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnNyomkovetes_Click"/>
                 <Button Content="⏹ Megállítás" Style="{StaticResource DarkButton}" Margin="0,0,8,0" x:Name="btnMegallitas" Click="BtnMegallitas_Click"/>
                 <Button Content="◀ Vissza" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnVissza_Click"/>
                 <Button Content="Következő ▶" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnKovetkezo_Click"/>
                 <TextBlock x:Name="tbLepesSzamlalo" Text="Lépés 0 / 0" VerticalAlignment="Center" Foreground="#9DA5B4" FontSize="12" Margin="0,0,16,0"/>
 
-                <TextBlock Text="Sebesség: lassú (1)" VerticalAlignment="Center" Foreground="#9DA5B4" FontSize="12" Margin="0,0,8,0"/>
-                <Slider Width="120" VerticalAlignment="Center" Minimum="1" Maximum="10" Value="5" Margin="0,0,8,0" x:Name="slSebesseg"/>
-                <TextBlock Text="gyors (10)" VerticalAlignment="Center" Foreground="#9DA5B4" FontSize="12"/>
+                <TextBlock Text="Sebesség: lassú" VerticalAlignment="Center" Foreground="#9DA5B4" FontSize="12" Margin="0,0,8,0"/>
+                <Slider Width="120" VerticalAlignment="Center" Minimum="1" Maximum="10" Value="5" Margin="0,0,8,0" x:Name="slSebesseg" TickFrequency="1" IsSnapToTickEnabled="True"/>
+                <TextBlock Text="gyors" VerticalAlignment="Center" Foreground="#9DA5B4" FontSize="12"/>
             </StackPanel>
         </Border>
 
