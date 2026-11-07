@@ -72,7 +72,7 @@ namespace Robotszimulator
             {
                 futtato.Betoltes();
                 futtato.Inditas();
-                futtato.Interpreter.FuttatoIterator();
+                futtato.Interpreter.Futtatas();
                 futtato.NaploKiiras();
             }
             catch (Exception)

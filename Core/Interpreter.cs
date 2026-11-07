@@ -32,19 +32,20 @@ namespace Robotszimulator
             robot = r;
         }
 
-        public IEnumerable<int> FuttatoIterator()
+        public void Futtatas()
         {
             Pillanatkep(-1);
 
             try
             {
-                if (leallitva) yield break;
-                yield return sorIndex;
+                BlokkVegrehajtas(0, program.Count);
             }
-
-            if (!limitElerve && !leallitva)
+            finally
             {
-                Naplo.Add("EOR");
+                if (!limitElerve)
+                {
+                    Naplo.Add("EOR");
+                }
             }
         }
 
@@ -79,7 +80,7 @@ namespace Robotszimulator
             return j;
         }
 
-        private IEnumerable<int> BlokkVegrehajtasIterator(int honnan, int meddig)
+        private void BlokkVegrehajtas(int honnan, int meddig)
         {
             int i = honnan;
             while (i < meddig && !leallitva)
@@ -93,11 +94,7 @@ namespace Robotszimulator
                     while (!leallitva)
                     {
                         if (!FeltetelKiertekeles(i)) break;
-                        foreach (var innerIdx in BlokkVegrehajtasIterator(i + 1, end))
-                        {
-                            yield return innerIdx;
-                            if (leallitva) yield break;
-                        }
+                        BlokkVegrehajtas(i + 1, end);
                     }
                     i = end;
                 }
@@ -110,11 +107,7 @@ namespace Robotszimulator
                     bool feltetel = FeltetelKiertekeles(i);
                     if (!leallitva && feltetel)
                     {
-                        foreach (var innerIdx in BlokkVegrehajtasIterator(i + 1, thenEnd))
-                        {
-                            yield return innerIdx;
-                            if (leallitva) yield break;
-                        }
+                        BlokkVegrehajtas(i + 1, thenEnd);
                     }
                     else if (!leallitva && vanElse)
                     {
@@ -130,7 +123,6 @@ namespace Robotszimulator
                 else
                 {
                     EgyszeruUtasitasVegrehajtas(i);
-                    yield return i;
                     i++;
                 }
             }

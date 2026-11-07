@@ -1,4 +1,6 @@
-﻿using Robotszimulator.Core;
+﻿using Microsoft.Win32;
+using Robotszimulator.Core;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -11,6 +13,7 @@ namespace Robotszimulator
         private static readonly SolidColorBrush NormalSzin = new SolidColorBrush(Color.FromRgb(0x9D, 0xA5, 0xB4));
         private static readonly SolidColorBrush HibaSzin = new SolidColorBrush(Color.FromRgb(0xE0, 0x6C, 0x75));
 
+        private Interpreter Interpreter => futtato.Interpreter;
         private Futtato futtato = new Futtato();
         private bool lejatszasFut = false;
         private bool megallitasKerve = false;
@@ -207,7 +210,7 @@ namespace Robotszimulator
                         {
                             Irany.Kelet => ">",
                             Irany.Nyugat => "<",
-                            Irany.Eszak => "^",
+                            Irany.Észak => "^",
                             _ => "v"
                         };
                     }
@@ -356,5 +359,44 @@ namespace Robotszimulator
                 hibaKod == null ? "Kézi vezérlés: bányászás" : "Kézi vezérlés: nincs arany ezen a mezőn",
                 hibaKod != null);
         }
+
+        private void BtnMentes_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                SaveFileDialog sfd = new SaveFileDialog();
+                sfd.Title = "Kérem válassza ki a mentési helyet!";
+                sfd.Filter = "Szöveges fájl (*.txt)|*.txt|Minden fájl (*.*)|*.*";
+                sfd.FileName = AppSettings.OutputFilePath;
+                sfd.ShowDialog();
+                if (sfd.FileName != "")
+                {
+                    StreamWriter sw = new StreamWriter(sfd.FileName);
+                    for (int i = 0; i < Interpreter.Naplo.Count; i++)
+                    {
+                        File.WriteAllLines(AppSettings.OutputFilePath, Interpreter.Naplo);
+                    }
+                    sw.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Hiba a napló mentésekor: " + ex.Message, "Hiba", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnBetoltes_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Title = "Kérem válassza ki a fájlt!";
+            ofd.Filter = "Szöveges fájl (*.txt)|*.txt|Minden fájl (*.*)|*.*";
+            ofd.FileName = AppSettings.InputFilePath;
+            ofd.ShowDialog();
+            if (ofd.FileName != "")
+            {
+                futtato.Beolvas.Beolvasas();
+            }
+        }
+
     }
 }

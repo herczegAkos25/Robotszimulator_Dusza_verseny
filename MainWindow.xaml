@@ -64,8 +64,8 @@
         <!-- 0. FELSŐ VEZÉRLŐSÁV -->
         <Border Grid.Row="0" Style="{StaticResource DarkCard}" Margin="0,0,0,6" Padding="10,5">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <Button Content="📁 Betöltés" Style="{StaticResource DarkButton}" Margin="0,0,8,0"/>
-                <Button Content="💾 Mentés" Style="{StaticResource DarkButton}" Margin="0,0,8,0"/>
+                <Button Content="📁 Betöltés" Style="{StaticResource DarkButton}" Margin="0,0,8,0" x:Name="BtnBetoltes" Click="BtnBetoltes_Click"/>
+                <Button Content="💾 Mentés" Style="{StaticResource DarkButton}" Margin="0,0,8,0" x:Name="BtnMentes" Click="BtnMentes_Click" />
                 <Button Content="▶ Futtatás" Style="{StaticResource RunButton}" Margin="0,0,8,0" Click="BtnFuttatas_Click"/>
                 <Button Content="⏭ Nyomkövetés" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnNyomkovetes_Click"/>
                 <Button Content="⏹ Megállítás" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnMegallitas_Click"/>
