@@ -410,12 +410,29 @@ namespace Robotszimulator
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.Title = "Kérem válassza ki a fájlt!";
             ofd.Filter = "Szöveges fájl (*.txt)|*.txt|Minden fájl (*.*)|*.*";
-            ofd.FileName = AppSettings.InputFilePath;
-            ofd.ShowDialog();
-            if (ofd.FileName != "")
+            if (ofd.ShowDialog() != true) return;
+
+            string regiUtvonal = AppSettings.InputFilePath;
+            megallitasKerve = true;
+
+            try
             {
-                futtato.Beolvas.Beolvasas();
+                AppSettings.InputFilePath = ofd.FileName;
+                futtato.Betoltes();
+                futtato.Inditas();
             }
+            catch (Exception hiba)
+            {
+                AppSettings.InputFilePath = regiUtvonal;
+                MessageBox.Show("A fájl nem olvasható: " + hiba.Message, "Hiba", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            betoltve = true;
+            kezziAllapotban = false;
+            NyomkovetesTorlese();
+            EloAllapotMegjelenites("Betöltve: " + System.IO.Path.GetFileName(ofd.FileName), false);
+            ProgramBetoltese();
         }
 
     }
