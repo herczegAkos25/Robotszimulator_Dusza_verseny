@@ -30,10 +30,7 @@ namespace Robotszimulator
 
             BlokkNezetBe();
 
-            if (string.IsNullOrEmpty(AppSettings.InputFilePath) && File.Exists("input.txt"))
-            {
-                AppSettings.InputFilePath = "input.txt";
-            }
+            
 
             if (string.IsNullOrEmpty(AppSettings.InputFilePath))
             {
