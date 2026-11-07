@@ -10,15 +10,17 @@ namespace Robotszimulator.Core
         public Robot Robot { get; private set; }
         public Interpreter Interpreter { get; private set; }
         public bool Nyomkovetes { get; set; }
+        public List<Sor> Program { get; set; } = new();
 
         public void Betoltes()
         {
             Beolvas.Beolvasas();
+            Program = new List<Sor>(Beolvas.ProgramLista);
         }
 
         public void Inditas()
         {
-            Inditas(Beolvas.ProgramLista);
+            Inditas(Program);
         }
 
         public void Inditas(List<Sor> program)
