@@ -1,4 +1,5 @@
 ﻿using Robotszimulator.Core;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -24,16 +25,26 @@ namespace Robotszimulator
         {
             InitializeComponent();
 
-            if (string.IsNullOrEmpty(AppSettings.InputFilePath))
+            BlokkNezetBe();
+
+            if (string.IsNullOrEmpty(AppSettings.InputFilePath) && File.Exists("input.txt"))
             {
                 AppSettings.InputFilePath = "input.txt";
+            }
+
+            if (string.IsNullOrEmpty(AppSettings.InputFilePath))
+            {
+                AllapotsorBeallitas("Nincs betöltött bemeneti fájl, használd a Betöltés gombot", false);
+                return;
             }
 
             try
             {
                 futtato.Betoltes();
                 futtato.Inditas();
+                betoltve = true;
                 EloAllapotMegjelenites("Kezdőállapot", false);
+                ProgramBetoltese();
             }
             catch (Exception ex)
             {
@@ -46,6 +57,8 @@ namespace Robotszimulator
             var terkep = futtato.Terkep;
             var robot = futtato.Robot;
             if (terkep == null || terkep.Grid == null || robot == null) return;
+
+            SorKiemeles(0, false);
 
             Kirajzol(terkep.Grid, terkep.Felfedezett, robot.Sor, robot.Oszlop, robot.AktualisIrany);
             tbKibanyaszottArany.Text = robot.KibanyaszottAranySzam.ToString();
@@ -94,6 +107,7 @@ namespace Robotszimulator
             var allapot = allapotok[index];
 
             Megjelenites(allapot, interpreter);
+            SorKiemeles(allapot.Sor, allapot.HibaKod != null);
             if (utolso)
             {
                 TeljesNaploMegjelenites(interpreter);
@@ -222,6 +236,8 @@ namespace Robotszimulator
 
         private bool NyomkovetesInditas()
         {
+            if (!ProgramAtvetele()) return false;
+
             megallitasKerve = true;
             kezziAllapotban = false;
 
@@ -299,6 +315,11 @@ namespace Robotszimulator
         private bool KezziElokeszites()
         {
             megallitasKerve = true;
+            if (!betoltve)
+            {
+                AllapotsorBeallitas("Nincs betöltött bemeneti fájl, használd a Betöltés gombot", true);
+                return false;
+            }
             if (kezziAllapotban) return true;
 
             try

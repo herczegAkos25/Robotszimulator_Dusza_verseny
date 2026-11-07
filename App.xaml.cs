@@ -34,12 +34,8 @@ namespace Robotszimulator
                 AppSettings.OutputFilePath = args[1];
             }
 
-            if (AppSettings.InputFilePath == string.Empty || AppSettings.OutputFilePath == string.Empty)
+            if (AppSettings.IsQuietMode && (AppSettings.InputFilePath == string.Empty || AppSettings.OutputFilePath == string.Empty))
             {
-                if (!AppSettings.IsQuietMode)
-                {
-                    MessageBox.Show("Használat: robot.exe [-q] bemeneti_fajl naplo_fajl", "Robot szimulátor");
-                }
                 Shutdown(1);
                 return;
             }
