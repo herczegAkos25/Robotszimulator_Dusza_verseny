@@ -57,6 +57,8 @@
             <!-- 1. Fő munkaterület (Program + Szimulátor) -->
             <RowDefinition Height="250"/>
             <!-- 2. Alsó sáv (Konzol, Napló, Változók) -->
+            <RowDefinition Height="Auto"/>
+            <!-- 3. Állapotsor -->
         </Grid.RowDefinitions>
 
         <!-- 0. FELSŐ VEZÉRLŐSÁV -->
@@ -64,13 +66,16 @@
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <Button Content="📁 Betöltés" Style="{StaticResource DarkButton}" Margin="0,0,8,0"/>
                 <Button Content="💾 Mentés" Style="{StaticResource DarkButton}" Margin="0,0,8,0"/>
-                <Button Content="▶ Futtatás" Style="{StaticResource RunButton}" Margin="0,0,8,0"/>
-                <Button Content="⏭ Nyomkövetés" Style="{StaticResource DarkButton}" Margin="0,0,8,0"/>
-                <Button Content="⏹ Megállítás" Style="{StaticResource DarkButton}" Margin="0,0,16,0"/>
+                <Button Content="▶ Futtatás" Style="{StaticResource RunButton}" Margin="0,0,8,0" Click="BtnFuttatas_Click"/>
+                <Button Content="⏭ Nyomkövetés" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnNyomkovetes_Click"/>
+                <Button Content="⏹ Megállítás" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnMegallitas_Click"/>
+                <Button Content="◀ Vissza" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnVissza_Click"/>
+                <Button Content="Következő ▶" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnKovetkezo_Click"/>
+                <TextBlock x:Name="tbLepesSzamlalo" Text="Lépés 0 / 0" VerticalAlignment="Center" Foreground="#9DA5B4" FontSize="12" Margin="0,0,16,0"/>
 
-                <TextBlock Text="Sebesség: lassú" VerticalAlignment="Center" Foreground="#9DA5B4" FontSize="12" Margin="0,0,8,0"/>
-                <Slider Width="120" VerticalAlignment="Center" Minimum="1" Maximum="10" Value="5" Margin="0,0,8,0"/>
-                <TextBlock Text="gyors" VerticalAlignment="Center" Foreground="#9DA5B4" FontSize="12"/>
+                <TextBlock Text="Sebesség: lassú (1)" VerticalAlignment="Center" Foreground="#9DA5B4" FontSize="12" Margin="0,0,8,0"/>
+                <Slider Width="120" VerticalAlignment="Center" Minimum="1" Maximum="10" Value="5" Margin="0,0,8,0" x:Name="slSebesseg"/>
+                <TextBlock Text="gyors (10)" VerticalAlignment="Center" Foreground="#9DA5B4" FontSize="12"/>
             </StackPanel>
         </Border>
 
@@ -155,19 +160,19 @@
                         <Border Background="#1E1E1E" CornerRadius="6" Padding="10" Margin="0,0,5,0">
                             <StackPanel>
                                 <TextBlock Text="Szenzor, a robot előtt" Foreground="#9DA5B4" FontSize="11"/>
-                                <TextBlock Text="" FontWeight="Bold" FontSize="14" Margin="0,4,0,0"/>
+                                <TextBlock Text="" FontWeight="Bold" FontSize="14" Margin="0,4,0,0" x:Name="tbSzenzor"/>
                             </StackPanel>
                         </Border>
                         <Border Background="#1E1E1E" CornerRadius="6" Padding="10" Margin="5,0">
                             <StackPanel>
                                 <TextBlock Text="Kibányászott arany" Foreground="#9DA5B4" FontSize="11"/>
-                                <TextBlock Text="0" FontWeight="Bold" FontSize="16" Foreground="#E5C07B" Margin="0,4,0,0"/>
+                                <TextBlock Text="0" FontWeight="Bold" FontSize="16" Foreground="#E5C07B" Margin="0,4,0,0" x:Name="tbKibanyaszottArany"/>
                             </StackPanel>
                         </Border>
                         <Border Background="#1E1E1E" CornerRadius="6" Padding="10" Margin="5,0,0,0">
                             <StackPanel>
                                 <TextBlock Text="Irány" Foreground="#9DA5B4" FontSize="11"/>
-                                <TextBlock Text="" FontWeight="Bold" FontSize="14" Margin="0,4,0,0"/>
+                                <TextBlock Text="" FontWeight="Bold" FontSize="14" Margin="0,4,0,0" x:Name="tbIrány"/>
                             </StackPanel>
                         </Border>
                     </UniformGrid>
@@ -177,11 +182,11 @@
                         <StackPanel>
                             <TextBlock Text="Kézi vezérlés" FontWeight="SemiBold" Margin="0,0,0,8"/>
                             <StackPanel Orientation="Horizontal">
-                                <Button Content="⟳ Balra fordulás" Style="{StaticResource DarkButton}" Margin="0,0,8,0"/>
-                                <TextBox Width="45" Background="#282C34" Foreground="White" BorderBrush="#3A3F4B" Text="1" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="0,0,15,0"/>
-                                <Button Content="↑ Előre" Style="{StaticResource DarkButton}" Margin="0,0,8,0"/>
-                                <TextBox Width="45" Background="#282C34" Foreground="White" BorderBrush="#3A3F4B" Text="1" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="0,0,15,0"/>
-                                <Button Content="◆ Bányászás" Style="{StaticResource DarkButton}"/>
+                                <Button Content="⟳ Balra fordulás" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnKezziFordulas_Click"/>
+                                <TextBox x:Name="tbKezziFordulas" Width="45" Background="#282C34" Foreground="White" BorderBrush="#3A3F4B" Text="1" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="0,0,15,0"/>
+                                <Button Content="↑ Előre" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnKezziLepes_Click"/>
+                                <TextBox x:Name="tbKezziLepes" Width="45" Background="#282C34" Foreground="White" BorderBrush="#3A3F4B" Text="1" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="0,0,15,0"/>
+                                <Button Content="◆ Bányászás" Style="{StaticResource DarkButton}" Click="BtnKezziBanyaszat_Click"/>
                             </StackPanel>
                             <TextBlock Text="Kézi vezérlésnél a futás megáll, és nem készül napló." Foreground="#5C6370" FontSize="11" Margin="0,6,0,0"/>
                         </StackPanel>
@@ -202,7 +207,7 @@
             <Border Grid.Column="0" Style="{StaticResource DarkCard}">
                 <DockPanel>
                     <TextBlock Text="Konzol" FontWeight="Bold" DockPanel.Dock="Top" Margin="0,0,0,8"/>
-                    <TextBox Background="#181A1F" Foreground="#E6EDF3" BorderThickness="0" IsReadOnly="True" FontFamily="Consolas" Text=""/>
+                    <TextBox Background="#181A1F" Foreground="#E6EDF3" BorderThickness="0" IsReadOnly="True" FontFamily="Consolas" x:Name="tbKonzol"/>
                 </DockPanel>
             </Border>
 
@@ -214,7 +219,7 @@
                         <TextBlock Text="" Foreground="#9DA5B4" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                     </Grid>
                     <TextBox Background="#181A1F" Foreground="#E6EDF3" BorderThickness="0" IsReadOnly="True" FontFamily="Consolas" 
-                             Text=""/>
+                             x:Name="tbNapló"/>
                 </DockPanel>
             </Border>
 
@@ -222,7 +227,7 @@
             <Border Grid.Column="2" Style="{StaticResource DarkCard}">
                 <DockPanel>
                     <TextBlock Text="Változók" FontWeight="Bold" DockPanel.Dock="Top" Margin="0,0,0,8"/>
-                    <ListView Background="#181A1F" Foreground="#E6EDF3" BorderThickness="0">
+                    <ListView x:Name="lvValtozok" Background="#181A1F" Foreground="#E6EDF3" BorderThickness="0">
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Név" Width="90" DisplayMemberBinding="{Binding Name}"/>
@@ -234,5 +239,10 @@
                 </DockPanel>
             </Border>
         </Grid>
+
+        <!-- 3. ÁLLAPOTSOR -->
+        <Border Grid.Row="3" Style="{StaticResource DarkCard}" Margin="0,6,0,0" Padding="10,6">
+            <TextBlock x:Name="tbAllapotsor" Text="Kezdőállapot" Foreground="#9DA5B4" FontSize="12"/>
+        </Border>
     </Grid>
 </Window>

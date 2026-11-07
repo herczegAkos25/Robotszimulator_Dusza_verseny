@@ -9,11 +9,15 @@ namespace Robotszimulator
     public class Interpreter
     {
         private List<Sor> program;
-        private Dictionary<string, object> valtozok = new Dictionary<string, object>();
+        private Dictionary<string, object> valtozok = new();
         private Robot robot;
 
-        public List<string> Naplo { get; private set; } = new List<string>();
-        public List<string> Konzol { get; private set; } = new List<string>();
+        public List<string> Naplo { get; private set; } = new();
+        public List<string> Konzol { get; private set; } = new();
+
+        public List<Allapot> Allapotok { get; private set; } = new();
+        public bool Nyomkovetes { get; set; }
+
         public IReadOnlyDictionary<string, object> Valtozok => valtozok;
         public string? HibaKod { get; private set; }
         public int HibaSor { get; private set; }
@@ -30,6 +34,8 @@ namespace Robotszimulator
 
         public void Futtatas()
         {
+            Pillanatkep(-1);
+
             try
             {
                 BlokkVegrehajtas(0, program.Count);
@@ -60,6 +66,7 @@ namespace Robotszimulator
                 Naplo.Add("INSTRUCTION_COUNT_LIMIT_EXCEEDED");
                 HibaRogzites(sorIndex, "INSTRUCTION_COUNT_LIMIT_EXCEEDED");
                 limitElerve = true;
+                Pillanatkep(sorIndex);
                 return false;
             }
             utasitasSzamlalo++;
@@ -112,6 +119,7 @@ namespace Robotszimulator
                         if (KeresesElott(thenEnd))
                         {
                             Naplo.Add((thenEnd + 1).ToString());
+                            Pillanatkep(thenEnd);
                             BlokkVegrehajtas(thenEnd + 1, elseEnd);
                         }
                     }
@@ -145,6 +153,7 @@ namespace Robotszimulator
             }
 
             Naplo.Add(sorBejegyzes);
+            Pillanatkep(i);
             return eredmeny;
         }
 
@@ -232,6 +241,7 @@ namespace Robotszimulator
             }
 
             Naplo.Add(sorBejegyzes);
+            Pillanatkep(i);
         }
 
         // --- Kétoperandusú kifejezések kiértékelése ---
@@ -273,7 +283,10 @@ namespace Robotszimulator
         {
             if (token == "true") return true;
             if (token == "false") return false;
-            if (char.IsDigit(token[0])) return int.Parse(token, CultureInfo.InvariantCulture);
+            if (char.IsDigit(token[0]) && int.TryParse(token, NumberStyles.Integer, CultureInfo.InvariantCulture, out int szamErtek))
+            {
+                return szamErtek;
+            }
             if (valtozok.ContainsKey(token)) return valtozok[token];
 
             throw new FutasHiba("E_UNINITIALIZED");
@@ -285,6 +298,27 @@ namespace Robotszimulator
             if (ertek is bool b) return b ? "true" : "false";
             if (ertek is int szam) return szam.ToString(CultureInfo.InvariantCulture);
             return ertek.ToString() ?? string.Empty;
+        }
+
+        private void Pillanatkep(int sorIndex)
+        {
+            if (!Nyomkovetes) return;
+
+            Allapotok.Add(new Allapot
+            {
+                Sor = sorIndex + 1,
+                Valtozok = new Dictionary<string, object>(valtozok),
+                RobotSor = robot.Sor,
+                RobotOszlop = robot.Oszlop,
+                Irany = robot.AktualisIrany,
+                Felfedezett = (bool[,])robot.Felfedezett.Clone(),
+                Grid = robot.Grid.Select(sor => (string[])sor.Clone()).ToArray(),
+                Arany = robot.KibanyaszottAranySzam,
+                Szenzor = robot.Szenzor(),
+                NaploHossz = Naplo.Count,
+                KonzolHossz = Konzol.Count,
+                HibaKod = HibaKod
+            });
         }
     }
 }
