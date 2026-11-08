@@ -14,11 +14,18 @@ namespace Robotszimulator.UI
         private readonly Dictionary<string, List<string>> felfedezetlenVegzodesek = new();
 
         public bool Betoltve { get; private set; }
+        public BitmapSource? Robot { get; private set; }
 
         public TerkepKepek()
         {
             string? mappa = MappaKeresese();
             if (mappa == null) return;
+
+            string robotFajl = Path.Combine(mappa, "robot.png");
+            if (File.Exists(robotFajl))
+            {
+                Robot = KepBetoltese(robotFajl);
+            }
 
             foreach (string tipus in new[] { "talaj", "fal", "arany" })
             {

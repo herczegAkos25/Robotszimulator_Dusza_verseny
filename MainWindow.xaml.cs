@@ -237,7 +237,20 @@ namespace Robotszimulator
                         if (felfedezve && ertek == "@") cella.Background = Brushes.Gold;
                     }
 
-                    if (robotCella)
+                    if (robotCella && terkepKepek.Robot != null)
+                    {
+                        var robotKep = KepElem(terkepKepek.Robot);
+                        robotKep.RenderTransformOrigin = new Point(0.5, 0.5);
+                        robotKep.RenderTransform = new RotateTransform(irany switch
+                        {
+                            Irany.Kelet => 90,
+                            Irany.Nyugat => 270,
+                            Irany.Észak => 0,
+                            _ => 180
+                        });
+                        tartalom.Children.Add(robotKep);
+                    }
+                    else if (robotCella)
                     {
                         tartalom.Children.Add(new Border
                         {
