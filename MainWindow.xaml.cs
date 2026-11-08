@@ -34,6 +34,7 @@ namespace Robotszimulator
             InitializeComponent();
 
             BlokkNezetBe();
+            LegendaFeltoltese();
 
             
 
@@ -293,6 +294,50 @@ namespace Robotszimulator
             return elem;
         }
 
+        private void LegendaFeltoltese()
+        {
+            spLegenda.Children.Clear();
+
+            var elemek = new (string Nev, string Tipus, bool Felfedezve, Brush Szin)[]
+            {
+                ("Felfedezett", "talaj", true, Brushes.White),
+                ("Felfedezetlen", "talaj", false, Brushes.Black),
+                ("Fal", "fal", true, Brushes.Gray),
+                ("Arany", "arany", true, Brushes.Gold),
+                ("Robot", "robot", true, Brushes.LightSkyBlue)
+            };
+
+            foreach (var elem in elemek)
+            {
+                BitmapSource? kep = elem.Tipus == "robot"
+                    ? terkepKepek.Robot
+                    : (terkepKepek.Betoltve ? terkepKepek.Kep(elem.Tipus, elem.Felfedezve, 0) : null);
+
+                UIElement jel;
+                if (kep != null)
+                {
+                    jel = KepElem(kep);
+                }
+                else
+                {
+                    jel = new Border { Background = elem.Szin };
+                }
+
+                var keret = (FrameworkElement)jel;
+                keret.Width = 18;
+                keret.Height = 18;
+                keret.VerticalAlignment = VerticalAlignment.Center;
+
+                spLegenda.Children.Add(jel);
+                spLegenda.Children.Add(new Label
+                {
+                    Content = elem.Nev,
+                    Foreground = NormalSzin,
+                    Margin = new Thickness(2, 0, elem.Tipus == "robot" ? 0 : 14, 0)
+                });
+            }
+        }
+
         private void SorsokUjrasorsolasa(int sorokSzama, int oszlopokSzama)
         {
             cellaSorsok = new int[sorokSzama, oszlopokSzama];
@@ -340,6 +385,18 @@ namespace Robotszimulator
 
             try
             {
+                if (cbNyomkovetes.IsChecked != true)
+                {
+                    if (!NyomkovetesInditas())
+                    {
+                        btnMegallitas.IsEnabled = false;
+                        return;
+                    }
+
+                    LepesMegjelenites(nyomkovetesAllapotok!.Count - 1);
+                    return;
+                }
+
                 if (nyomkovetesAllapotok == null)
                 {
                     if (!NyomkovetesInditas())

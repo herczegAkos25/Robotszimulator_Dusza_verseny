@@ -276,6 +276,8 @@
                 <Button Content="Következő ▶" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnKovetkezo_Click"/>
                 <TextBlock x:Name="tbLepesSzamlalo" Text="Lépés 0 / 0" VerticalAlignment="Center" Foreground="#9DA5B4" FontSize="12" Margin="0,0,16,0"/>
 
+                <CheckBox x:Name="cbNyomkovetes" Content="Nyomkövetés" IsChecked="True" VerticalAlignment="Center" Foreground="#9DA5B4" FontSize="12" Margin="0,0,16,0"/>
+
                 <TextBlock Text="Sebesség: lassú" VerticalAlignment="Center" Foreground="#9DA5B4" FontSize="12" Margin="0,0,8,0"/>
                 <Slider Width="120" VerticalAlignment="Center" Minimum="1" Maximum="10" Value="5" Margin="0,0,8,0" x:Name="slSebesseg" TickFrequency="1" IsSnapToTickEnabled="True"/>
                 <TextBlock Text="gyors" VerticalAlignment="Center" Foreground="#9DA5B4" FontSize="12"/>
@@ -396,24 +398,7 @@
                     <!-- Cím & Jelmagyarázat -->
                     <Grid Grid.Row="0" Margin="0,0,0,10">
                         <TextBlock Text="Szimulátor" FontWeight="Bold" FontSize="15" VerticalAlignment="Center"/>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                            <Canvas>
-                                <Rectangle Width="15" Height="15" Fill="White" Canvas.Right="0" Canvas.Bottom="5"/>
-                            </Canvas>
-                            <Label Content="Felfedezett" Foreground="#9DA5B4" Margin="0 0 20 0"/>
-                            <Canvas>
-                                <Rectangle Width="15" Height="15" Fill="Black" Canvas.Right="0" Canvas.Bottom="5"/>
-                            </Canvas>
-                            <Label Content="Felfedezetlen" Foreground="#9DA5B4" Margin="0,0,20,0"/>
-                            <Canvas>
-                                <Rectangle Width="15" Height="15" Fill="Gray" Canvas.Right="0" Canvas.Bottom="5"/>
-                            </Canvas>
-                            <Label Content="Fal" Foreground="#9DA5B4" Margin="0,0,20,0"/>
-                            <Canvas>
-                                <Rectangle Width="15" Height="15" Fill="#E5C07B" Canvas.Right="0" Canvas.Bottom="5"/>
-                            </Canvas>
-                            <Label Content="Arany" Foreground="#9DA5B4"/>
-                        </StackPanel>
+                        <StackPanel x:Name="spLegenda" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                     </Grid>
 
                     <!-- Térkép Canvas / Rács -->

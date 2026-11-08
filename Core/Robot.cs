@@ -120,6 +120,12 @@ namespace Robotszimulator.Core
             }
         }
 
+        public void ElotteFelfedezes()
+        {
+            var (celOszlop, celSor) = CelKoordinataKiszamitas();
+            terkep.MezoFelfedezve(celOszlop, celSor);
+        }
+
         public bool isThere(int objektumTipus)
         {
             var (celOszlop, celSor) = CelKoordinataKiszamitas();

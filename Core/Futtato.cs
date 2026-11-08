@@ -42,13 +42,20 @@ namespace Robotszimulator.Core
         public void KezziFordulas(int negyedfordulatSzam)
         {
             Robot.Turn_by(negyedfordulatSzam);
+            Robot.ElotteFelfedezes();
         }
 
         public string? KezziLepes(int tavolsag)
         {
             try
             {
-                Robot.Step_forward(tavolsag);
+                for (int i = 0; i < tavolsag; i++)
+                {
+                    Robot.ElotteFelfedezes();
+                    Robot.Step_forward(1);
+                }
+
+                Robot.ElotteFelfedezes();
                 return null;
             }
             catch (FutasHiba hiba)
