@@ -149,6 +149,10 @@ namespace Robotszimulator
         {
             tbAllapotsor.Foreground = hiba ? HibaSzin : NormalSzin;
             tbAllapotsor.Text = szoveg;
+            if (hiba)
+            {
+                System.Media.SystemSounds.Hand.Play();
+            }
         }
 
         private void SzenzorMegjelenites(int szenzorErtek)

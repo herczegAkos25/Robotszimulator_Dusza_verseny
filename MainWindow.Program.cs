@@ -19,6 +19,8 @@ namespace Robotszimulator
         private bool betoltve = false;
         private bool nemMentett = false;
         private bool szovegBeallitas = false;
+        private int kiemeltSzovegSor = 0;
+        private bool kiemeltSzovegHiba = false;
 
         private BlokkSor? KijeloltSor()
         {
@@ -114,21 +116,27 @@ namespace Robotszimulator
         private void SorszamokFrissitese()
         {
             string[] sorok = tbProgramSzoveg.Text.Split('\n');
-            var kimenet = new System.Text.StringBuilder();
             int szamlalo = 0;
+
+            tbSorszamok.Inlines.Clear();
 
             for (int i = 0; i < sorok.Length; i++)
             {
                 if (!string.IsNullOrWhiteSpace(sorok[i]))
                 {
                     szamlalo++;
-                    kimenet.Append(szamlalo);
+                    var szam = new System.Windows.Documents.Run(szamlalo.ToString());
+                    if (szamlalo == kiemeltSzovegSor)
+                    {
+                        szam.Foreground = Ecset(kiemeltSzovegHiba ? "#E06C75" : "#E5C07B");
+                        szam.FontWeight = FontWeights.Bold;
+                    }
+
+                    tbSorszamok.Inlines.Add(szam);
                 }
 
-                if (i < sorok.Length - 1) kimenet.Append('\n');
+                if (i < sorok.Length - 1) tbSorszamok.Inlines.Add(new System.Windows.Documents.LineBreak());
             }
-
-            tbSorszamok.Text = kimenet.ToString();
         }
 
         private void TbProgramSzoveg_ScrollChanged(object sender, ScrollChangedEventArgs e)
@@ -305,6 +313,7 @@ namespace Robotszimulator
 
         private void TbProgramSzoveg_TextChanged(object sender, TextChangedEventArgs e)
         {
+            kiemeltSzovegSor = 0;
             SorszamokFrissitese();
             NyomkovetesTorlese();
             if (!szovegBeallitas) MentettsegBeallitasa(true);
@@ -571,7 +580,7 @@ namespace Robotszimulator
         {
             if (!blokkNezet)
             {
-                SzovegSorKiemeles(sorszam);
+                SzovegSorKiemeles(sorszam, hiba);
                 return;
             }
 
@@ -590,8 +599,14 @@ namespace Robotszimulator
             }
         }
 
-        private void SzovegSorKiemeles(int sorszam)
+        private void SzovegSorKiemeles(int sorszam, bool hiba)
         {
+            kiemeltSzovegSor = sorszam;
+            kiemeltSzovegHiba = hiba;
+            tbProgramSzoveg.SelectionBrush = Ecset(hiba ? "#E06C75" : "#E5C07B");
+            tbProgramSzoveg.SelectionTextBrush = Brushes.Black;
+            SorszamokFrissitese();
+
             if (sorszam <= 0)
             {
                 tbProgramSzoveg.Select(0, 0);
