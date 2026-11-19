@@ -1,10 +1,10 @@
-Hány kőzettípus van, és hogyan jelölik a bemeneti fájlban? (A régi # jelentése mi legyen?)
-Hogyan látja a robot a kőzet keménységét: az isThere bővül, vagy új érzékelő kell?
-Melyik az új fúrás parancs, és mindig az előtte lévő mezőt fúrja?
-Mennyi a kezdő energia, mennyibe kerül egy fúrás típusonként, és programból lekérdezhető?
-Mi történik, ha elfogy az energia?
-Mi számít „nagyon kiüregeltnek”: milyen szomszédsági vagy terület-küszöb váltja ki a beomlást?
-Mi a beomlás következménye a robotra, a mezőre és a naplóra?
-Mit véd a támasz (mezőt vagy környezetet), mibe kerül, korlátozott-e a készlet, és mi a parancsa?
-Mi történik a kemény kőzet fúrásakor: hibakód és megáll a program, vagy folytatódik?
-Hogyan jelenjen meg a térképen és a naplóban a kőzet, a támasz és a beomlás?
+1. Hány kőzettípus van keménység szerint?
+2. Hogyan látja a robot a kőzet keménységét: térképről vagy új érzékelő segítségével?
+3. Hogyan kezeljük az új fúrás parancsot, amivel a kőzetet eltávolítjuk 
+4. Kőzet keménysége összefügg a fúrásnál felhasznált energia mennyiségével?
+5. Mi számít „nagyon kiüregeltnek”: milyen szomszédsági vagy terület-küszöb váltja ki a beomlást?
+6. Mi a beomlás következménye a robotra, a mezőre és a naplóra?
+7. Mit véd a támasz (mezőt vagy környezetet), felhasználásának van-e költsége?
+8. Mi történik a kemény kőzet fúrásakor: hibakód és megáll a program, vagy folytatódik?
+9. Programnak melyek a befejezési esetei? (Elfogy az eneriga, beomlás)
+10. Mi számít kockázatnak? (Elfogy az eneriga, beomlás)
