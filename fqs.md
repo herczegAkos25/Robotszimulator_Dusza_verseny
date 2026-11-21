@@ -7,4 +7,4 @@
 7. Mit véd a támasz (mezőt vagy környezetet), felhasználásának van-e költsége?
 8. Mi történik a kemény kőzet fúrásakor: hibakód és megáll a program, vagy folytatódik?
 9. Programnak melyek a befejezési esetei? (Elfogy az eneriga, beomlás)
-10. Mi számít kockázatnak? (Elfogy az eneriga, beomlás)
+10. Mi számít kockázatnak? (Elfogy az eneriga, beomlás)ko

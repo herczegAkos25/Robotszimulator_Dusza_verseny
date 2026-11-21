@@ -18,18 +18,23 @@ namespace Robotszimulator
         public List<Allapot> Allapotok { get; private set; } = new();
         public bool Nyomkovetes { get; set; }
 
-        public IReadOnlyDictionary<string, object> Valtozok => valtozok;
+        public IReadOnlyDictionary<string, object> Valtozok
+        {
+            get { return valtozok; }
+        }
+
         public string? HibaKod { get; private set; }
         public int HibaSor { get; private set; }
 
+        private const int UtasitasLimit = 1000;
         private int utasitasSzamlalo = 0;
         private bool leallitva = false;
         private bool limitElerve = false;
 
-        public Interpreter(List<Sor> prog, Robot r)
+        public Interpreter(List<Sor> program, Robot robot)
         {
-            program = prog;
-            robot = r;
+            this.program = program;
+            this.robot = robot;
         }
 
         public void Futtatas()
@@ -58,7 +63,7 @@ namespace Robotszimulator
 
         private bool KeresesElott(int sorIndex)
         {
-            if (utasitasSzamlalo >= 1000)
+            if (utasitasSzamlalo >= UtasitasLimit)
             {
                 Naplo.Add("INSTRUCTION_COUNT_LIMIT_EXCEEDED");
                 HibaRogzites(sorIndex, "INSTRUCTION_COUNT_LIMIT_EXCEEDED");
@@ -90,35 +95,35 @@ namespace Robotszimulator
 
                 if (parancs == "while")
                 {
-                    int end = BlokkVege(i + 1, behuzas);
+                    int blokkVege = BlokkVege(i + 1, behuzas);
                     while (!leallitva)
                     {
                         if (!FeltetelKiertekeles(i)) break;
-                        BlokkVegrehajtas(i + 1, end);
+                        BlokkVegrehajtas(i + 1, blokkVege);
                     }
-                    i = end;
+                    i = blokkVege;
                 }
                 else if (parancs == "if")
                 {
-                    int thenEnd = BlokkVege(i + 1, behuzas);
-                    bool vanElse = thenEnd < meddig && program[thenEnd].szokoz == behuzas && program[thenEnd].szavak[0] == "else";
-                    int elseEnd = vanElse ? BlokkVege(thenEnd + 1, behuzas) : thenEnd;
+                    int igazAgVege = BlokkVege(i + 1, behuzas);
+                    bool vanElse = igazAgVege < meddig && program[igazAgVege].szokoz == behuzas && program[igazAgVege].szavak[0] == "else";
+                    int hamisAgVege = vanElse ? BlokkVege(igazAgVege + 1, behuzas) : igazAgVege;
 
                     bool feltetel = FeltetelKiertekeles(i);
                     if (!leallitva && feltetel)
                     {
-                        BlokkVegrehajtas(i + 1, thenEnd);
+                        BlokkVegrehajtas(i + 1, igazAgVege);
                     }
                     else if (!leallitva && vanElse)
                     {
-                        if (KeresesElott(thenEnd))
+                        if (KeresesElott(igazAgVege))
                         {
-                            Naplo.Add((thenEnd + 1).ToString());
-                            Pillanatkep(thenEnd);
-                            BlokkVegrehajtas(thenEnd + 1, elseEnd);
+                            Naplo.Add((igazAgVege + 1).ToString());
+                            Pillanatkep(igazAgVege);
+                            BlokkVegrehajtas(igazAgVege + 1, hamisAgVege);
                         }
                     }
-                    i = elseEnd;
+                    i = hamisAgVege;
                 }
                 else
                 {
@@ -136,9 +141,9 @@ namespace Robotszimulator
 
             try
             {
-                object c = Olvas(program[i].szavak[1]);
-                if (!(c is bool)) throw new FutasHiba("E_NON_BOOL_CONDITION");
-                eredmeny = (bool)c;
+                object feltetel = Olvas(program[i].szavak[1]);
+                if (!(feltetel is bool)) throw new FutasHiba("E_NON_BOOL_CONDITION");
+                eredmeny = (bool)feltetel;
             }
             catch (FutasHiba e)
             {
@@ -155,34 +160,34 @@ namespace Robotszimulator
         {
             if (!KeresesElott(i)) return;
 
-            string[] t = program[i].szavak;
+            string[] szavak = program[i].szavak;
             string sorBejegyzes = (i + 1).ToString();
 
             try
             {
-                switch (t[0])
+                switch (szavak[0])
                 {
                     case "print":
                         sorBejegyzes += " print";
-                        string kiirandoErtek = Megjelenit(Olvas(t[1]));
+                        string kiirandoErtek = Megjelenit(Olvas(szavak[1]));
                         sorBejegyzes += " " + kiirandoErtek;
                         Konzol.Add(kiirandoErtek);
                         break;
 
                     case "turn":
                         sorBejegyzes += " turn by";
-                        object nTurn = Olvas(t[2]);
-                        sorBejegyzes += " " + Megjelenit(nTurn);
-                        if (!(nTurn is int) || (int)nTurn < 0) throw new FutasHiba("E_BAD_ARG");
-                        robot.Turn_by((int)nTurn);
+                        object fordulasSzam = Olvas(szavak[2]);
+                        sorBejegyzes += " " + Megjelenit(fordulasSzam);
+                        if (!(fordulasSzam is int) || (int)fordulasSzam < 0) throw new FutasHiba("E_BAD_ARG");
+                        robot.Turn_by((int)fordulasSzam);
                         break;
 
                     case "step":
                         sorBejegyzes += " step forward";
-                        object nStep = Olvas(t[2]);
-                        sorBejegyzes += " " + Megjelenit(nStep);
-                        if (!(nStep is int) || (int)nStep < 0) throw new FutasHiba("E_BAD_ARG");
-                        robot.Step_forward((int)nStep);
+                        object lepesSzam = Olvas(szavak[2]);
+                        sorBejegyzes += " " + Megjelenit(lepesSzam);
+                        if (!(lepesSzam is int) || (int)lepesSzam < 0) throw new FutasHiba("E_BAD_ARG");
+                        robot.Step_forward((int)lepesSzam);
                         break;
 
                     case "mine":
@@ -192,37 +197,37 @@ namespace Robotszimulator
 
                     case "set":
                         object ertek;
-                        if (t.Length == 4)
+                        if (szavak.Length == 4)
                         {
-                            ertek = Olvas(t[3]);
+                            ertek = Olvas(szavak[3]);
                         }
-                        else if (t[3] == "isThere")
+                        else if (szavak[3] == "isThere")
                         {
                             sorBejegyzes += " isThere";
-                            object w = Olvas(t[4]);
-                            sorBejegyzes += " " + Megjelenit(w);
+                            object objektumTipus = Olvas(szavak[4]);
+                            sorBejegyzes += " " + Megjelenit(objektumTipus);
 
-                            if (!(w is int) || (int)w < 0 || (int)w > 2)
+                            if (!(objektumTipus is int) || (int)objektumTipus < 0 || (int)objektumTipus > 2)
                                 throw new FutasHiba("E_BAD_ARG");
 
-                            ertek = robot.isThere((int)w);
+                            ertek = robot.isThere((int)objektumTipus);
                             sorBejegyzes += " " + Megjelenit(ertek);
                         }
-                        else if (t[3] == "not")
+                        else if (szavak[3] == "not")
                         {
-                            object x = Olvas(t[4]);
-                            if (!(x is bool)) throw new FutasHiba("E_BAD_OPERAND");
-                            ertek = !(bool)x;
+                            object operandus = Olvas(szavak[4]);
+                            if (!(operandus is bool)) throw new FutasHiba("E_BAD_OPERAND");
+                            ertek = !(bool)operandus;
                         }
                         else
                         {
-                            ertek = BinarisMuveletKiertekeles(t[3], t[4], t[5]);
+                            ertek = BinarisMuveletKiertekeles(szavak[3], szavak[4], szavak[5]);
                         }
 
-                        if (valtozok.ContainsKey(t[1]) && valtozok[t[1]].GetType() != ertek.GetType())
+                        if (valtozok.ContainsKey(szavak[1]) && valtozok[szavak[1]].GetType() != ertek.GetType())
                             throw new FutasHiba("E_TYPE_MISMATCH");
 
-                        valtozok[t[1]] = ertek;
+                        valtozok[szavak[1]] = ertek;
                         break;
                 }
             }
@@ -236,36 +241,36 @@ namespace Robotszimulator
             Pillanatkep(i);
         }
 
-        private object BinarisMuveletKiertekeles(string a, string op, string b)
+        private object BinarisMuveletKiertekeles(string balToken, string muvelet, string jobbToken)
         {
-            bool aritmetikai = op == "+" || op == "-" || op == "*";
-            bool osszehasonlito = op == "<" || op == "<=" || op == ">" || op == ">=";
-            bool logikai = op == "and" || op == "or";
+            bool aritmetikai = muvelet == "+" || muvelet == "-" || muvelet == "*";
+            bool osszehasonlito = muvelet == "<" || muvelet == "<=" || muvelet == ">" || muvelet == ">=";
+            bool logikai = muvelet == "and" || muvelet == "or";
 
-            object x = Olvas(a);
-            if ((aritmetikai || osszehasonlito) && !(x is int)) throw new FutasHiba("E_BAD_OPERAND");
-            if (logikai && !(x is bool)) throw new FutasHiba("E_BAD_OPERAND");
+            object bal = Olvas(balToken);
+            if ((aritmetikai || osszehasonlito) && !(bal is int)) throw new FutasHiba("E_BAD_OPERAND");
+            if (logikai && !(bal is bool)) throw new FutasHiba("E_BAD_OPERAND");
 
-            object y = Olvas(b);
-            if ((aritmetikai || osszehasonlito) && !(y is int)) throw new FutasHiba("E_BAD_OPERAND");
-            if (logikai && !(y is bool)) throw new FutasHiba("E_BAD_OPERAND");
+            object jobb = Olvas(jobbToken);
+            if ((aritmetikai || osszehasonlito) && !(jobb is int)) throw new FutasHiba("E_BAD_OPERAND");
+            if (logikai && !(jobb is bool)) throw new FutasHiba("E_BAD_OPERAND");
 
-            if ((op == "=" || op == "<>") && x.GetType() != y.GetType())
+            if ((muvelet == "=" || muvelet == "<>") && bal.GetType() != jobb.GetType())
                 throw new FutasHiba("E_BAD_OPERAND");
 
-            switch (op)
+            switch (muvelet)
             {
-                case "+": return (int)x + (int)y;
-                case "-": return (int)x - (int)y;
-                case "*": return (int)x * (int)y;
-                case "<": return (int)x < (int)y;
-                case "<=": return (int)x <= (int)y;
-                case ">": return (int)x > (int)y;
-                case ">=": return (int)x >= (int)y;
-                case "=": return x.Equals(y);
-                case "<>": return !x.Equals(y);
-                case "and": return (bool)x && (bool)y;
-                default: return (bool)x || (bool)y;
+                case "+": return (int)bal + (int)jobb;
+                case "-": return (int)bal - (int)jobb;
+                case "*": return (int)bal * (int)jobb;
+                case "<": return (int)bal < (int)jobb;
+                case "<=": return (int)bal <= (int)jobb;
+                case ">": return (int)bal > (int)jobb;
+                case ">=": return (int)bal >= (int)jobb;
+                case "=": return bal.Equals(jobb);
+                case "<>": return !bal.Equals(jobb);
+                case "and": return (bool)bal && (bool)jobb;
+                default: return (bool)bal || (bool)jobb;
             }
         }
 
@@ -284,9 +289,13 @@ namespace Robotszimulator
 
         private static string Megjelenit(object ertek)
         {
-            if (ertek is bool b) return b ? "true" : "false";
-            if (ertek is int szam) return szam.ToString(CultureInfo.InvariantCulture);
-            return ertek.ToString() ?? string.Empty;
+            if (ertek is bool)
+            {
+                if ((bool)ertek) return "true";
+                return "false";
+            }
+
+            return ((int)ertek).ToString(CultureInfo.InvariantCulture);
         }
 
         private void Pillanatkep(int sorIndex)

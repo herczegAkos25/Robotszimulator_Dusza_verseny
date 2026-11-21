@@ -21,10 +21,14 @@ namespace Robotszimulator.Core
 
         public static bool ErvenyesAzonosito(string nev)
         {
-            return !string.IsNullOrEmpty(nev)
-                && char.IsAsciiLetter(nev[0])
-                && nev.All(char.IsAsciiLetterOrDigit)
-                && !IsKulcsszo(nev);
+            if (string.IsNullOrEmpty(nev) || !char.IsAsciiLetter(nev[0])) return false;
+
+            foreach (char betu in nev)
+            {
+                if (!char.IsAsciiLetterOrDigit(betu)) return false;
+            }
+
+            return !IsKulcsszo(nev);
         }
     }
 }

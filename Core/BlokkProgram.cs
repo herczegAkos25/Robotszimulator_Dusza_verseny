@@ -12,7 +12,17 @@ namespace Robotszimulator.Core
 
     public class BlokkProgram
     {
-        private record Nyitott(Blokk Blokk, int Behuzas);
+        private class Nyitott
+        {
+            public Blokk Blokk { get; }
+            public int Behuzas { get; }
+
+            public Nyitott(Blokk blokk, int behuzas)
+            {
+                Blokk = blokk;
+                Behuzas = behuzas;
+            }
+        }
 
         public List<Blokk> Gyokerek { get; } = new();
 
@@ -315,22 +325,22 @@ namespace Robotszimulator.Core
                     throw new InvalidOperationException("Az else sorban nem állhat más.");
                 }
 
-                while (verem.Count > 0 && sor.szokoz < verem[^1].Behuzas)
+                while (verem.Count > 0 && sor.szokoz < verem[verem.Count - 1].Behuzas)
                 {
                     verem.RemoveAt(verem.Count - 1);
                 }
 
-                if (verem.Count == 0 || verem[^1].Behuzas != sor.szokoz
-                    || verem[^1].Blokk.Tipus != BlokkTipus.If || verem[^1].Blokk.VanElse)
+                if (verem.Count == 0 || verem[verem.Count - 1].Behuzas != sor.szokoz
+                    || verem[verem.Count - 1].Blokk.Tipus != BlokkTipus.If || verem[verem.Count - 1].Blokk.VanElse)
                 {
                     throw new InvalidOperationException("Az else nem tartozik egyetlen if blokkhoz sem.");
                 }
 
-                verem[^1].Blokk.VanElse = true;
+                verem[verem.Count - 1].Blokk.VanElse = true;
                 return;
             }
 
-            while (verem.Count > 0 && sor.szokoz <= verem[^1].Behuzas)
+            while (verem.Count > 0 && sor.szokoz <= verem[verem.Count - 1].Behuzas)
             {
                 verem.RemoveAt(verem.Count - 1);
             }
@@ -342,7 +352,7 @@ namespace Robotszimulator.Core
             }
             else
             {
-                Blokk szulo = verem[^1].Blokk;
+                Blokk szulo = verem[verem.Count - 1].Blokk;
                 szulo.Hozzaad(uj, szulo.VanElse);
             }
 

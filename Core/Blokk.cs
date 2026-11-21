@@ -262,7 +262,13 @@ namespace Robotszimulator.Core
 
         private static bool SzamE(string ertek)
         {
-            if (string.IsNullOrEmpty(ertek) || !ertek.All(char.IsAsciiDigit)) return false;
+            if (string.IsNullOrEmpty(ertek)) return false;
+
+            foreach (char jegy in ertek)
+            {
+                if (!char.IsAsciiDigit(jegy)) return false;
+            }
+
             return int.TryParse(ertek, out int szam) && szam >= 0 && szam <= 100;
         }
     }

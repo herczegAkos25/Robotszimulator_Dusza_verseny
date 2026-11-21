@@ -186,13 +186,13 @@ namespace Robotszimulator.Core
         {
             string celCella = aktualisGrid[sor][oszlop];
 
-            return objektumTipus switch
+            switch (objektumTipus)
             {
-                0 => celCella == ".",
-                1 => celCella == "#",
-                2 => celCella == "@",
-                _ => throw new FutasHiba("E_BAD_ARG")
-            };
+                case 0: return celCella == ".";
+                case 1: return celCella == "#";
+                case 2: return celCella == "@";
+                default: throw new FutasHiba("E_BAD_ARG");
+            }
         }
     }
 }
