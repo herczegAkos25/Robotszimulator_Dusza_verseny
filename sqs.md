@@ -2,40 +2,40 @@
 
 ## 1. kérdés
 
-> Van-e energiakorlát (kezdő energia, ami elfogyhat), vagy csak a felhasznált energiát kell számolni? Ha van korlát, mennyi a kezdőérték?
+> Mennyi a robot kezdő energiája (ha van energiakorlát), és hány egységet fogyaszt a fúrás, a támasz elhelyezése, a lépés, a fordulás és a bányászás? Ahol nem fogy energia, ott 0-t kérünk.
 
 ## 2. kérdés
 
-> Mennyi energiába kerül egy átfúrható kőzet átfúrása?
+> Melyik mezőt fúrja a robot: a robot előtti mezőt? Az 5. válasz szerint a robot „fúrás után mezőre kerül”, ezért kérdezzük, hogy a fúrás mozgatja-e a robotot.
 
 ## 3. kérdés
 
-> Fogyaszt-e energiát a step, a turn vagy a mine utasítás is, vagy csak a fúrás?
+> Mi marad a fúrt mezőből, és az aranyat tartalmazó kőzetből külön? Javaslatunk: üres kamra, illetve aranyrög, amit a mine here-rel kell kibányászni.
 
 ## 4. kérdés
 
-> Kerül-e energiába a támasz elhelyezése, és ha igen, mennyibe?
+> Az I. fordulóban az aranyrög (@) szabadon álló mező volt. Az új térképeken előfordulhat még ilyen, vagy az arany mindig kőzetbe zárva van?
 
 ## 5. kérdés
 
-> Melyik mezőt fúrja a robot: a robot előtti mezőt? Az 5. válasz szerint a robot „fúrás után mezőre kerül”, ezért kérdezzük, hogy a fúrás mozgatja-e a robotot.
+> A beomlás szempontjából a 8 szomszéd közül mi számít üresnek: az üres kamra és az aranyrög is?
 
 ## 6. kérdés
 
-> Mi marad a fúrt mezőből, és az aranyat tartalmazó kőzetből külön? Javaslatunk: üres kamra, illetve aranyrög.
+> Mikor vizsgáljuk a beomlást: csak fúrás után, a robot saját mezőjére, vagy minden lépés után az összes mezőre?
 
 ## 7. kérdés
 
-> Átfúrható kőzetbe lépés fúrás nélkül hibát (E_BEDROCK_HIT) ad-e?
+> Hová tehető támasz: csak az üres kamrába vagy az aranyrögre is?
 
 ## 8. kérdés
 
-> A beomlás szempontjából a 8 szomszéd közül mi számít üresnek: az üres kamra és az aranyrög is?
+> Átfúrható-e a támasszal ellátott mező?
 
 ## 9. kérdés
 
-> Mikor vizsgáljuk a beomlást: csak fúrás után, a robot saját mezőjére, vagy minden lépés után az összes mezőre?
+> Szerepelhet-e támaszos mező már a bemeneti térképen?
 
 ## 10. kérdés
 
-> Hová tehető támasz: csak az üres kamrába vagy az aranyrögre is?
+> Korlátozott-e a támaszok száma?

@@ -1,20 +1,15 @@
 ## Kérdéseink fontossági sorrendben
 
-1. Melyik mezőt fúrja a robot: a robot előtti mezőt? A fúrás mozgatja-e a robotot? (Az 5. válasz szerint a robot „fúrás után mezőre kerül”.)
-2. Mi marad a fúrt mezőből, és az aranyat tartalmazó kőzetből külön? Javaslatunk: üres kamra, illetve aranyrög.
-3. A beomlás szempontjából a 8 szomszéd közül mi számít üresnek: az üres kamra és az aranyrög is?
-4. Mikor vizsgáljuk a beomlást: csak fúrás után, a robot saját mezőjére, vagy minden lépés után az összes mezőre?
-5. Van-e energiakorlát (kezdő energia, ami elfogyhat), vagy csak a felhasznált energiát kell számolni?
-6. Mennyi energiába kerül egy fúrás, és ha van korlát, mennyi a kezdőérték?
-7. Fogyaszt-e energiát a step, a turn vagy a mine is, vagy csak a fúrás?
-8. Hová tehető támasz: csak az üres kamrába vagy az aranyrögre is?
-9. Kerül-e energiába a támasz elhelyezése, és ha igen, mennyibe?
-10. Átfúrható kőzetbe lépés fúrás nélkül hibát (E_BEDROCK_HIT) ad-e?
-11. Mi történik, ha a robot üres kamrát vagy aranyrögöt próbál fúrni: hiba, vagy nincs hatása?
-12. Átfúrható-e a támasszal ellátott mező?
-13. A beomlásnál a térképen kívüli mező üresnek számít-e?
-14. Szerepelhet-e támaszos mező már a bemeneti térképen?
-15. Korlátozott-e a támaszok száma?
+1. Mennyi a robot kezdő energiája (ha van energiakorlát), és hány egységet fogyaszt a fúrás, a támasz elhelyezése, a lépés, a fordulás és a bányászás? Ahol nem fogy energia, ott 0-t kérünk.
+2. Melyik mezőt fúrja a robot: a robot előtti mezőt? A fúrás mozgatja-e a robotot? (Az 5. válasz szerint a robot „fúrás után mezőre kerül”.)
+3. Mi marad a fúrt mezőből, és az aranyat tartalmazó kőzetből külön? Javaslatunk: üres kamra, illetve aranyrög, amit a mine here-rel kell kibányászni.
+4. Az I. fordulóban az aranyrög (@) szabadon álló mező volt. Az új térképeken előfordulhat még ilyen, vagy az arany mindig kőzetbe zárva van?
+5. A beomlás szempontjából a 8 szomszéd közül mi számít üresnek: az üres kamra és az aranyrög is?
+6. Mikor vizsgáljuk a beomlást: csak fúrás után, a robot saját mezőjére, vagy minden lépés után az összes mezőre?
+7. Hová tehető támasz: csak az üres kamrába vagy az aranyrögre is?
+8. Átfúrható-e a támasszal ellátott mező?
+9. Szerepelhet-e támaszos mező már a bemeneti térképen?
+10. Korlátozott-e a támaszok száma?
 
 ## A nyelv bővítése
 
