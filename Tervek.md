@@ -38,7 +38,7 @@ A tokenizálás nem változik, a sor továbbra is szóközökkel darabolódik.
 
 - `list L int` vagy `list L bool` létrehoz egy üres, 0-tól indexelt listát. Ha az L név már foglalt, `E_TYPE_MISMATCH` a hiba.
 - `push L v` a lista végére fűzi v-t. Ha v típusa más, mint a listáé: `E_TYPE_MISMATCH`.
-- `put L i v` felülírja az i. elemet. Érvénytelen index: `E_INDEX_OUT_OF_RANGE`.
+- `put L i v` felülírja az i. elemet v értékkel. Érvénytelen index: `E_INDEX_OUT_OF_RANGE`.
 - `set x to item L i` az i. elemet adja. Érvénytelen index: `E_INDEX_OUT_OF_RANGE`.
 - `set x to size L` az elemszámot adja.
 - Nem létrehozott lista használata `E_UNINITIALIZED`.
