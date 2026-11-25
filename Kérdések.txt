@@ -1,0 +1,17 @@
+-Szerepelhet-e támaszos mező már a bemeneti térképen?
+ Nem.
+ Mivan, ha elmenti a fájlt, és visszatölti bemenetként?
+-Z-index növelés WPF
+-Miért kéne különböző fúrófej, nem elég, ha 1 van és az az átfúrhatatlanon kívül mindent visz?
+
+
+
+v1, v2 oszlop a docx-ba (+v3 konvertálás)
+docx-ba jelezni a töltőhelyet + miért
+Töltőhely lerakás fv, ha sok (>1), hiba (E_LOT_...)
+Különböző fúrófej(arany, kőzet)?!
+
++ dolgok ha végeztünk: 
+  - get energy -> get percenteges -> fúrókar durability + energia
+  - töltőállomás fejlesztés -> új fúrókar
+
