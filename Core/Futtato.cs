@@ -34,9 +34,10 @@ namespace Robotszimulator.Core
             Interpreter = new Interpreter(program, Robot) { Nyomkovetes = Nyomkovetes };
         }
 
-        public void KezziAllapotbol(Allapot allapot)
+        public void KezziAllapotbol(Allapot allapot, List<string> energiaNaplo)
         {
             Inditas();
+            Robot.EnergiaNaplo.AddRange(energiaNaplo.Take(allapot.EnergiaNaploHossz));
             Robot.AllapotBeallit(allapot.Grid, allapot.Felfedezett, allapot.RobotSor, allapot.RobotOszlop, allapot.Irany, allapot.Arany, allapot.Energia, allapot.FuroFejMaradek);
         }
 

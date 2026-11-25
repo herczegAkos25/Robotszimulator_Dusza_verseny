@@ -446,6 +446,8 @@ namespace Robotszimulator
             return ((int)ertek).ToString(CultureInfo.InvariantCulture);
         }
 
+        public List<string> EnergiaNaplo => robot.EnergiaNaplo;
+
         private void Pillanatkep(int sorIndex)
         {
             if (!Nyomkovetes) return;
@@ -465,6 +467,7 @@ namespace Robotszimulator
                 FuroFejMaradek = robot.FuroFejMaradek,
                 Szenzor = robot.Szenzor(),
                 NaploHossz = Naplo.Count,
+                EnergiaNaploHossz = robot.EnergiaNaplo.Count,
                 KonzolHossz = Konzol.Count,
                 HibaKod = HibaKod
             });

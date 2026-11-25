@@ -20,6 +20,7 @@ namespace Robotszimulator.Core
         public int Energia { get; private set; }
         public int FuroFejMaradek { get; private set; }
         public EnergiaBeallitasok Beallitasok { get; }
+        public List<string> EnergiaNaplo { get; } = new List<string>();
         private Terkep terkep;
         private string[][] aktualisGrid;
         public bool[,] Felfedezett => terkep.Felfedezett;
@@ -84,16 +85,20 @@ namespace Robotszimulator.Core
             }
         }
 
-        private void Fogyaszt(long ar)
+        private void Fogyaszt(long ar, string muvelet)
         {
             Energia -= (int)ar;
+            if (ar > 0)
+            {
+                EnergiaNaplo.Add(muvelet + ": -" + ar + " Wh, maradt: " + Energia + " Wh");
+            }
         }
 
         public void Turn_by(int negyedfordulatSzam)
         {
             long ar = (long)Beallitasok.FordulasAra * negyedfordulatSzam;
             EnergiaEllenorzes(ar);
-            Fogyaszt(ar);
+            Fogyaszt(ar, "turn by " + negyedfordulatSzam);
 
             int fordulat = negyedfordulatSzam % 4;
             int jelenlegiIranySzam = (int)AktualisIrany;
@@ -128,7 +133,7 @@ namespace Robotszimulator.Core
                     throw new FutasHiba("E_BEDROCK_HIT");
                 }
 
-                Fogyaszt(Beallitasok.LepesAra);
+                Fogyaszt(Beallitasok.LepesAra, "step forward (1 cella)");
                 Oszlop = kovetkezoOszlop;
                 Sor = kovetkezoSor;
                 terkep.MezoFelfedezve(Oszlop, Sor);
@@ -142,7 +147,7 @@ namespace Robotszimulator.Core
             string cella = aktualisGrid[Sor][Oszlop];
             if (cella == "@" || cella == "$")
             {
-                Fogyaszt(Beallitasok.BanyaszatAra);
+                Fogyaszt(Beallitasok.BanyaszatAra, "mine here");
                 aktualisGrid[Sor][Oszlop] = cella == "@" ? "." : "%";
                 KibanyaszottAranySzam++;
             }
@@ -161,7 +166,7 @@ namespace Robotszimulator.Core
         public bool isThere(int objektumTipus)
         {
             EnergiaEllenorzes(Beallitasok.IsThereAra);
-            Fogyaszt(Beallitasok.IsThereAra);
+            Fogyaszt(Beallitasok.IsThereAra, "isThere");
 
             var (celOszlop, celSor) = CelKoordinataKiszamitas();
 
@@ -298,7 +303,7 @@ namespace Robotszimulator.Core
                 throw new FutasHiba("E_CANNOT_DRILL");
             }
 
-            Fogyaszt(Beallitasok.FurasAra);
+            Fogyaszt(Beallitasok.FurasAra, "drill");
             FuroFejMaradek--;
             aktualisGrid[celSor][celOszlop] = celCella == "&" ? "@" : ".";
             Oszlop = celOszlop;
@@ -321,7 +326,7 @@ namespace Robotszimulator.Core
                 throw new FutasHiba("E_CANNOT_SUPPORT");
             }
 
-            Fogyaszt(Beallitasok.TamaszAra);
+            Fogyaszt(Beallitasok.TamaszAra, "support here");
             switch (cella)
             {
                 case ".": aktualisGrid[Sor][Oszlop] = "%"; break;
@@ -340,7 +345,7 @@ namespace Robotszimulator.Core
                 throw new FutasHiba("E_CANNOT_UNSUPPORT");
             }
 
-            Fogyaszt(Beallitasok.TamaszFelvetelAra);
+            Fogyaszt(Beallitasok.TamaszFelvetelAra, "unsupport here");
             switch (cella)
             {
                 case "%": aktualisGrid[Sor][Oszlop] = "."; break;
@@ -359,7 +364,7 @@ namespace Robotszimulator.Core
                 throw new FutasHiba("E_CANNOT_PLACE_CHARGER");
             }
 
-            Fogyaszt(Beallitasok.ToltoLerakasAra);
+            Fogyaszt(Beallitasok.ToltoLerakasAra, "place charger");
             aktualisGrid[Sor][Oszlop] = cella == "." ? "=" : "*";
         }
 
@@ -373,7 +378,7 @@ namespace Robotszimulator.Core
                 throw new FutasHiba("E_CANNOT_REMOVE_CHARGER");
             }
 
-            Fogyaszt(Beallitasok.ToltoFelvetelAra);
+            Fogyaszt(Beallitasok.ToltoFelvetelAra, "remove charger");
             aktualisGrid[Sor][Oszlop] = cella == "=" ? "." : "%";
         }
 
@@ -390,6 +395,10 @@ namespace Robotszimulator.Core
             }
 
             Energia += Beallitasok.Toltes;
+            if (Beallitasok.Toltes > 0)
+            {
+                EnergiaNaplo.Add("charge: +" + Beallitasok.Toltes + " Wh, maradt: " + Energia + " Wh");
+            }
             return Beallitasok.Toltes;
         }
 
@@ -402,14 +411,14 @@ namespace Robotszimulator.Core
                 throw new FutasHiba("E_CANNOT_BUY_DRILL");
             }
 
-            Fogyaszt(Beallitasok.FuroFejAra);
+            Fogyaszt(Beallitasok.FuroFejAra, "buy drill");
             FuroFejMaradek = Beallitasok.FuroFejElettartam;
         }
 
         public int ElotteLevoTipus()
         {
             EnergiaEllenorzes(Beallitasok.GetTypeAra);
-            Fogyaszt(Beallitasok.GetTypeAra);
+            Fogyaszt(Beallitasok.GetTypeAra, "get type");
 
             var (celOszlop, celSor) = CelKoordinataKiszamitas();
             if (!terkep.BelulVan(celOszlop, celSor))
@@ -427,7 +436,7 @@ namespace Robotszimulator.Core
         public int SajatMezoTipus()
         {
             EnergiaEllenorzes(Beallitasok.GetHereAra);
-            Fogyaszt(Beallitasok.GetHereAra);
+            Fogyaszt(Beallitasok.GetHereAra, "get here");
 
             switch (aktualisGrid[Sor][Oszlop])
             {
@@ -443,14 +452,14 @@ namespace Robotszimulator.Core
         public int EnergiaLekerdezes()
         {
             EnergiaEllenorzes(Beallitasok.GetEnergyAra);
-            Fogyaszt(Beallitasok.GetEnergyAra);
+            Fogyaszt(Beallitasok.GetEnergyAra, "get energy");
             return Energia;
         }
 
         public int FuroFejLekerdezes()
         {
             EnergiaEllenorzes(Beallitasok.GetDurabilityAra);
-            Fogyaszt(Beallitasok.GetDurabilityAra);
+            Fogyaszt(Beallitasok.GetDurabilityAra, "get durability");
             return FuroFejMaradek;
         }
     }

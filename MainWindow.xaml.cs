@@ -73,6 +73,8 @@ namespace Robotszimulator
             SzenzorMegjelenites(robot.Szenzor());
             tbNapló.Text = string.Empty;
             tbKonzol.Text = string.Empty;
+            tbEnergiaLog.Text = string.Join(Environment.NewLine, robot.EnergiaNaplo);
+            tbEnergiaLog.ScrollToEnd();
             lvValtozok.ItemsSource = null;
             tbLepesSzamlalo.Text = "Lépés – / –";
             AllapotsorBeallitas(uzenet, hiba);
@@ -91,6 +93,8 @@ namespace Robotszimulator
             tbNapló.ScrollToEnd();
             tbKonzol.Text = string.Join(Environment.NewLine, interpreter.Konzol.Take(allapot.KonzolHossz));
             tbKonzol.ScrollToEnd();
+            tbEnergiaLog.Text = string.Join(Environment.NewLine, interpreter.EnergiaNaplo.Take(allapot.EnergiaNaploHossz));
+            tbEnergiaLog.ScrollToEnd();
 
             var sorok = allapot.Valtozok
                 .Select(valtozo => new ValtozoSor(valtozo.Key, TipusNev(valtozo.Value), ErtekSzoveg(valtozo.Value)))
@@ -605,7 +609,7 @@ namespace Robotszimulator
                 futtato.Nyomkovetes = false;
                 if (nyomkovetesAllapotok != null && nyomkovetesIndex >= 0 && nyomkovetesIndex < nyomkovetesAllapotok.Count)
                 {
-                    futtato.KezziAllapotbol(nyomkovetesAllapotok[nyomkovetesIndex]);
+                    futtato.KezziAllapotbol(nyomkovetesAllapotok[nyomkovetesIndex], nyomkovetesInterpreter?.EnergiaNaplo ?? new List<string>());
                 }
                 else
                 {

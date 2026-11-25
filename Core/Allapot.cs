@@ -19,6 +19,7 @@ namespace Robotszimulator.Core
         public int FuroFejMaradek { get; set; }
         public int Szenzor { get; set; }
         public int NaploHossz { get; set; }
+        public int EnergiaNaploHossz { get; set; }
         public int KonzolHossz { get; set; }
         public string? HibaKod { get; set; }
     }
