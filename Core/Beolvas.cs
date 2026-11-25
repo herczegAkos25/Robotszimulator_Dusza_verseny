@@ -33,6 +33,7 @@ namespace Robotszimulator
                     string sor = sr.ReadLine();
                     if (sor != null)
                     {
+                        TiltottJelEllenorzes(sor, i + 1);
                         TerkepLista.Add(sor);
                     }
                 }
@@ -47,6 +48,17 @@ namespace Robotszimulator
                 }
             }
 
+        }
+
+        private static void TiltottJelEllenorzes(string sor, int sorSzam)
+        {
+            foreach (char jel in sor)
+            {
+                if (jel == '%' || jel == '$' || jel == '=' || jel == '*')
+                {
+                    throw new FormatException("A térkép " + sorSzam + ". sora támaszt vagy töltőállomást (" + jel + ") tartalmaz, ezt a bemeneti térkép nem tartalmazhat.");
+                }
+            }
         }
     }
 }

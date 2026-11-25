@@ -10,7 +10,18 @@ namespace Robotszimulator.Core
         MineHere,
         Print,
         If,
-        While
+        While,
+        Drill,
+        SupportHere,
+        UnsupportHere,
+        PlaceCharger,
+        RemoveCharger,
+        Charge,
+        BuyDrill,
+        ListDecl,
+        Push,
+        Put,
+        Delete
     }
 
     public class Blokk
@@ -36,6 +47,29 @@ namespace Robotszimulator.Core
             SzavakEllenorzes(tipus, szavak);
             Tipus = tipus;
             Szavak = szavak;
+        }
+
+        public static bool VanParametere(BlokkTipus tipus)
+        {
+            switch (tipus)
+            {
+                case BlokkTipus.MineHere:
+                case BlokkTipus.Drill:
+                case BlokkTipus.SupportHere:
+                case BlokkTipus.UnsupportHere:
+                case BlokkTipus.PlaceCharger:
+                case BlokkTipus.RemoveCharger:
+                case BlokkTipus.Charge:
+                case BlokkTipus.BuyDrill:
+                    return false;
+                default:
+                    return true;
+            }
+        }
+
+        public static bool MuveletE(string szo)
+        {
+            return Muveletek.Contains(szo);
         }
 
         public bool Vezerlo
@@ -183,6 +217,28 @@ namespace Robotszimulator.Core
                     return new[] { "print" }.Concat(Szavak).ToArray();
                 case BlokkTipus.If:
                     return new[] { "if" }.Concat(Szavak).ToArray();
+                case BlokkTipus.Drill:
+                    return new[] { "drill" };
+                case BlokkTipus.SupportHere:
+                    return new[] { "support", "here" };
+                case BlokkTipus.UnsupportHere:
+                    return new[] { "unsupport", "here" };
+                case BlokkTipus.PlaceCharger:
+                    return new[] { "place", "charger" };
+                case BlokkTipus.RemoveCharger:
+                    return new[] { "remove", "charger" };
+                case BlokkTipus.Charge:
+                    return new[] { "charge" };
+                case BlokkTipus.BuyDrill:
+                    return new[] { "buy", "drill" };
+                case BlokkTipus.ListDecl:
+                    return new[] { "list" }.Concat(Szavak).ToArray();
+                case BlokkTipus.Push:
+                    return new[] { "push" }.Concat(Szavak).ToArray();
+                case BlokkTipus.Put:
+                    return new[] { "put" }.Concat(Szavak).ToArray();
+                case BlokkTipus.Delete:
+                    return new[] { "delete" }.Concat(Szavak).ToArray();
                 default:
                     return new[] { "while" }.Concat(Szavak).ToArray();
             }
@@ -198,7 +254,38 @@ namespace Robotszimulator.Core
             switch (tipus)
             {
                 case BlokkTipus.MineHere:
+                case BlokkTipus.Drill:
+                case BlokkTipus.SupportHere:
+                case BlokkTipus.UnsupportHere:
+                case BlokkTipus.PlaceCharger:
+                case BlokkTipus.RemoveCharger:
+                case BlokkTipus.Charge:
+                case BlokkTipus.BuyDrill:
                     DarabEllenorzes(szavak, 0, 0);
+                    break;
+                case BlokkTipus.ListDecl:
+                    DarabEllenorzes(szavak, 2, 2);
+                    ListaNevEllenorzes(szavak[0]);
+                    if (szavak[1] != "int" && szavak[1] != "bool")
+                    {
+                        throw new ArgumentException("A lista típusa int vagy bool lehet.");
+                    }
+                    break;
+                case BlokkTipus.Push:
+                    DarabEllenorzes(szavak, 2, 2);
+                    ListaNevEllenorzes(szavak[0]);
+                    EgyszeruErtekEllenorzes(szavak[1]);
+                    break;
+                case BlokkTipus.Put:
+                    DarabEllenorzes(szavak, 3, 3);
+                    ListaNevEllenorzes(szavak[0]);
+                    EgyszeruErtekEllenorzes(szavak[1]);
+                    EgyszeruErtekEllenorzes(szavak[2]);
+                    break;
+                case BlokkTipus.Delete:
+                    DarabEllenorzes(szavak, 2, 2);
+                    ListaNevEllenorzes(szavak[0]);
+                    EgyszeruErtekEllenorzes(szavak[1]);
                     break;
                 case BlokkTipus.Set:
                     SetEllenorzes(szavak);
@@ -226,6 +313,19 @@ namespace Robotszimulator.Core
                     EgyszeruErtekEllenorzes(jobbOldal[0]);
                     break;
                 case 2:
+                    if (jobbOldal[0] == "get")
+                    {
+                        if (jobbOldal[1] != "type" && jobbOldal[1] != "here" && jobbOldal[1] != "energy" && jobbOldal[1] != "durability")
+                        {
+                            throw new ArgumentException("A get után type, here, energy vagy durability állhat.");
+                        }
+                        break;
+                    }
+                    if (jobbOldal[0] == "size")
+                    {
+                        ListaNevEllenorzes(jobbOldal[1]);
+                        break;
+                    }
                     if (jobbOldal[0] != "not" && jobbOldal[0] != "isThere")
                     {
                         throw new ArgumentException("Érvénytelen egyoperandusú művelet: " + jobbOldal[0]);
@@ -233,6 +333,12 @@ namespace Robotszimulator.Core
                     EgyszeruErtekEllenorzes(jobbOldal[1]);
                     break;
                 default:
+                    if (jobbOldal[0] == "item" && !Muveletek.Contains(jobbOldal[1]))
+                    {
+                        ListaNevEllenorzes(jobbOldal[1]);
+                        EgyszeruErtekEllenorzes(jobbOldal[2]);
+                        break;
+                    }
                     EgyszeruErtekEllenorzes(jobbOldal[0]);
                     if (!Muveletek.Contains(jobbOldal[1]))
                     {
@@ -240,6 +346,14 @@ namespace Robotszimulator.Core
                     }
                     EgyszeruErtekEllenorzes(jobbOldal[2]);
                     break;
+            }
+        }
+
+        private static void ListaNevEllenorzes(string nev)
+        {
+            if (!Kulcsszavak.ErvenyesAzonosito(nev))
+            {
+                throw new ArgumentException("Érvénytelen listanév: " + nev);
             }
         }
 

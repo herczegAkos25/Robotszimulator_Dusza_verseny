@@ -269,6 +269,7 @@
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <Button Content="📁 Betöltés" Style="{StaticResource DarkButton}" Margin="0,0,8,0" x:Name="BtnBetoltes" Click="BtnBetoltes_Click"/>
                 <Button Content="💾 Mentés" Style="{StaticResource DarkButton}" Margin="0,0,8,0" x:Name="BtnMentes" Click="BtnMentes_Click" />
+                <Button Content="⚙ Beállítások" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnBeallitasok_Click"/>
                 <Button Content="▶ Futtatás" Style="{StaticResource RunButton}" Margin="0,0,8,0" Click="BtnFuttatas_Click"/>
                 <Button Content="🔁 Újraindítás" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnNyomkovetes_Click"/>
                 <Button Content="⏹ Megállítás" Style="{StaticResource DarkButton}" Margin="0,0,8,0" x:Name="btnMegallitas" Click="BtnMegallitas_Click"/>
@@ -409,23 +410,35 @@
                     </Border>
 
                     <!-- Szenzor és statisztika adatok -->
-                    <UniformGrid Grid.Row="2" Columns="3" Margin="0,10">
-                        <Border Background="#1E1E1E" CornerRadius="6" Padding="10" Margin="0,0,5,0">
+                    <UniformGrid Grid.Row="2" Columns="5" Margin="0,10">
+                        <Border Background="#1E1E1E" CornerRadius="6" Padding="8" Margin="0,0,3,0">
                             <StackPanel>
                                 <TextBlock Text="Szenzor, a robot előtt" Foreground="#9DA5B4" FontSize="11"/>
                                 <TextBlock Text="" FontWeight="Bold" FontSize="14" Margin="0,4,0,0" x:Name="tbSzenzor"/>
                             </StackPanel>
                         </Border>
-                        <Border Background="#1E1E1E" CornerRadius="6" Padding="10" Margin="5,0">
+                        <Border Background="#1E1E1E" CornerRadius="6" Padding="8" Margin="3,0">
                             <StackPanel>
                                 <TextBlock Text="Kibányászott arany" Foreground="#9DA5B4" FontSize="11"/>
                                 <TextBlock Text="0" FontWeight="Bold" FontSize="16" Foreground="#E5C07B" Margin="0,4,0,0" x:Name="tbKibanyaszottArany"/>
                             </StackPanel>
                         </Border>
-                        <Border Background="#1E1E1E" CornerRadius="6" Padding="10" Margin="5,0,0,0">
+                        <Border Background="#1E1E1E" CornerRadius="6" Padding="8" Margin="3,0">
                             <StackPanel>
                                 <TextBlock Text="Irány" Foreground="#9DA5B4" FontSize="11"/>
                                 <TextBlock Text="" FontWeight="Bold" FontSize="14" Margin="0,4,0,0" x:Name="tbIrány"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="#1E1E1E" CornerRadius="6" Padding="8" Margin="3,0">
+                            <StackPanel>
+                                <TextBlock Text="Energia (Wh)" Foreground="#9DA5B4" FontSize="11"/>
+                                <TextBlock Text="" FontWeight="Bold" FontSize="14" Foreground="#98C379" Margin="0,4,0,0" x:Name="tbEnergia"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="#1E1E1E" CornerRadius="6" Padding="8" Margin="3,0,0,0">
+                            <StackPanel>
+                                <TextBlock Text="Fúrófej" Foreground="#9DA5B4" FontSize="11"/>
+                                <TextBlock Text="" FontWeight="Bold" FontSize="14" Foreground="#61AFEF" Margin="0,4,0,0" x:Name="tbFuroFej"/>
                             </StackPanel>
                         </Border>
                     </UniformGrid>
@@ -439,7 +452,8 @@
                                 <TextBox x:Name="tbKezziFordulas" Width="45" Background="#282C34" Foreground="White" BorderBrush="#3A3F4B" Text="1" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="0,0,15,0"/>
                                 <Button Content="↑ Előre" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnKezziLepes_Click"/>
                                 <TextBox x:Name="tbKezziLepes" Width="45" Background="#282C34" Foreground="White" BorderBrush="#3A3F4B" Text="1" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="0,0,15,0"/>
-                                <Button Content="◆ Bányászás" Style="{StaticResource DarkButton}" Click="BtnKezziBanyaszat_Click"/>
+                                <Button Content="◆ Bányászás" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnKezziBanyaszat_Click"/>
+                                <Button Content="⛏ Fúrás" Style="{StaticResource DarkButton}" Click="BtnKezziFuras_Click"/>
                             </StackPanel>
                             <TextBlock Text="Kézi vezérlésnél a futás megáll, és nem készül napló." Foreground="#5C6370" FontSize="11" Margin="0,6,0,0"/>
                         </StackPanel>
@@ -484,8 +498,8 @@
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Név" Width="90" DisplayMemberBinding="{Binding Name}"/>
-                                <GridViewColumn Header="Típus" Width="90" DisplayMemberBinding="{Binding Type}"/>
-                                <GridViewColumn Header="Érték" Width="90" DisplayMemberBinding="{Binding Value}"/>
+                                <GridViewColumn Header="Típus" Width="100" DisplayMemberBinding="{Binding Type}"/>
+                                <GridViewColumn Header="Érték" Width="170" DisplayMemberBinding="{Binding Value}"/>
                             </GridView>
                         </ListView.View>
                     </ListView>

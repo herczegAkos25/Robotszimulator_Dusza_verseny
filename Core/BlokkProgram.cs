@@ -362,6 +362,15 @@ namespace Robotszimulator.Core
             }
         }
 
+        private static Blokk ParameterNelkuli(string[] szavak, int darab, BlokkTipus tipus, string hibaUzenet, string masodikSzo = "")
+        {
+            if (szavak.Length != darab || (darab == 2 && szavak[1] != masodikSzo))
+            {
+                throw new InvalidOperationException(hibaUzenet);
+            }
+            return new Blokk(tipus);
+        }
+
         private static Blokk UjBlokk(string[] szavak)
         {
             switch (szavak[0])
@@ -400,6 +409,55 @@ namespace Robotszimulator.Core
                         throw new InvalidOperationException("A print utasítás alakja: print érték.");
                     }
                     return new Blokk(BlokkTipus.Print, szavak[1]);
+
+                case "drill":
+                    return ParameterNelkuli(szavak, 1, BlokkTipus.Drill, "A drill utasítás alakja: drill.");
+
+                case "support":
+                    return ParameterNelkuli(szavak, 2, BlokkTipus.SupportHere, "A support utasítás alakja: support here.", "here");
+
+                case "unsupport":
+                    return ParameterNelkuli(szavak, 2, BlokkTipus.UnsupportHere, "Az unsupport utasítás alakja: unsupport here.", "here");
+
+                case "place":
+                    return ParameterNelkuli(szavak, 2, BlokkTipus.PlaceCharger, "A place utasítás alakja: place charger.", "charger");
+
+                case "remove":
+                    return ParameterNelkuli(szavak, 2, BlokkTipus.RemoveCharger, "A remove utasítás alakja: remove charger.", "charger");
+
+                case "charge":
+                    return ParameterNelkuli(szavak, 1, BlokkTipus.Charge, "A charge utasítás alakja: charge.");
+
+                case "buy":
+                    return ParameterNelkuli(szavak, 2, BlokkTipus.BuyDrill, "A buy utasítás alakja: buy drill.", "drill");
+
+                case "list":
+                    if (szavak.Length != 3)
+                    {
+                        throw new InvalidOperationException("A list utasítás alakja: list név típus.");
+                    }
+                    return new Blokk(BlokkTipus.ListDecl, szavak[1], szavak[2]);
+
+                case "push":
+                    if (szavak.Length != 3)
+                    {
+                        throw new InvalidOperationException("A push utasítás alakja: push lista érték.");
+                    }
+                    return new Blokk(BlokkTipus.Push, szavak[1], szavak[2]);
+
+                case "put":
+                    if (szavak.Length != 4)
+                    {
+                        throw new InvalidOperationException("A put utasítás alakja: put lista index érték.");
+                    }
+                    return new Blokk(BlokkTipus.Put, szavak[1], szavak[2], szavak[3]);
+
+                case "delete":
+                    if (szavak.Length != 3)
+                    {
+                        throw new InvalidOperationException("A delete utasítás alakja: delete lista index.");
+                    }
+                    return new Blokk(BlokkTipus.Delete, szavak[1], szavak[2]);
 
                 case "if":
                 case "while":

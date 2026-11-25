@@ -10,6 +10,7 @@ namespace Robotszimulator
     {
         private List<Sor> program;
         private Dictionary<string, object> valtozok = new();
+        private Dictionary<string, Lista> listak = new();
         private Robot robot;
 
         public List<string> Naplo { get; private set; } = new();
@@ -21,6 +22,11 @@ namespace Robotszimulator
         public IReadOnlyDictionary<string, object> Valtozok
         {
             get { return valtozok; }
+        }
+
+        public IReadOnlyDictionary<string, Lista> Listak
+        {
+            get { return listak; }
         }
 
         public string? HibaKod { get; private set; }
@@ -195,6 +201,80 @@ namespace Robotszimulator
                         robot.Mine_here();
                         break;
 
+                    case "drill":
+                        sorBejegyzes += " drill";
+                        robot.Fur();
+                        break;
+
+                    case "support":
+                        sorBejegyzes += " support here";
+                        robot.TamaszRak();
+                        break;
+
+                    case "unsupport":
+                        sorBejegyzes += " unsupport here";
+                        robot.TamaszFelvesz();
+                        break;
+
+                    case "place":
+                        sorBejegyzes += " place charger";
+                        robot.ToltoLerak();
+                        break;
+
+                    case "remove":
+                        sorBejegyzes += " remove charger";
+                        robot.ToltoFelvesz();
+                        break;
+
+                    case "charge":
+                        sorBejegyzes += " charge";
+                        int kapottEnergia = robot.Tolt();
+                        sorBejegyzes += " " + kapottEnergia;
+                        break;
+
+                    case "buy":
+                        sorBejegyzes += " buy drill";
+                        robot.FuroFejetVesz();
+                        break;
+
+                    case "list":
+                        if (valtozok.ContainsKey(szavak[1]) || listak.ContainsKey(szavak[1]))
+                            throw new FutasHiba("E_TYPE_MISMATCH");
+                        listak[szavak[1]] = new Lista(szavak[2]);
+                        break;
+
+                    case "push":
+                        sorBejegyzes += " push";
+                        Lista hozzafuzottLista = ListaKeres(szavak[1]);
+                        object hozzafuzottErtek = Olvas(szavak[2]);
+                        sorBejegyzes += " " + Megjelenit(hozzafuzottErtek);
+                        if (!hozzafuzottLista.Illik(hozzafuzottErtek)) throw new FutasHiba("E_TYPE_MISMATCH");
+                        hozzafuzottLista.Elemek.Add(hozzafuzottErtek);
+                        break;
+
+                    case "put":
+                        sorBejegyzes += " put";
+                        Lista modositottLista = ListaKeres(szavak[1]);
+                        object modositasIndex = Olvas(szavak[2]);
+                        sorBejegyzes += " " + Megjelenit(modositasIndex);
+                        if (!(modositasIndex is int)) throw new FutasHiba("E_BAD_ARG");
+                        object ujErtek = Olvas(szavak[3]);
+                        sorBejegyzes += " " + Megjelenit(ujErtek);
+                        IndexEllenorzes(modositottLista, (int)modositasIndex);
+                        if (!modositottLista.Illik(ujErtek)) throw new FutasHiba("E_TYPE_MISMATCH");
+                        modositottLista.Elemek[(int)modositasIndex] = ujErtek;
+                        break;
+
+                    case "delete":
+                        sorBejegyzes += " delete";
+                        Lista torlesLista = ListaKeres(szavak[1]);
+                        object torlesIndex = Olvas(szavak[2]);
+                        sorBejegyzes += " " + Megjelenit(torlesIndex);
+                        if (!(torlesIndex is int)) throw new FutasHiba("E_BAD_ARG");
+                        IndexEllenorzes(torlesLista, (int)torlesIndex);
+                        torlesLista.Elemek.RemoveAt((int)torlesIndex);
+                        break;
+
                     case "set":
                         object ertek;
                         if (szavak.Length == 4)
@@ -213,6 +293,22 @@ namespace Robotszimulator
                             ertek = robot.isThere((int)objektumTipus);
                             sorBejegyzes += " " + Megjelenit(ertek);
                         }
+                        else if (szavak[3] == "get")
+                        {
+                            ertek = GetErtek(szavak[4], ref sorBejegyzes);
+                        }
+                        else if (szavak[3] == "size" && szavak.Length == 5)
+                        {
+                            ertek = ListaKeres(szavak[4]).Elemek.Count;
+                        }
+                        else if (szavak[3] == "item" && szavak.Length == 6 && !Muvelet(szavak[4]))
+                        {
+                            Lista olvasottLista = ListaKeres(szavak[4]);
+                            object olvasottIndex = Olvas(szavak[5]);
+                            if (!(olvasottIndex is int)) throw new FutasHiba("E_BAD_ARG");
+                            IndexEllenorzes(olvasottLista, (int)olvasottIndex);
+                            ertek = olvasottLista.Elemek[(int)olvasottIndex];
+                        }
                         else if (szavak[3] == "not")
                         {
                             object operandus = Olvas(szavak[4]);
@@ -224,6 +320,9 @@ namespace Robotszimulator
                             ertek = BinarisMuveletKiertekeles(szavak[3], szavak[4], szavak[5]);
                         }
 
+                        if (listak.ContainsKey(szavak[1]))
+                            throw new FutasHiba("E_TYPE_MISMATCH");
+
                         if (valtozok.ContainsKey(szavak[1]) && valtozok[szavak[1]].GetType() != ertek.GetType())
                             throw new FutasHiba("E_TYPE_MISMATCH");
 
@@ -234,11 +333,59 @@ namespace Robotszimulator
             catch (FutasHiba e)
             {
                 sorBejegyzes += " " + e.Kod;
-                HibaRogzites(i, e.Kod);
+                if (e.Kod != "E_DRILL_WORN")
+                {
+                    HibaRogzites(i, e.Kod);
+                }
             }
 
             Naplo.Add(sorBejegyzes);
             Pillanatkep(i);
+        }
+
+        private Lista ListaKeres(string nev)
+        {
+            if (!listak.ContainsKey(nev)) throw new FutasHiba("E_UNINITIALIZED");
+            return listak[nev];
+        }
+
+        private static void IndexEllenorzes(Lista lista, int index)
+        {
+            if (index < 0 || index >= lista.Elemek.Count) throw new FutasHiba("E_INDEX_OUT_OF_RANGE");
+        }
+
+        private static bool Muvelet(string token)
+        {
+            return token == "+" || token == "-" || token == "*" || token == "=" || token == "<>"
+                || token == "<" || token == "<=" || token == ">" || token == ">="
+                || token == "and" || token == "or";
+        }
+
+        private object GetErtek(string nev, ref string sorBejegyzes)
+        {
+            object eredmeny;
+            switch (nev)
+            {
+                case "type":
+                    sorBejegyzes += " get type";
+                    eredmeny = robot.ElotteLevoTipus();
+                    break;
+                case "here":
+                    sorBejegyzes += " get here";
+                    eredmeny = robot.SajatMezoTipus();
+                    break;
+                case "energy":
+                    sorBejegyzes += " get energy";
+                    eredmeny = robot.EnergiaLekerdezes();
+                    break;
+                default:
+                    sorBejegyzes += " get durability";
+                    eredmeny = robot.FuroFejLekerdezes();
+                    break;
+            }
+
+            sorBejegyzes += " " + Megjelenit(eredmeny);
+            return eredmeny;
         }
 
         private object BinarisMuveletKiertekeles(string balToken, string muvelet, string jobbToken)
@@ -283,6 +430,7 @@ namespace Robotszimulator
                 return szamErtek;
             }
             if (valtozok.ContainsKey(token)) return valtozok[token];
+            if (listak.ContainsKey(token)) throw new FutasHiba("E_TYPE_MISMATCH");
 
             throw new FutasHiba("E_UNINITIALIZED");
         }
@@ -306,12 +454,15 @@ namespace Robotszimulator
             {
                 Sor = sorIndex + 1,
                 Valtozok = new Dictionary<string, object>(valtozok),
+                Listak = listak.ToDictionary(lista => lista.Key, lista => lista.Value.Masolat()),
                 RobotSor = robot.Sor,
                 RobotOszlop = robot.Oszlop,
                 Irany = robot.AktualisIrany,
                 Felfedezett = (bool[,])robot.Felfedezett.Clone(),
                 Grid = robot.Grid.Select(sor => (string[])sor.Clone()).ToArray(),
                 Arany = robot.KibanyaszottAranySzam,
+                Energia = robot.Energia,
+                FuroFejMaradek = robot.FuroFejMaradek,
                 Szenzor = robot.Szenzor(),
                 NaploHossz = Naplo.Count,
                 KonzolHossz = Konzol.Count,

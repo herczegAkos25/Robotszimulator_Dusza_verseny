@@ -45,6 +45,28 @@ namespace Robotszimulator.Core
                         return new List<BlokkResz> { new BlokkResz("turn by", false), new BlokkResz(szavak[0], true) };
                     case BlokkTipus.MineHere:
                         return new List<BlokkResz> { new BlokkResz("mine here", false) };
+                    case BlokkTipus.Drill:
+                        return new List<BlokkResz> { new BlokkResz("drill", false) };
+                    case BlokkTipus.SupportHere:
+                        return new List<BlokkResz> { new BlokkResz("support here", false) };
+                    case BlokkTipus.UnsupportHere:
+                        return new List<BlokkResz> { new BlokkResz("unsupport here", false) };
+                    case BlokkTipus.PlaceCharger:
+                        return new List<BlokkResz> { new BlokkResz("place charger", false) };
+                    case BlokkTipus.RemoveCharger:
+                        return new List<BlokkResz> { new BlokkResz("remove charger", false) };
+                    case BlokkTipus.Charge:
+                        return new List<BlokkResz> { new BlokkResz("charge", false) };
+                    case BlokkTipus.BuyDrill:
+                        return new List<BlokkResz> { new BlokkResz("buy drill", false) };
+                    case BlokkTipus.ListDecl:
+                        return new List<BlokkResz> { new BlokkResz("list", false), new BlokkResz(szavak[0], true), new BlokkResz(szavak[1], true) };
+                    case BlokkTipus.Push:
+                        return new List<BlokkResz> { new BlokkResz("push", false), new BlokkResz(szavak[0], true), new BlokkResz(szavak[1], true) };
+                    case BlokkTipus.Put:
+                        return new List<BlokkResz> { new BlokkResz("put", false), new BlokkResz(szavak[0], true), new BlokkResz(szavak[1], true), new BlokkResz(szavak[2], true) };
+                    case BlokkTipus.Delete:
+                        return new List<BlokkResz> { new BlokkResz("delete", false), new BlokkResz(szavak[0], true), new BlokkResz(szavak[1], true) };
                     case BlokkTipus.Print:
                         return new List<BlokkResz> { new BlokkResz("print", false), new BlokkResz(szavak[0], true) };
                     case BlokkTipus.If:
@@ -67,10 +89,20 @@ namespace Robotszimulator.Core
                 {
                     reszek.Add(new BlokkResz(jobbOldal[0], true));
                 }
+                else if (jobbOldal.Length == 2 && jobbOldal[0] == "get")
+                {
+                    reszek.Add(new BlokkResz("get " + jobbOldal[1], false));
+                }
                 else if (jobbOldal.Length == 2)
                 {
                     reszek.Add(new BlokkResz(jobbOldal[0], false));
                     reszek.Add(new BlokkResz(jobbOldal[1], true));
+                }
+                else if (jobbOldal[0] == "item" && !Blokk.MuveletE(jobbOldal[1]))
+                {
+                    reszek.Add(new BlokkResz("item", false));
+                    reszek.Add(new BlokkResz(jobbOldal[1], true));
+                    reszek.Add(new BlokkResz(jobbOldal[2], true));
                 }
                 else
                 {
@@ -102,6 +134,11 @@ namespace Robotszimulator.Core
                         return "#98C379";
                     case BlokkTipus.Print:
                         return "#C678DD";
+                    case BlokkTipus.ListDecl:
+                    case BlokkTipus.Push:
+                    case BlokkTipus.Put:
+                    case BlokkTipus.Delete:
+                        return "#56B6C2";
                     default:
                         return "#E5C07B";
                 }

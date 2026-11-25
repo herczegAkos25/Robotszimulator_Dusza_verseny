@@ -69,6 +69,7 @@ namespace Robotszimulator
             Kirajzol(terkep.Grid, terkep.Felfedezett, robot.Sor, robot.Oszlop, robot.AktualisIrany);
             tbKibanyaszottArany.Text = robot.KibanyaszottAranySzam.ToString();
             tbIrány.Text = robot.AktualisIrany.ToString();
+            EnergiaMegjelenites(robot.Energia, robot.FuroFejMaradek);
             SzenzorMegjelenites(robot.Szenzor());
             tbNapló.Text = string.Empty;
             tbKonzol.Text = string.Empty;
@@ -83,6 +84,7 @@ namespace Robotszimulator
             Kirajzol(allapot.Grid, allapot.Felfedezett, allapot.RobotSor, allapot.RobotOszlop, allapot.Irany);
             tbKibanyaszottArany.Text = allapot.Arany.ToString();
             tbIrány.Text = allapot.Irany.ToString();
+            EnergiaMegjelenites(allapot.Energia, allapot.FuroFejMaradek);
             SzenzorMegjelenites(allapot.Szenzor);
 
             tbNapló.Text = string.Join(Environment.NewLine, interpreter.Naplo.Take(allapot.NaploHossz));
@@ -90,9 +92,30 @@ namespace Robotszimulator
             tbKonzol.Text = string.Join(Environment.NewLine, interpreter.Konzol.Take(allapot.KonzolHossz));
             tbKonzol.ScrollToEnd();
 
-            lvValtozok.ItemsSource = allapot.Valtozok
+            var sorok = allapot.Valtozok
                 .Select(valtozo => new ValtozoSor(valtozo.Key, TipusNev(valtozo.Value), ErtekSzoveg(valtozo.Value)))
                 .ToList();
+            foreach (var lista in allapot.Listak)
+            {
+                sorok.Add(new ValtozoSor(lista.Key, lista.Value.Tipus == "bool" ? "logikai lista" : "egész lista", ListaSzoveg(lista.Value)));
+            }
+            lvValtozok.ItemsSource = sorok;
+        }
+
+        private void EnergiaMegjelenites(int energia, int furoFejMaradek)
+        {
+            tbEnergia.Text = energia + " / " + futtato.Beallitasok.Kapacitas;
+            tbFuroFej.Text = furoFejMaradek + " / " + futtato.Beallitasok.FuroFejElettartam;
+        }
+
+        private static string ListaSzoveg(Lista lista)
+        {
+            var elemek = new List<string>();
+            foreach (object elem in lista.Elemek)
+            {
+                elemek.Add(ErtekSzoveg(elem));
+            }
+            return "(" + elemek.Count + " elem) " + string.Join(", ", elemek);
         }
 
         private void TeljesNaploMegjelenites(Interpreter interpreter)
@@ -159,8 +182,8 @@ namespace Robotszimulator
         {
             tbSzenzor.Text = szenzorErtek switch
             {
-                0 => "Üres (.)",
-                1 => "Fal (#)",
+                0 => "Üres",
+                1 => "Fal vagy kőzet",
                 2 => "Arany (@)",
                 _ => "Ismeretlen"
             };
@@ -216,6 +239,7 @@ namespace Robotszimulator
 
                     Grid tartalom = new Grid();
                     cella.Child = tartalom;
+                    bool latszik = felfedezve || robotCella;
 
                     var kep = terkepKepek.Betoltve ? terkepKepek.Kep(tipus, felfedezve || robotCella, cellaSorsok![r, c]) : null;
 
@@ -240,6 +264,11 @@ namespace Robotszimulator
 
                         if (felfedezve && ertek == "#") cella.Background = Brushes.DarkGray;
                         if (felfedezve && ertek == "@") cella.Background = Brushes.Gold;
+                    }
+
+                    if (latszik)
+                    {
+                        KozetJelzesek(tartalom, ertek);
                     }
 
                     if (robotCella && terkepKepek.Robot != null)
@@ -287,6 +316,50 @@ namespace Robotszimulator
             }
         }
 
+        private static void KozetJelzesek(Grid tartalom, string ertek)
+        {
+            if (ertek == "+" || ertek == "&")
+            {
+                tartalom.Children.Add(new Border { Background = Brushes.SaddleBrown, Margin = new Thickness(1) });
+            }
+
+            if (ertek == "&")
+            {
+                tartalom.Children.Add(new System.Windows.Shapes.Ellipse
+                {
+                    Fill = Brushes.Gold,
+                    Width = 8,
+                    Height = 8
+                });
+            }
+
+            if (ertek == "$")
+            {
+                tartalom.Children.Add(new Border { Background = Brushes.Gold, Margin = new Thickness(3) });
+            }
+
+            if (ertek == "=" || ertek == "*")
+            {
+                tartalom.Children.Add(new TextBlock
+                {
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    FontSize = 13,
+                    Foreground = Brushes.DarkOrange,
+                    Text = "⚡"
+                });
+            }
+
+            if (ertek == "%" || ertek == "$" || ertek == "*")
+            {
+                tartalom.Children.Add(new Border
+                {
+                    BorderBrush = Brushes.DarkSlateBlue,
+                    BorderThickness = new Thickness(2.5)
+                });
+            }
+        }
+
         private static Image KepElem(BitmapSource kep)
         {
             var elem = new Image
@@ -308,14 +381,23 @@ namespace Robotszimulator
                 ("Felfedezetlen", "talaj", false, Brushes.Black),
                 ("Fal", "fal", true, Brushes.Gray),
                 ("Arany", "arany", true, Brushes.Gold),
+                ("Kőzet", "szin", true, Brushes.SaddleBrown),
+                ("Támasz", "szin", true, Brushes.DarkSlateBlue),
+                ("Töltő", "szin", true, Brushes.DarkOrange),
                 ("Robot", "robot", true, Brushes.LightSkyBlue)
             };
 
             foreach (var elem in elemek)
             {
-                BitmapSource? kep = elem.Tipus == "robot"
-                    ? terkepKepek.Robot
-                    : (terkepKepek.Betoltve ? terkepKepek.Kep(elem.Tipus, elem.Felfedezve, 0) : null);
+                BitmapSource? kep = null;
+                if (elem.Tipus == "robot")
+                {
+                    kep = terkepKepek.Robot;
+                }
+                else if (elem.Tipus != "szin" && terkepKepek.Betoltve)
+                {
+                    kep = terkepKepek.Kep(elem.Tipus, elem.Felfedezve, 0);
+                }
 
                 UIElement jel;
                 if (kep != null)
@@ -528,8 +610,10 @@ namespace Robotszimulator
             if (!SzamBeolvas(tbKezziFordulas, out int fordulat)) return;
             if (!KezziElokeszites()) return;
 
-            futtato.KezziFordulas(fordulat);
-            EloAllapotMegjelenites("Kézi vezérlés: " + fordulat + " negyedfordulat balra", false);
+            string? hibaKod = futtato.KezziFordulas(fordulat);
+            EloAllapotMegjelenites(
+                hibaKod == null ? "Kézi vezérlés: " + fordulat + " negyedfordulat balra" : "Kézi vezérlés: hiba, " + hibaKod,
+                hibaKod != null);
         }
 
         private void BtnKezziLepes_Click(object sender, RoutedEventArgs e)
@@ -539,7 +623,7 @@ namespace Robotszimulator
 
             string? hibaKod = futtato.KezziLepes(tavolsag);
             EloAllapotMegjelenites(
-                hibaKod == null ? "Kézi vezérlés: " + tavolsag + " lépés előre" : "Kézi vezérlés: a robot falnak ütközött",
+                hibaKod == null ? "Kézi vezérlés: " + tavolsag + " lépés előre" : "Kézi vezérlés: hiba, " + hibaKod,
                 hibaKod != null);
         }
 
@@ -549,8 +633,47 @@ namespace Robotszimulator
 
             string? hibaKod = futtato.KezziBanyaszat();
             EloAllapotMegjelenites(
-                hibaKod == null ? "Kézi vezérlés: bányászás" : "Kézi vezérlés: nincs arany ezen a mezőn",
+                hibaKod == null ? "Kézi vezérlés: bányászás" : "Kézi vezérlés: hiba, " + hibaKod,
                 hibaKod != null);
+        }
+
+        private void BtnKezziFuras_Click(object sender, RoutedEventArgs e)
+        {
+            if (!KezziElokeszites()) return;
+
+            string? hibaKod = futtato.KezziFuras();
+            EloAllapotMegjelenites(
+                hibaKod == null ? "Kézi vezérlés: fúrás" : "Kézi vezérlés: hiba, " + hibaKod,
+                hibaKod != null);
+        }
+
+        private void BtnBeallitasok_Click(object sender, RoutedEventArgs e)
+        {
+            var ablak = new BeallitasokAblak(futtato.Beallitasok) { Owner = this };
+            if (ablak.ShowDialog() != true || ablak.Eredmeny == null) return;
+
+            megallitasKerve = true;
+            futtato.Beallitasok = ablak.Eredmeny;
+            nyomkovetesAllapotok = null;
+            nyomkovetesInterpreter = null;
+            nyomkovetesIndex = 0;
+            kezziAllapotban = false;
+
+            if (!betoltve)
+            {
+                AllapotsorBeallitas("Az energia-beállítások mentve, a betöltés után lépnek életbe", false);
+                return;
+            }
+
+            try
+            {
+                futtato.Inditas();
+                EloAllapotMegjelenites("Az energia-beállítások módosultak, a program újraindult a kezdőállapotból", false);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Hiba az újraindításkor: " + ex.Message, "Hiba", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void BtnMentes_Click(object sender, RoutedEventArgs e)

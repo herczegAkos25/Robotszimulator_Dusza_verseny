@@ -14,6 +14,9 @@ namespace Robotszimulator.Core
         public bool[,] Felfedezett { get; set; }
         public string[][] Grid { get; set; }
         public int Arany { get; set; }
+        public int Energia { get; set; }
+        public Dictionary<string, Lista> Listak { get; set; }
+        public int FuroFejMaradek { get; set; }
         public int Szenzor { get; set; }
         public int NaploHossz { get; set; }
         public int KonzolHossz { get; set; }

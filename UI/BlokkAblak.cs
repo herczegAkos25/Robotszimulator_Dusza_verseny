@@ -19,7 +19,10 @@ namespace Robotszimulator.UI
         private readonly TextBlock tbElotag = new TextBlock { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 6, 0) };
         private readonly TextBlock tbMuvelet = new TextBlock { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(6, 0, 6, 0) };
         private static readonly string[] Muveletek = { "+", "-", "*", "=", "<>", "<", "<=", ">", ">=", "and", "or" };
+        private static readonly ErtekFajta[] ErtekFajtak = ErtekFajtakKeszitese();
         private readonly TextBlock tbHiba = new TextBlock();
+
+        private record ErtekFajta(string Elotag, string Muvelet, int Mezok);
 
         public Blokk? Eredmeny { get; private set; }
 
@@ -45,7 +48,7 @@ namespace Robotszimulator.UI
             }
             else
             {
-                Mezo(panel, Felirat(tipus), tbElso, szerkesztett == null ? "" : szerkesztett.Szavak[0]);
+                Mezo(panel, Felirat(tipus), tbElso, szerkesztett == null ? "" : string.Join(" ", szerkesztett.Szavak));
             }
 
             tbElso.TextChanged += (kuldo, esemeny) => ElonezetFrissitese();
@@ -106,6 +109,28 @@ namespace Robotszimulator.UI
                     return "print (kiírás)";
                 case BlokkTipus.If:
                     return "if (feltétel)";
+                case BlokkTipus.Drill:
+                    return "drill (fúrás)";
+                case BlokkTipus.SupportHere:
+                    return "support here (támasz lerakása)";
+                case BlokkTipus.UnsupportHere:
+                    return "unsupport here (támasz felvétele)";
+                case BlokkTipus.PlaceCharger:
+                    return "place charger (töltőállomás lerakása)";
+                case BlokkTipus.RemoveCharger:
+                    return "remove charger (töltőállomás felvétele)";
+                case BlokkTipus.Charge:
+                    return "charge (töltés)";
+                case BlokkTipus.BuyDrill:
+                    return "buy drill (új fúrófej vétele)";
+                case BlokkTipus.ListDecl:
+                    return "list (lista létrehozása)";
+                case BlokkTipus.Push:
+                    return "push (hozzáfűzés a listához)";
+                case BlokkTipus.Put:
+                    return "put (lista elemének módosítása)";
+                case BlokkTipus.Delete:
+                    return "delete (lista elemének törlése)";
                 default:
                     return "while (ciklus)";
             }
@@ -121,6 +146,14 @@ namespace Robotszimulator.UI
                     return "Negyedfordulatok száma (szám vagy változó):";
                 case BlokkTipus.Print:
                     return "Kiírandó érték (szám, változó, true vagy false):";
+                case BlokkTipus.ListDecl:
+                    return "Lista neve és típusa (például szamok int vagy jelek bool):";
+                case BlokkTipus.Push:
+                    return "Lista neve és a hozzáfűzendő érték (például szamok 5):";
+                case BlokkTipus.Put:
+                    return "Lista neve, index és az új érték (például szamok 0 7):";
+                case BlokkTipus.Delete:
+                    return "Lista neve és a törlendő elem indexe (például szamok 0):";
                 default:
                     return "Feltétel (változó, true vagy false):";
             }
@@ -172,31 +205,81 @@ namespace Robotszimulator.UI
             };
         }
 
+        private static ErtekFajta[] ErtekFajtakKeszitese()
+        {
+            var fajtak = new List<ErtekFajta> { new ErtekFajta("", "", 1) };
+            foreach (string muvelet in Muveletek)
+            {
+                fajtak.Add(new ErtekFajta("", muvelet, 2));
+            }
+            fajtak.Add(new ErtekFajta("not", "", 1));
+            fajtak.Add(new ErtekFajta("isThere", "", 1));
+            fajtak.Add(new ErtekFajta("get type", "", 0));
+            fajtak.Add(new ErtekFajta("get here", "", 0));
+            fajtak.Add(new ErtekFajta("get energy", "", 0));
+            fajtak.Add(new ErtekFajta("get durability", "", 0));
+            fajtak.Add(new ErtekFajta("size", "", 1));
+            fajtak.Add(new ErtekFajta("item", "", 2));
+            return fajtak.ToArray();
+        }
+
+        private static string ElsoCimke(ErtekFajta fajta)
+        {
+            return fajta.Elotag == "size" || fajta.Elotag == "item" ? "lista" : "érték";
+        }
+
+        private static string MasodikCimke(ErtekFajta fajta)
+        {
+            return fajta.Elotag == "item" ? "index" : "érték";
+        }
+
+        private static int FajtaIndex(string[] jobbOldal)
+        {
+            if (jobbOldal.Length == 1) return 0;
+
+            if (jobbOldal.Length == 2)
+            {
+                string kulcs = jobbOldal[0] == "get" ? "get " + jobbOldal[1] : jobbOldal[0];
+                for (int i = 0; i < ErtekFajtak.Length; i++)
+                {
+                    if (ErtekFajtak[i].Elotag == kulcs && ErtekFajtak[i].Muvelet == "") return i;
+                }
+                return 0;
+            }
+
+            if (jobbOldal[0] == "item" && !Blokk.MuveletE(jobbOldal[1]))
+            {
+                return Array.FindIndex(ErtekFajtak, fajta => fajta.Elotag == "item");
+            }
+            return Array.IndexOf(Muveletek, jobbOldal[1]) + 1;
+        }
+
         private void ErtekBlokkMezok(StackPanel panel, Blokk? szerkesztett)
         {
             var szoveg = new SolidColorBrush(Color.FromRgb(0xE6, 0xED, 0xF3));
             panel.Children.Add(new TextBlock { Text = "Érték-blokk (a set jobb oldala):", Foreground = szoveg, Margin = new Thickness(0, 0, 0, 4) });
 
             var lista = new StackPanel();
-            int darab = Muveletek.Length + 3;
-            for (int i = 0; i < darab; i++)
+            for (int i = 0; i < ErtekFajtak.Length; i++)
             {
                 int index = i;
+                ErtekFajta fajta = ErtekFajtak[i];
                 var tartalom = new StackPanel { Orientation = Orientation.Horizontal };
-                if (i == 0)
+                if (fajta.Elotag != "")
                 {
-                    tartalom.Children.Add(Cip("érték"));
+                    tartalom.Children.Add(Szo(fajta.Elotag, true));
                 }
-                else if (i <= Muveletek.Length)
+                if (fajta.Mezok >= 1)
                 {
-                    tartalom.Children.Add(Cip("érték"));
-                    tartalom.Children.Add(Szo(Muveletek[i - 1], false));
-                    tartalom.Children.Add(Cip("érték"));
+                    tartalom.Children.Add(Cip(ElsoCimke(fajta)));
                 }
-                else
+                if (fajta.Muvelet != "")
                 {
-                    tartalom.Children.Add(Szo(i == Muveletek.Length + 1 ? "not" : "isThere", true));
-                    tartalom.Children.Add(Cip("érték"));
+                    tartalom.Children.Add(Szo(fajta.Muvelet, false));
+                }
+                if (fajta.Mezok >= 2)
+                {
+                    tartalom.Children.Add(Cip(MasodikCimke(fajta)));
                 }
 
                 var elem = new Border
@@ -248,18 +331,23 @@ namespace Robotszimulator.UI
             if (szerkesztett != null)
             {
                 string[] jobbOldal = szerkesztett.Szavak.Skip(1).ToArray();
+                kijelolt = FajtaIndex(jobbOldal);
+
                 if (jobbOldal.Length == 1)
                 {
                     tbErtekA.Text = jobbOldal[0];
                 }
-                else if (jobbOldal.Length == 2)
+                else if (jobbOldal.Length == 2 && jobbOldal[0] != "get")
                 {
-                    kijelolt = jobbOldal[0] == "not" ? Muveletek.Length + 1 : Muveletek.Length + 2;
                     tbErtekA.Text = jobbOldal[1];
                 }
-                else
+                else if (jobbOldal.Length == 3 && jobbOldal[0] == "item" && !Blokk.MuveletE(jobbOldal[1]))
                 {
-                    kijelolt = Array.IndexOf(Muveletek, jobbOldal[1]) + 1;
+                    tbErtekA.Text = jobbOldal[1];
+                    tbErtekB.Text = jobbOldal[2];
+                }
+                else if (jobbOldal.Length == 3)
+                {
                     tbErtekA.Text = jobbOldal[0];
                     tbErtekB.Text = jobbOldal[2];
                 }
@@ -291,6 +379,11 @@ namespace Robotszimulator.UI
                     return Color.FromRgb(0x98, 0xC3, 0x79);
                 case BlokkTipus.Print:
                     return Color.FromRgb(0xC6, 0x78, 0xDD);
+                case BlokkTipus.ListDecl:
+                case BlokkTipus.Push:
+                case BlokkTipus.Put:
+                case BlokkTipus.Delete:
+                    return Color.FromRgb(0x56, 0xB6, 0xC2);
                 default:
                     return Color.FromRgb(0xE5, 0xC0, 0x7B);
             }
@@ -323,6 +416,18 @@ namespace Robotszimulator.UI
                     case BlokkTipus.If:
                         elotag = "if";
                         break;
+                    case BlokkTipus.ListDecl:
+                        elotag = "list";
+                        break;
+                    case BlokkTipus.Push:
+                        elotag = "push";
+                        break;
+                    case BlokkTipus.Put:
+                        elotag = "put";
+                        break;
+                    case BlokkTipus.Delete:
+                        elotag = "delete";
+                        break;
                     default:
                         elotag = "while";
                         break;
@@ -337,21 +442,22 @@ namespace Robotszimulator.UI
             elonezet.Children.Add(Szo("to", false));
 
             var ertek = new StackPanel { Orientation = Orientation.Horizontal };
-            int index = ertekIndex;
-            if (index == 0)
+            ErtekFajta fajta = ErtekFajtak[ertekIndex];
+            if (fajta.Elotag != "")
+            {
+                ertek.Children.Add(Szo(fajta.Elotag, false));
+            }
+            if (fajta.Mezok >= 1)
             {
                 ertek.Children.Add(Cip(Ertek(tbErtekA)));
             }
-            else if (index <= Muveletek.Length)
+            if (fajta.Muvelet != "")
             {
-                ertek.Children.Add(Cip(Ertek(tbErtekA)));
-                ertek.Children.Add(Szo(Muveletek[index - 1], false));
+                ertek.Children.Add(Szo(fajta.Muvelet, false));
+            }
+            if (fajta.Mezok >= 2)
+            {
                 ertek.Children.Add(Cip(Ertek(tbErtekB)));
-            }
-            else
-            {
-                ertek.Children.Add(Szo(index == Muveletek.Length + 1 ? "not" : "isThere", false));
-                ertek.Children.Add(Cip(Ertek(tbErtekA)));
             }
 
             elonezet.Children.Add(new Border
@@ -367,31 +473,46 @@ namespace Robotszimulator.UI
 
         private void ErtekMezokFrissitese()
         {
-            int index = ertekIndex;
-            bool ketOperandus = index >= 1 && index <= Muveletek.Length;
+            ErtekFajta fajta = ErtekFajtak[ertekIndex];
 
-            tbElotag.Text = index == Muveletek.Length + 1 ? "not" : index == Muveletek.Length + 2 ? "isThere" : string.Empty;
-            tbElotag.Visibility = tbElotag.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
-            tbMuvelet.Text = ketOperandus ? Muveletek[index - 1] : string.Empty;
-            tbMuvelet.Visibility = ketOperandus ? Visibility.Visible : Visibility.Collapsed;
-            tbErtekB.Visibility = ketOperandus ? Visibility.Visible : Visibility.Collapsed;
+            tbElotag.Text = fajta.Elotag;
+            tbElotag.Visibility = fajta.Elotag.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+            tbErtekA.Visibility = fajta.Mezok >= 1 ? Visibility.Visible : Visibility.Collapsed;
+            tbMuvelet.Text = fajta.Muvelet;
+            tbMuvelet.Visibility = fajta.Muvelet.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+            tbErtekB.Visibility = fajta.Mezok >= 2 ? Visibility.Visible : Visibility.Collapsed;
             ElonezetFrissitese();
         }
 
         private string[] ErtekSzavak()
         {
-            int index = ertekIndex;
+            ErtekFajta fajta = ErtekFajtak[ertekIndex];
             string a = tbErtekA.Text.Trim();
             string b = tbErtekB.Text.Trim();
 
-            if (a.Length == 0 || (index >= 1 && index <= Muveletek.Length && b.Length == 0))
+            if ((fajta.Mezok >= 1 && a.Length == 0) || (fajta.Mezok >= 2 && b.Length == 0))
             {
                 throw new ArgumentException("Töltsd ki az érték mezőit.");
             }
 
-            if (index == 0) return new[] { a };
-            if (index <= Muveletek.Length) return new[] { a, Muveletek[index - 1], b };
-            return new[] { index == Muveletek.Length + 1 ? "not" : "isThere", a };
+            var szavak = new List<string>();
+            if (fajta.Elotag != "")
+            {
+                szavak.AddRange(fajta.Elotag.Split(' '));
+            }
+            if (fajta.Mezok >= 1)
+            {
+                szavak.Add(a);
+            }
+            if (fajta.Muvelet != "")
+            {
+                szavak.Add(fajta.Muvelet);
+            }
+            if (fajta.Mezok >= 2)
+            {
+                szavak.Add(b);
+            }
+            return szavak.ToArray();
         }
 
         private string[] Szavak()

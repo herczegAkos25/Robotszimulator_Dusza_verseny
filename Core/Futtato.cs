@@ -8,6 +8,7 @@ namespace Robotszimulator.Core
         public Beolvas Beolvas { get; } = new Beolvas();
         public Terkep Terkep { get; private set; }
         public Robot Robot { get; private set; }
+        public EnergiaBeallitasok Beallitasok { get; set; } = new EnergiaBeallitasok();
         public Interpreter Interpreter { get; private set; }
         public bool Nyomkovetes { get; set; }
         public List<Sor> Program { get; set; } = new();
@@ -29,20 +30,28 @@ namespace Robotszimulator.Core
             Terkep.SetTerkepMeret(Beolvas.TerkepSor, Beolvas.TerkepOszlop);
             Terkep.TerkepLista = Beolvas.TerkepLista;
             Terkep.ErtekMeghatarozas();
-            Robot = new Robot(Terkep);
+            Robot = new Robot(Terkep, Beallitasok);
             Interpreter = new Interpreter(program, Robot) { Nyomkovetes = Nyomkovetes };
         }
 
         public void KezziAllapotbol(Allapot allapot)
         {
             Inditas();
-            Robot.AllapotBeallit(allapot.Grid, allapot.Felfedezett, allapot.RobotSor, allapot.RobotOszlop, allapot.Irany, allapot.Arany);
+            Robot.AllapotBeallit(allapot.Grid, allapot.Felfedezett, allapot.RobotSor, allapot.RobotOszlop, allapot.Irany, allapot.Arany, allapot.Energia, allapot.FuroFejMaradek);
         }
 
-        public void KezziFordulas(int negyedfordulatSzam)
+        public string? KezziFordulas(int negyedfordulatSzam)
         {
-            Robot.Turn_by(negyedfordulatSzam);
-            Robot.ElotteFelfedezes();
+            try
+            {
+                Robot.Turn_by(negyedfordulatSzam);
+                Robot.ElotteFelfedezes();
+                return null;
+            }
+            catch (FutasHiba hiba)
+            {
+                return hiba.Kod;
+            }
         }
 
         public string? KezziLepes(int tavolsag)
@@ -69,6 +78,19 @@ namespace Robotszimulator.Core
             try
             {
                 Robot.Mine_here();
+                return null;
+            }
+            catch (FutasHiba hiba)
+            {
+                return hiba.Kod;
+            }
+        }
+
+        public string? KezziFuras()
+        {
+            try
+            {
+                Robot.Fur();
                 return null;
             }
             catch (FutasHiba hiba)

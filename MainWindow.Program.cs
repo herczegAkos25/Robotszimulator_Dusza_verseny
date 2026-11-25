@@ -367,7 +367,19 @@ namespace Robotszimulator
             Elem("step forward", "lépés előre", "#E5C07B", () => UjBlokkHozzaadasa(BlokkTipus.StepForward));
             Elem("turn by", "fordulás balra", "#E5C07B", () => UjBlokkHozzaadasa(BlokkTipus.TurnBy));
             Elem("mine here", "bányászás", "#E5C07B", () => UjBlokkHozzaadasa(BlokkTipus.MineHere));
+            Elem("drill", "fúrás", "#E5C07B", () => UjBlokkHozzaadasa(BlokkTipus.Drill));
+            Elem("support here", "támasz lerakása", "#E5C07B", () => UjBlokkHozzaadasa(BlokkTipus.SupportHere));
+            Elem("unsupport here", "támasz felvétele", "#E5C07B", () => UjBlokkHozzaadasa(BlokkTipus.UnsupportHere));
+            Elem("place charger", "töltő lerakása", "#E5C07B", () => UjBlokkHozzaadasa(BlokkTipus.PlaceCharger));
+            Elem("remove charger", "töltő felvétele", "#E5C07B", () => UjBlokkHozzaadasa(BlokkTipus.RemoveCharger));
+            Elem("charge", "töltés", "#E5C07B", () => UjBlokkHozzaadasa(BlokkTipus.Charge));
+            Elem("buy drill", "új fúrófej", "#E5C07B", () => UjBlokkHozzaadasa(BlokkTipus.BuyDrill));
             Elem("print", "kiírás", "#C678DD", () => UjBlokkHozzaadasa(BlokkTipus.Print));
+            Elvalaszto();
+            Elem("list", "lista létrehozása", "#56B6C2", () => UjBlokkHozzaadasa(BlokkTipus.ListDecl));
+            Elem("push", "hozzáfűzés", "#56B6C2", () => UjBlokkHozzaadasa(BlokkTipus.Push));
+            Elem("put", "elem módosítása", "#56B6C2", () => UjBlokkHozzaadasa(BlokkTipus.Put));
+            Elem("delete", "elem törlése", "#56B6C2", () => UjBlokkHozzaadasa(BlokkTipus.Delete));
             Elvalaszto();
             Elem("if", "feltétel", "#98C379", () => UjBlokkHozzaadasa(BlokkTipus.If));
             Elem("if-else", "feltétel, két ággal", "#98C379", () => UjBlokkHozzaadasa(BlokkTipus.If, true));
@@ -375,8 +387,8 @@ namespace Robotszimulator
 
             ablak.Child = new Border
             {
-                Child = lista,
-                Width = 270,
+                Child = new ScrollViewer { Content = lista, MaxHeight = 520, VerticalScrollBarVisibility = ScrollBarVisibility.Auto },
+                Width = 290,
                 Padding = new Thickness(6),
                 CornerRadius = new CornerRadius(8),
                 Background = Ecset("#262A32"),
@@ -390,7 +402,7 @@ namespace Robotszimulator
         {
             Blokk? uj;
 
-            if (tipus == BlokkTipus.MineHere)
+            if (!Blokk.VanParametere(tipus))
             {
                 uj = new Blokk(tipus);
             }
@@ -432,7 +444,7 @@ namespace Robotszimulator
                 AllapotsorBeallitas("Előbb jelölj ki egy blokkot", true);
                 return;
             }
-            if (sor.ElseSor || sor.Blokk.Tipus == BlokkTipus.MineHere)
+            if (sor.ElseSor || !Blokk.VanParametere(sor.Blokk.Tipus))
             {
                 AllapotsorBeallitas("Ennek a sornak nincs szerkeszthető tartalma", true);
                 return;
