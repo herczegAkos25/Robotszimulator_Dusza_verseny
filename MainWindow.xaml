@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Robotszimulator"
         mc:Ignorable="d"
-        Title="Robot Szimulátor" Height="800" Width="1000" WindowState="Maximized" Background="Black" Foreground="White"
+        Title="Robot Szimulátor" Height="800" Width="1500" WindowState="Maximized" Background="Black" Foreground="White"
         Icon="Logo.png" PreviewKeyDown="Ablak_PreviewKeyDown" SourceInitialized="Ablak_SourceInitialized">
 
     <Window.Resources>
@@ -448,12 +448,27 @@
                         <StackPanel>
                             <TextBlock Text="Kézi vezérlés" FontWeight="SemiBold" Margin="0,0,0,8"/>
                             <StackPanel Orientation="Horizontal">
-                                <Button Content="⟳ Balra fordulás" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnKezziFordulas_Click"/>
+                                <Button Content="Balra fordulás" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnKezziFordulas_Click"/>
                                 <TextBox x:Name="tbKezziFordulas" Width="45" Background="#282C34" Foreground="White" BorderBrush="#3A3F4B" Text="1" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="0,0,15,0"/>
-                                <Button Content="↑ Előre" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnKezziLepes_Click"/>
+                                <Button Content="Előre" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnKezziLepes_Click"/>
                                 <TextBox x:Name="tbKezziLepes" Width="45" Background="#282C34" Foreground="White" BorderBrush="#3A3F4B" Text="1" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="0,0,15,0"/>
-                                <Button Content="◆ Bányászás" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnKezziBanyaszat_Click"/>
-                                <Button Content="⛏ Fúrás" Style="{StaticResource DarkButton}" Click="BtnKezziFuras_Click"/>
+                                <StackPanel >
+                                    <Button Content="Bányászás" Style="{StaticResource DarkButton}" Margin="0,0,8,5" Click="BtnKezziBanyaszat_Click"/>
+                                    <Button Content="Fúrás" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnKezziFuras_Click"/>
+                                </StackPanel>
+                                <StackPanel>
+                                    <Button Content="Támasz" Style="{StaticResource DarkButton}" Margin="0,0,8,5" Click="BtnTamaszLerak_Click" />
+                                    <Button Content="Támasz Felvétele" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnTamaszFelvesz_Click" />
+                                </StackPanel>
+                                <StackPanel>
+                                    <Button Content="Töltőállomás" Style="{StaticResource DarkButton}" Margin="0,0,8,5" Click="BtnToltoallomasLerak_Click" />
+                                    <Button Content="Töltőállomás Felvétele" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnToltoallomasFelvesz_Click" />
+                                </StackPanel>
+                                <StackPanel>
+                                    <Button Content="Töltés" Style="{StaticResource DarkButton}" Margin="0,0,8,5" Click="BtnToltes_Click" />
+                                    <Button Content="Fúrófej" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnFuroFejVasarlas_Click" />
+                                </StackPanel>
+                                
                             </StackPanel>
                             <TextBlock Text="Kézi vezérlésnél a futás megáll, és nem készül napló." Foreground="#5C6370" FontSize="11" Margin="0,6,0,0"/>
                         </StackPanel>
@@ -467,7 +482,8 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="280"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="320"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>
 
             <!-- Konzol -->
@@ -489,9 +505,17 @@
                              x:Name="tbNapló"/>
                 </DockPanel>
             </Border>
-
-            <!-- Változók -->
+            
+            <!--Energia-->
             <Border Grid.Column="2" Style="{StaticResource DarkCard}">
+                <DockPanel>
+                    <TextBlock Text="Energia" FontWeight="Bold" DockPanel.Dock="Top" Margin="0,0,0,8"/>
+                    <TextBox Background="#181A1F" Foreground="#E6EDF3" BorderThickness="0" IsReadOnly="True" FontFamily="Consolas" x:Name="tbEnergiaLog"/>
+                </DockPanel>
+            </Border>
+            
+            <!-- Változók -->
+            <Border Grid.Column="3" Style="{StaticResource DarkCard}" >
                 <DockPanel>
                     <TextBlock Text="Változók" FontWeight="Bold" DockPanel.Dock="Top" Margin="0,0,0,8"/>
                     <ListView x:Name="lvValtozok" Background="#181A1F" Foreground="AliceBlue" BorderThickness="0" >

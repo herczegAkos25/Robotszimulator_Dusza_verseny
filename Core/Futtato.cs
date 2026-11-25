@@ -103,5 +103,81 @@ namespace Robotszimulator.Core
         {
             File.WriteAllLines(AppSettings.OutputFilePath, Interpreter.Naplo);
         }
+
+        public string? KezziTamaszLerak()
+        {
+            try
+            {
+                Robot.TamaszRak();
+                return null;
+            }
+            catch (FutasHiba hiba)
+            {
+                return hiba.Kod;
+            }
+        }
+        public string? KezziTamaszFelvesz()
+        {
+            try
+            {
+                Robot.TamaszFelvesz();
+                return null;
+            }
+            catch (FutasHiba hiba)
+            {
+                return hiba.Kod;
+            }
+        }
+
+        public string? KezziToltoallomasLerak()
+        {
+            try
+            {
+                Robot.ToltoLerak();
+                return null;
+            }
+            catch (FutasHiba hiba)
+            {
+                return hiba.Kod;
+            }
+        }
+        public string? KezziToltoallomasFelvesz()
+        {
+            try
+            {
+                Robot.ToltoFelvesz();
+                return null;
+            }
+            catch (FutasHiba hiba)
+            {
+                return hiba.Kod;
+            }
+        }
+        public string? KezziToltes(out int toltottMennyiseg)
+        {
+            toltottMennyiseg = 0;
+            try
+            {
+                toltottMennyiseg = Robot.Tolt();
+                return null;
+            }
+            catch (FutasHiba hiba)
+            {
+                return hiba.Kod;
+            }
+        }
+
+        public string? KezziFuroFejVasarlas()
+        {
+            try
+            {
+                Robot.FuroFejetVesz();
+                return null;
+            }
+            catch (FutasHiba hiba)
+            {
+                return hiba.Kod;
+            }
+        }
     }
 }

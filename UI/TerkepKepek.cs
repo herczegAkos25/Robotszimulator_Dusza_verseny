@@ -1,4 +1,5 @@
 using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Media.Imaging;
 
@@ -15,6 +16,8 @@ namespace Robotszimulator.UI
 
         public bool Betoltve { get; private set; }
         public BitmapSource? Robot { get; private set; }
+        public BitmapSource? Tamasz { get; private set; }
+        public BitmapSource? Toltoallomas { get; private set; }
 
         public TerkepKepek()
         {
@@ -27,7 +30,10 @@ namespace Robotszimulator.UI
                 Robot = KepBetoltese(robotFajl);
             }
 
-            foreach (string tipus in new[] { "talaj", "fal", "arany" })
+            Tamasz = EgyediKepBetoltese(mappa, "tamasz");
+            Toltoallomas = EgyediKepBetoltese(mappa, "töltőállomás");
+
+            foreach (string tipus in new[] { "talaj", "fal", "arany", "fúrható_k", "fúrható_karany" })
             {
                 TipusBetoltese(mappa, tipus);
             }
@@ -59,12 +65,13 @@ namespace Robotszimulator.UI
             var felfedezett = new List<(string Vegzodes, BitmapSource Kep)>();
             var felfedezetlen = new List<(string Vegzodes, BitmapSource Kep)>();
 
-            var felfedezettMinta = new Regex("^" + tipus + @"(\d*)$", RegexOptions.IgnoreCase);
-            var felfedezetlenMinta = new Regex("^" + tipus + @"_felfedezetlen(\d*)$", RegexOptions.IgnoreCase);
+            string tipusNev = Regex.Escape(tipus.Normalize(NormalizationForm.FormC));
+            var felfedezettMinta = new Regex("^" + tipusNev + @"(\d*)$", RegexOptions.IgnoreCase);
+            var felfedezetlenMinta = new Regex("^" + tipusNev + @"_felfedezetlen(\d*)$", RegexOptions.IgnoreCase);
 
             foreach (string fajl in Directory.GetFiles(mappa, "*.png").OrderBy(f => f, StringComparer.OrdinalIgnoreCase))
             {
-                string nev = Path.GetFileNameWithoutExtension(fajl);
+                string nev = Path.GetFileNameWithoutExtension(fajl).Normalize(NormalizationForm.FormC);
                 var egyezesFelfedezett = felfedezettMinta.Match(nev);
                 var egyezesFelfedezetlen = felfedezetlenMinta.Match(nev);
 
@@ -89,6 +96,21 @@ namespace Robotszimulator.UI
             felfedezettVegzodesek[tipus] = felfedezett.Select(x => x.Vegzodes).ToList();
             felfedezetlenKepek[tipus] = felfedezetlen.Select(x => x.Kep).ToList();
             felfedezetlenVegzodesek[tipus] = felfedezetlen.Select(x => x.Vegzodes).ToList();
+        }
+
+        private static BitmapSource? EgyediKepBetoltese(string mappa, string nev)
+        {
+            string cel = nev.Normalize(NormalizationForm.FormC);
+            foreach (string fajl in Directory.GetFiles(mappa, "*.png"))
+            {
+                string fajlNev = Path.GetFileNameWithoutExtension(fajl).Normalize(NormalizationForm.FormC);
+                if (string.Equals(fajlNev, cel, StringComparison.OrdinalIgnoreCase))
+                {
+                    return KepBetoltese(fajl);
+                }
+            }
+
+            return null;
         }
 
         private static BitmapSource? KepBetoltese(string fajl)
