@@ -73,10 +73,9 @@ namespace Robotszimulator
             SzenzorMegjelenites(robot.Szenzor());
             tbNapló.Text = string.Empty;
             tbKonzol.Text = string.Empty;
-            tbEnergiaLog.Text = string.Join(Environment.NewLine, robot.EnergiaNaplo);
-            tbEnergiaLog.ScrollToEnd();
+            EnergiaNaploMegjelenites(robot.EnergiaNaplo);
             lvValtozok.ItemsSource = null;
-            tbLepesSzamlalo.Text = "Lépés – / –";
+            tbLepesSzamlalo.Text = "– / –";
             AllapotsorBeallitas(uzenet, hiba);
             btnMegallitas.IsEnabled = false;
         }
@@ -93,8 +92,7 @@ namespace Robotszimulator
             tbNapló.ScrollToEnd();
             tbKonzol.Text = string.Join(Environment.NewLine, interpreter.Konzol.Take(allapot.KonzolHossz));
             tbKonzol.ScrollToEnd();
-            tbEnergiaLog.Text = string.Join(Environment.NewLine, interpreter.EnergiaNaplo.Take(allapot.EnergiaNaploHossz));
-            tbEnergiaLog.ScrollToEnd();
+            EnergiaNaploMegjelenites(interpreter.EnergiaNaplo.Take(allapot.EnergiaNaploHossz));
 
             var sorok = allapot.Valtozok
                 .Select(valtozo => new ValtozoSor(valtozo.Key, TipusNev(valtozo.Value), ErtekSzoveg(valtozo.Value)))
@@ -106,10 +104,66 @@ namespace Robotszimulator
             lvValtozok.ItemsSource = sorok;
         }
 
+        private static readonly SolidColorBrush ZoldSzin = new SolidColorBrush(Color.FromRgb(0x98, 0xC3, 0x79));
+        private static readonly SolidColorBrush SargaSzin = new SolidColorBrush(Color.FromRgb(0xE5, 0xC0, 0x7B));
+        private static readonly SolidColorBrush PirosSzin = new SolidColorBrush(Color.FromRgb(0xE0, 0x6C, 0x75));
+        private static readonly SolidColorBrush KekSzin = new SolidColorBrush(Color.FromRgb(0x61, 0xAF, 0xEF));
+
         private void EnergiaMegjelenites(int energia, int furoFejMaradek)
         {
-            tbEnergia.Text = energia + " / " + futtato.Beallitasok.Kapacitas;
-            tbFuroFej.Text = furoFejMaradek + " / " + futtato.Beallitasok.FuroFejElettartam;
+            // Energia: zöld, 30% alatt sárga, 10% alatt piros
+            int kapacitas = futtato.Beallitasok.Kapacitas;
+            double arany = kapacitas > 0 ? (double)energia / kapacitas : 0;
+            int szazalek = (int)Math.Round(arany * 100);
+
+            Brush energiaSzin;
+            string energiaInfo;
+            if (arany < 0.10)
+            {
+                energiaSzin = PirosSzin;
+                energiaInfo = szazalek + "%, piros 10% alatt";
+            }
+            else if (arany < 0.30)
+            {
+                energiaSzin = SargaSzin;
+                energiaInfo = szazalek + "%, sárga 30% alatt";
+            }
+            else
+            {
+                energiaSzin = ZoldSzin;
+                energiaInfo = szazalek + "% a " + kapacitas + " Wh-ból";
+            }
+
+            tbEnergia.Text = energia + " Wh";
+            tbEnergia.Foreground = energiaSzin;
+            pbEnergia.Maximum = Math.Max(kapacitas, 1);
+            pbEnergia.Value = Math.Clamp(energia, 0, Math.Max(kapacitas, 1));
+            pbEnergia.Foreground = energiaSzin;
+            tbEnergiaInfo.Text = energiaInfo;
+
+            // Fúrófej: kék, az utolsó 3 fúrásnál piros, 0-nál elhasznált
+            int elettartam = futtato.Beallitasok.FuroFejElettartam;
+            bool kopott = furoFejMaradek <= 3;
+            Brush furoSzin = kopott ? PirosSzin : KekSzin;
+
+            tbFuroFej.Text = furoFejMaradek + " / " + elettartam;
+            tbFuroFej.Foreground = furoSzin;
+            pbFuroFej.Maximum = Math.Max(elettartam, 1);
+            pbFuroFej.Value = Math.Clamp(furoFejMaradek, 0, Math.Max(elettartam, 1));
+            pbFuroFej.Foreground = furoSzin;
+            tbFuroFejInfo.Text = furoFejMaradek == 0
+                ? "E_DRILL_WORN, vegyél újat"
+                : kopott ? "piros az utolsó 3 fúrásnál" : "fúrás maradt";
+        }
+
+        private void EnergiaNaploMegjelenites(IEnumerable<string> sorok)
+        {
+            List<EnergiaSor> tabla = EnergiaSor.Lista(sorok);
+            lbEnergiaLog.ItemsSource = tabla;
+            if (tabla.Count > 0)
+            {
+                lbEnergiaLog.ScrollIntoView(tabla[tabla.Count - 1]);
+            }
         }
 
         private static string ListaSzoveg(Lista lista)
@@ -148,7 +202,7 @@ namespace Robotszimulator
                 TeljesNaploMegjelenites(interpreter);
             }
 
-            tbLepesSzamlalo.Text = "Lépés " + index + " / " + (allapotok.Count - 1);
+            tbLepesSzamlalo.Text = index + " / " + (allapotok.Count - 1);
             AllapotsorFrissites(allapot, interpreter, utolso);
         }
 

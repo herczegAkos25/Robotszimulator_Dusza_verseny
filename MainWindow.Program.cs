@@ -78,6 +78,21 @@ namespace Robotszimulator
                     lbBlokkok.ScrollIntoView(uj);
                 }
             }
+
+            KijelolesInfoFrissitese();
+        }
+
+        private void KijelolesInfoFrissitese()
+        {
+            BlokkSor? sor = KijeloltSor();
+            tbKijelolesInfo.Text = sor == null
+                ? "Nincs kijelölt sor, az új blokk a program végére kerül"
+                : sor.Sorszam + ". sor kijelölve";
+        }
+
+        private void LbBlokkok_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            KijelolesInfoFrissitese();
         }
 
         private void BlokkNezetBe()
@@ -85,6 +100,7 @@ namespace Robotszimulator
             blokkNezet = true;
             lbBlokkok.Visibility = Visibility.Visible;
             pnlBlokkEszkozok.Visibility = Visibility.Visible;
+            tbKijelolesInfo.Visibility = Visibility.Visible;
             gdSzovegNezet.Visibility = Visibility.Collapsed;
             btnBlokkNezet.Background = AktivGomb;
             btnSzovegNezet.Background = InaktivGomb;
@@ -95,6 +111,7 @@ namespace Robotszimulator
             blokkNezet = false;
             lbBlokkok.Visibility = Visibility.Collapsed;
             pnlBlokkEszkozok.Visibility = Visibility.Collapsed;
+            tbKijelolesInfo.Visibility = Visibility.Collapsed;
             gdSzovegNezet.Visibility = Visibility.Visible;
             btnBlokkNezet.Background = InaktivGomb;
             btnSzovegNezet.Background = AktivGomb;
@@ -324,78 +341,28 @@ namespace Robotszimulator
             return new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex));
         }
 
-        private void BtnBlokkHozzaadas_Click(object sender, RoutedEventArgs e)
+        private void BtnPaletta_Click(object sender, RoutedEventArgs e)
         {
-            var lista = new StackPanel();
-            var ablak = new Popup
+            string cimke = (string)((Button)sender).Tag;
+            if (cimke == "IfElse")
             {
-                PlacementTarget = (UIElement)sender,
-                Placement = PlacementMode.Bottom,
-                StaysOpen = false,
-                AllowsTransparency = true
-            };
-
-            void Elem(string nev, string leiras, string szin, Action muvelet)
-            {
-                var pont = new Border { Width = 10, Height = 22, CornerRadius = new CornerRadius(3), Background = Ecset(szin), Margin = new Thickness(0, 0, 10, 0) };
-                var cim = new TextBlock { Text = nev, Foreground = Ecset("#E6EDF3"), VerticalAlignment = VerticalAlignment.Center };
-                var megjegyzes = new TextBlock { Text = leiras, Foreground = Ecset("#7D8594"), FontSize = 11, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(14, 0, 0, 0) };
-                DockPanel.SetDock(megjegyzes, Dock.Right);
-
-                var sor = new DockPanel { LastChildFill = true };
-                sor.Children.Add(megjegyzes);
-                sor.Children.Add(pont);
-                sor.Children.Add(cim);
-
-                var elem = new Border { Child = sor, Padding = new Thickness(8, 6, 8, 6), CornerRadius = new CornerRadius(6), Background = Brushes.Transparent, Cursor = Cursors.Hand };
-                elem.MouseEnter += (kuldo, esemeny) => elem.Background = Ecset("#323843");
-                elem.MouseLeave += (kuldo, esemeny) => elem.Background = Brushes.Transparent;
-                elem.MouseLeftButtonUp += (kuldo, esemeny) =>
-                {
-                    ablak.IsOpen = false;
-                    muvelet();
-                };
-                lista.Children.Add(elem);
+                UjBlokkHozzaadasa(BlokkTipus.If, true);
             }
-
-            void Elvalaszto()
+            else
             {
-                lista.Children.Add(new Border { Height = 1, Background = Ecset("#3A3F4B"), Margin = new Thickness(4, 5, 4, 5) });
+                UjBlokkHozzaadasa(Enum.Parse<BlokkTipus>(cimke));
             }
+        }
 
-            Elem("set", "változó beállítása", "#61AFEF", () => UjBlokkHozzaadasa(BlokkTipus.Set));
-            Elem("step forward", "lépés előre", "#E5C07B", () => UjBlokkHozzaadasa(BlokkTipus.StepForward));
-            Elem("turn by", "fordulás balra", "#E5C07B", () => UjBlokkHozzaadasa(BlokkTipus.TurnBy));
-            Elem("mine here", "bányászás", "#E5C07B", () => UjBlokkHozzaadasa(BlokkTipus.MineHere));
-            Elem("drill", "fúrás", "#E5C07B", () => UjBlokkHozzaadasa(BlokkTipus.Drill));
-            Elem("support here", "támasz lerakása", "#E5C07B", () => UjBlokkHozzaadasa(BlokkTipus.SupportHere));
-            Elem("unsupport here", "támasz felvétele", "#E5C07B", () => UjBlokkHozzaadasa(BlokkTipus.UnsupportHere));
-            Elem("place charger", "töltő lerakása", "#E5C07B", () => UjBlokkHozzaadasa(BlokkTipus.PlaceCharger));
-            Elem("remove charger", "töltő felvétele", "#E5C07B", () => UjBlokkHozzaadasa(BlokkTipus.RemoveCharger));
-            Elem("charge", "töltés", "#E5C07B", () => UjBlokkHozzaadasa(BlokkTipus.Charge));
-            Elem("buy drill", "új fúrófej", "#E5C07B", () => UjBlokkHozzaadasa(BlokkTipus.BuyDrill));
-            Elem("print", "kiírás", "#C678DD", () => UjBlokkHozzaadasa(BlokkTipus.Print));
-            Elvalaszto();
-            Elem("list", "lista létrehozása", "#56B6C2", () => UjBlokkHozzaadasa(BlokkTipus.ListDecl));
-            Elem("push", "hozzáfűzés", "#56B6C2", () => UjBlokkHozzaadasa(BlokkTipus.Push));
-            Elem("put", "elem módosítása", "#56B6C2", () => UjBlokkHozzaadasa(BlokkTipus.Put));
-            Elem("delete", "elem törlése", "#56B6C2", () => UjBlokkHozzaadasa(BlokkTipus.Delete));
-            Elvalaszto();
-            Elem("if", "feltétel", "#98C379", () => UjBlokkHozzaadasa(BlokkTipus.If));
-            Elem("if-else", "feltétel, két ággal", "#98C379", () => UjBlokkHozzaadasa(BlokkTipus.If, true));
-            Elem("while", "ciklus", "#98C379", () => UjBlokkHozzaadasa(BlokkTipus.While));
-
-            ablak.Child = new Border
+        // Nincs külön "hova" választó: a kijelölt sor dönti el.
+        // if/while sorra kattintva a belsejébe kerül az új blokk (ha belefér), minden más esetben mögé.
+        private static BeszurasMod BeszurasHelye(BlokkSor? kijelolt, Blokk uj)
+        {
+            if (kijelolt != null && !kijelolt.ElseSor && kijelolt.Blokk.BeszurhatoBelsejebe(uj))
             {
-                Child = new ScrollViewer { Content = lista, MaxHeight = 520, VerticalScrollBarVisibility = ScrollBarVisibility.Auto },
-                Width = 290,
-                Padding = new Thickness(6),
-                CornerRadius = new CornerRadius(8),
-                Background = Ecset("#262A32"),
-                BorderBrush = Ecset("#3A3F4B"),
-                BorderThickness = new Thickness(1)
-            };
-            ablak.IsOpen = true;
+                return BeszurasMod.Belsejebe;
+            }
+            return BeszurasMod.Utana;
         }
 
         private void UjBlokkHozzaadasa(BlokkTipus tipus, bool ifElse = false)
@@ -422,7 +389,8 @@ namespace Robotszimulator
 
             try
             {
-                blokkProgram.Beszur(uj, KijeloltSor(), (BeszurasMod)cbHely.SelectedIndex);
+                BlokkSor? kijelolt = KijeloltSor();
+                blokkProgram.Beszur(uj, kijelolt, BeszurasHelye(kijelolt, uj));
             }
             catch (InvalidOperationException hiba)
             {
@@ -432,7 +400,6 @@ namespace Robotszimulator
 
             MentettsegBeallitasa(true);
             BlokkokFrissitese(uj);
-            cbHely.SelectedIndex = uj.Vezerlo ? 1 : 0;
             AllapotsorBeallitas("Blokk hozzáadva", false);
         }
 
@@ -582,6 +549,11 @@ namespace Robotszimulator
 
         private void LbBlokkok_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
+            for (DependencyObject? elem = e.OriginalSource as DependencyObject; elem is Visual && elem != lbBlokkok; elem = VisualTreeHelper.GetParent(elem))
+            {
+                if (elem is ButtonBase) return;
+            }
+
             if (KijeloltSor() != null)
             {
                 BlokkSzerkesztese();

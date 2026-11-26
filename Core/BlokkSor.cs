@@ -1,9 +1,8 @@
 ﻿using System.ComponentModel;
+using System.Text.RegularExpressions;
 
 namespace Robotszimulator.Core
 {
-    public record BlokkResz(string Szoveg, bool Mezo);
-
     public class BlokkSor : INotifyPropertyChanged
     {
         private string keret = "Transparent";
@@ -23,100 +22,63 @@ namespace Robotszimulator.Core
             Szint = szint;
         }
 
-        public bool ErtekLathato
-        {
-            get { return !ElseSor && Blokk.Tipus == BlokkTipus.Set; }
-        }
-
-        public List<BlokkResz> Reszek
+        public string Kulcsszo
         {
             get
             {
-                if (ElseSor) return new List<BlokkResz> { new BlokkResz("else", false) };
+                if (ElseSor) return "else";
 
-                string[] szavak = Blokk.Szavak;
                 switch (Blokk.Tipus)
                 {
-                    case BlokkTipus.Set:
-                        return new List<BlokkResz> { new BlokkResz("set", false), new BlokkResz(szavak[0], true), new BlokkResz("to", false) };
-                    case BlokkTipus.StepForward:
-                        return new List<BlokkResz> { new BlokkResz("step forward", false), new BlokkResz(szavak[0], true) };
-                    case BlokkTipus.TurnBy:
-                        return new List<BlokkResz> { new BlokkResz("turn by", false), new BlokkResz(szavak[0], true) };
-                    case BlokkTipus.MineHere:
-                        return new List<BlokkResz> { new BlokkResz("mine here", false) };
-                    case BlokkTipus.Drill:
-                        return new List<BlokkResz> { new BlokkResz("drill", false) };
-                    case BlokkTipus.SupportHere:
-                        return new List<BlokkResz> { new BlokkResz("support here", false) };
-                    case BlokkTipus.UnsupportHere:
-                        return new List<BlokkResz> { new BlokkResz("unsupport here", false) };
-                    case BlokkTipus.PlaceCharger:
-                        return new List<BlokkResz> { new BlokkResz("place charger", false) };
-                    case BlokkTipus.RemoveCharger:
-                        return new List<BlokkResz> { new BlokkResz("remove charger", false) };
-                    case BlokkTipus.Charge:
-                        return new List<BlokkResz> { new BlokkResz("charge", false) };
-                    case BlokkTipus.BuyDrill:
-                        return new List<BlokkResz> { new BlokkResz("buy drill", false) };
-                    case BlokkTipus.ListDecl:
-                        return new List<BlokkResz> { new BlokkResz("list", false), new BlokkResz(szavak[0], true), new BlokkResz(szavak[1], true) };
-                    case BlokkTipus.Push:
-                        return new List<BlokkResz> { new BlokkResz("push", false), new BlokkResz(szavak[0], true), new BlokkResz(szavak[1], true) };
-                    case BlokkTipus.Put:
-                        return new List<BlokkResz> { new BlokkResz("put", false), new BlokkResz(szavak[0], true), new BlokkResz(szavak[1], true), new BlokkResz(szavak[2], true) };
-                    case BlokkTipus.Delete:
-                        return new List<BlokkResz> { new BlokkResz("delete", false), new BlokkResz(szavak[0], true), new BlokkResz(szavak[1], true) };
-                    case BlokkTipus.Print:
-                        return new List<BlokkResz> { new BlokkResz("print", false), new BlokkResz(szavak[0], true) };
-                    case BlokkTipus.If:
-                        return new List<BlokkResz> { new BlokkResz("if", false), new BlokkResz(szavak[0], true) };
-                    default:
-                        return new List<BlokkResz> { new BlokkResz("while", false), new BlokkResz(szavak[0], true) };
+                    case BlokkTipus.Set: return "set";
+                    case BlokkTipus.StepForward: return "step forward";
+                    case BlokkTipus.TurnBy: return "turn by";
+                    case BlokkTipus.MineHere: return "mine here";
+                    case BlokkTipus.Print: return "print";
+                    case BlokkTipus.If: return "if";
+                    case BlokkTipus.While: return "while";
+                    case BlokkTipus.Drill: return "drill";
+                    case BlokkTipus.SupportHere: return "support here";
+                    case BlokkTipus.UnsupportHere: return "unsupport here";
+                    case BlokkTipus.PlaceCharger: return "place charger";
+                    case BlokkTipus.RemoveCharger: return "remove charger";
+                    case BlokkTipus.Charge: return "charge";
+                    case BlokkTipus.BuyDrill: return "buy drill";
+                    case BlokkTipus.ListDecl: return "list";
+                    case BlokkTipus.Push: return "push";
+                    case BlokkTipus.Put: return "put";
+                    case BlokkTipus.Delete: return "delete";
+                    default: return string.Empty;
                 }
             }
         }
 
-        public List<BlokkResz> ErtekReszek
+        // A kulcsszó utáni rész egyben, ez jelenik meg "chipként" a sorban (pl. "db < 6").
+        public string Parameterek
         {
             get
             {
-                var reszek = new List<BlokkResz>();
-                if (!ErtekLathato) return reszek;
+                if (ElseSor) return string.Empty;
 
-                string[] jobbOldal = Blokk.Szavak.Skip(1).ToArray();
-                if (jobbOldal.Length == 1)
-                {
-                    reszek.Add(new BlokkResz(jobbOldal[0], true));
-                }
-                else if (jobbOldal.Length == 2 && jobbOldal[0] == "get")
-                {
-                    reszek.Add(new BlokkResz("get " + jobbOldal[1], false));
-                }
-                else if (jobbOldal.Length == 2)
-                {
-                    reszek.Add(new BlokkResz(jobbOldal[0], false));
-                    reszek.Add(new BlokkResz(jobbOldal[1], true));
-                }
-                else if (jobbOldal[0] == "item" && !Blokk.MuveletE(jobbOldal[1]))
-                {
-                    reszek.Add(new BlokkResz("item", false));
-                    reszek.Add(new BlokkResz(jobbOldal[1], true));
-                    reszek.Add(new BlokkResz(jobbOldal[2], true));
-                }
-                else
-                {
-                    reszek.Add(new BlokkResz(jobbOldal[0], true));
-                    reszek.Add(new BlokkResz(jobbOldal[1], false));
-                    reszek.Add(new BlokkResz(jobbOldal[2], true));
-                }
-                return reszek;
+                string teljes = Blokk.ToString();
+                string kulcs = Kulcsszo;
+                return teljes.Length > kulcs.Length ? teljes.Substring(kulcs.Length).Trim() : string.Empty;
             }
+        }
+
+        public bool VanParameter
+        {
+            get { return Parameterek.Length > 0; }
+        }
+
+        public bool Szerkesztheto
+        {
+            get { return !ElseSor && Blokk.VanParametere(Blokk.Tipus); }
         }
 
         public double BalMargo
         {
-            get { return (Szint - 1) * 22; }
+            get { return (Szint - 1) * 20; }
         }
 
         public string Szin
