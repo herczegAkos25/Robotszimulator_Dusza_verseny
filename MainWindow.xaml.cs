@@ -513,7 +513,7 @@ namespace Robotszimulator
                 ("Fal", "fal", true, Brushes.Gray),
                 ("Arany", "arany", true, Brushes.Gold),
                 ("Kőzet", "fúrható_k", true, Brushes.SaddleBrown),
-                ("Aranyas kőzet", "fúrható_karany", true, Brushes.Goldenrod),
+                ("Aranyat tartalmazó kőzet", "fúrható_karany", true, Brushes.Goldenrod),
                 ("Támasz", "tamasz", true, Brushes.DarkSlateBlue),
                 ("Töltő", "toltoallomas", true, Brushes.DarkOrange),
                 ("Robot", "robot", true, Brushes.LightSkyBlue)

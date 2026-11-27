@@ -651,13 +651,12 @@
                                                                 <Viewbox Width="15" Height="15"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonMozgas}" Stroke="#E5C07B"/></Canvas></Viewbox>
                                                                 <TextBlock Text="Mozgás" Foreground="#E6EDF3" FontSize="12" FontWeight="SemiBold" Margin="8,0,0,0"/>
                                                             </StackPanel>
-                                                            <TextBlock Text="3" Foreground="#7D8594" FontSize="11" HorizontalAlignment="Right" Margin="0,0,8,0"/>
+                                                            <TextBlock Text="2" Foreground="#7D8594" FontSize="11" HorizontalAlignment="Right" Margin="0,0,8,0"/>
                                                         </Grid>
                                                     </Expander.Header>
                                                     <StackPanel>
                                                 <Button Style="{StaticResource PalettaSarga}" Tag="StepForward" Content="step forward" Margin="0,0,0,5" Click="BtnPaletta_Click"/>
                                                 <Button Style="{StaticResource PalettaSarga}" Tag="TurnBy" Content="turn by" Margin="0,0,0,5" Click="BtnPaletta_Click"/>
-                                                <Button Style="{StaticResource PalettaSarga}" Tag="MineHere" Content="mine here" Margin="0,0,0,5" Click="BtnPaletta_Click"/>
                                                 </StackPanel>
                                                 </Expander>
                                                 <Expander x:Name="expKozet" Style="{StaticResource PalettaCsoport}" Expanded="PalettaCsoport_Expanded" Collapsed="PalettaCsoport_Collapsed">
@@ -667,10 +666,11 @@
                                                                 <Viewbox Width="15" Height="15"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonKo}" Stroke="#E5C07B"/></Canvas></Viewbox>
                                                                 <TextBlock Text="Kőzet, energia" Foreground="#E6EDF3" FontSize="12" FontWeight="SemiBold" Margin="8,0,0,0"/>
                                                             </StackPanel>
-                                                            <TextBlock Text="7" Foreground="#7D8594" FontSize="11" HorizontalAlignment="Right" Margin="0,0,8,0"/>
+                                                            <TextBlock Text="8" Foreground="#7D8594" FontSize="11" HorizontalAlignment="Right" Margin="0,0,8,0"/>
                                                         </Grid>
                                                     </Expander.Header>
                                                     <StackPanel>
+                                                <Button Style="{StaticResource PalettaSarga}" Tag="MineHere" Content="mine here" Margin="0,0,0,5" Click="BtnPaletta_Click"/>
                                                 <Button Style="{StaticResource PalettaSarga}" Tag="Drill" Content="drill" Margin="0,0,0,5" Click="BtnPaletta_Click"/>
                                                 <Button Style="{StaticResource PalettaSarga}" Tag="SupportHere" Content="support here" Margin="0,0,0,5" Click="BtnPaletta_Click"/>
                                                 <Button Style="{StaticResource PalettaSarga}" Tag="UnsupportHere" Content="unsupport here" Margin="0,0,0,5" Click="BtnPaletta_Click"/>
