@@ -238,6 +238,8 @@ namespace Robotszimulator
                         break;
 
                     case "list":
+                        if (szavak.Length != 3 || (szavak[2] != "int" && szavak[2] != "bool"))
+                            throw new FutasHiba("E_TYPE_MISMATCH");
                         if (valtozok.ContainsKey(szavak[1]) || listak.ContainsKey(szavak[1]))
                             throw new FutasHiba("E_TYPE_MISMATCH");
                         listak[szavak[1]] = new Lista(szavak[2]);
