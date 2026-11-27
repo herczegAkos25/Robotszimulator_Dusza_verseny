@@ -92,6 +92,7 @@ namespace Robotszimulator.Core
             try
             {
                 Robot.Fur();
+                Robot.ElotteFelfedezes();
                 return null;
             }
             catch (FutasHiba hiba)
