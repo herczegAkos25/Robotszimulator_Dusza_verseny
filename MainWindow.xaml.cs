@@ -68,6 +68,7 @@ namespace Robotszimulator
 
             Kirajzol(terkep.Grid, terkep.Felfedezett, robot.Sor, robot.Oszlop, robot.AktualisIrany);
             tbKibanyaszottArany.Text = robot.KibanyaszottAranySzam.ToString();
+            tbAranyZarva.Text = tbKibanyaszottArany.Text;
             tbIrány.Text = robot.AktualisIrany.ToString();
             EnergiaMegjelenites(robot.Energia, robot.FuroFejMaradek);
             SzenzorMegjelenites(robot.Szenzor());
@@ -84,6 +85,7 @@ namespace Robotszimulator
         {
             Kirajzol(allapot.Grid, allapot.Felfedezett, allapot.RobotSor, allapot.RobotOszlop, allapot.Irany);
             tbKibanyaszottArany.Text = allapot.Arany.ToString();
+            tbAranyZarva.Text = tbKibanyaszottArany.Text;
             tbIrány.Text = allapot.Irany.ToString();
             EnergiaMegjelenites(allapot.Energia, allapot.FuroFejMaradek);
             SzenzorMegjelenites(allapot.Szenzor);
@@ -141,6 +143,10 @@ namespace Robotszimulator
             pbEnergia.Foreground = energiaSzin;
             tbEnergiaInfo.Text = energiaInfo;
 
+            FuggolegesSav(sorEnergiaUres, sorEnergiaTelt, savEnergiaTelt, arany, energiaSzin);
+            tbEnergiaZarva.Text = szazalek + "%";
+            tbEnergiaZarva.Foreground = energiaSzin;
+
             // Fúrófej: kék, az utolsó 3 fúrásnál piros, 0-nál elhasznált
             int elettartam = futtato.Beallitasok.FuroFejElettartam;
             bool kopott = furoFejMaradek <= 3;
@@ -151,9 +157,32 @@ namespace Robotszimulator
             pbFuroFej.Maximum = Math.Max(elettartam, 1);
             pbFuroFej.Value = Math.Clamp(furoFejMaradek, 0, Math.Max(elettartam, 1));
             pbFuroFej.Foreground = furoSzin;
+
+            FuggolegesSav(sorFuroUres, sorFuroTelt, savFuroTelt, elettartam > 0 ? (double)furoFejMaradek / elettartam : 0, furoSzin);
+            tbFuroFejZarva.Text = furoFejMaradek.ToString();
+            tbFuroFejZarva.Foreground = furoSzin;
             tbFuroFejInfo.Text = furoFejMaradek == 0
                 ? "E_DRILL_WORN, vegyél újat"
                 : kopott ? "piros az utolsó 3 fúrásnál" : "fúrás maradt";
+        }
+
+        // A függőleges sáv két, csillag-arányú sorból áll (üres felül, teli alul), így nem függ a ProgressBar sablonjától.
+        private static void FuggolegesSav(RowDefinition ures, RowDefinition telt, Border kitoltes, double arany, Brush szin)
+        {
+            arany = Math.Clamp(arany, 0, 1);
+            ures.Height = new GridLength(1 - arany, GridUnitType.Star);
+            telt.Height = new GridLength(arany, GridUnitType.Star);
+            kitoltes.Background = szin;
+        }
+
+        private bool allapotNyitva = true;
+
+        private void BtnAllapotToggle_Click(object sender, RoutedEventArgs e)
+        {
+            allapotNyitva = !allapotNyitva;
+            pnlAllapotNyitva.Visibility = allapotNyitva ? Visibility.Visible : Visibility.Collapsed;
+            pnlAllapotZarva.Visibility = allapotNyitva ? Visibility.Collapsed : Visibility.Visible;
+            oszlopAllapot.Width = new GridLength(allapotNyitva ? 270 : 64);
         }
 
         private void EnergiaNaploMegjelenites(IEnumerable<string> sorok)

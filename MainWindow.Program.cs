@@ -101,6 +101,7 @@ namespace Robotszimulator
             lbBlokkok.Visibility = Visibility.Visible;
             pnlBlokkEszkozok.Visibility = Visibility.Visible;
             tbKijelolesInfo.Visibility = Visibility.Visible;
+            ProgramOszlopFrissitese();
             gdSzovegNezet.Visibility = Visibility.Collapsed;
             btnBlokkNezet.Background = AktivGomb;
             btnSzovegNezet.Background = InaktivGomb;
@@ -112,6 +113,7 @@ namespace Robotszimulator
             lbBlokkok.Visibility = Visibility.Collapsed;
             pnlBlokkEszkozok.Visibility = Visibility.Collapsed;
             tbKijelolesInfo.Visibility = Visibility.Collapsed;
+            ProgramOszlopFrissitese();
             gdSzovegNezet.Visibility = Visibility.Visible;
             btnBlokkNezet.Background = InaktivGomb;
             btnSzovegNezet.Background = AktivGomb;
@@ -339,6 +341,25 @@ namespace Robotszimulator
         private static SolidColorBrush Ecset(string hex)
         {
             return new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex));
+        }
+
+        private bool palettaNyitva = true;
+
+        // A paletta becsukva csak a kategóriák ikonjait mutatja; bármelyikre kattintva újra kinyílik.
+        private void BtnPalettaToggle_Click(object sender, RoutedEventArgs e)
+        {
+            palettaNyitva = !palettaNyitva;
+            pnlPalettaNyitva.Visibility = palettaNyitva ? Visibility.Visible : Visibility.Collapsed;
+            pnlPalettaZarva.Visibility = palettaNyitva ? Visibility.Collapsed : Visibility.Visible;
+            ProgramOszlopFrissitese();
+        }
+
+        // A paletta nyitása/csukása az egész Program kártyát nagyítja/kicsinyíti, a program lista szélessége nem változik.
+        // Blokk nézet nyitott palettával 460, becsukottal 348 (a különbség a paletta két állapotának szélessége).
+        // Szöveg nézetben nincs paletta, ott is 348.
+        private void ProgramOszlopFrissitese()
+        {
+            oszlopProgram.Width = new GridLength(blokkNezet && palettaNyitva ? 460 : 348);
         }
 
         private void BtnPaletta_Click(object sender, RoutedEventArgs e)
