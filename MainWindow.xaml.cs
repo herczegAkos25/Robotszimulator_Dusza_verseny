@@ -5,6 +5,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 
 namespace Robotszimulator
@@ -25,14 +26,25 @@ namespace Robotszimulator
         private bool kezziAllapotban = false;
         private bool megallva = false;
 
-        private List<Allapot>? nyomkovetesAllapotok = null;
+        private List<Allapot>? nyomkovetesAllapotokMezo = null;
+        private List<Allapot>? nyomkovetesAllapotok
+        {
+            get => nyomkovetesAllapotokMezo;
+            set
+            {
+                nyomkovetesAllapotokMezo = value;
+                btnUjrainditas.IsEnabled = value != null;
+            }
+        }
         private Interpreter? nyomkovetesInterpreter = null;
         private int nyomkovetesIndex = 0;
+        private string[][]? elozoGrid = null;
 
         public MainWindow()
         {
             InitializeComponent();
 
+            KategoriaKiemeles();
             BlokkNezetBe();
             LegendaFeltoltese();
 
@@ -66,6 +78,7 @@ namespace Robotszimulator
 
             SorKiemeles(0, false);
 
+            elozoGrid = null;
             Kirajzol(terkep.Grid, terkep.Felfedezett, robot.Sor, robot.Oszlop, robot.AktualisIrany);
             tbKibanyaszottArany.Text = robot.KibanyaszottAranySzam.ToString();
             tbAranyZarva.Text = tbKibanyaszottArany.Text;
@@ -159,7 +172,7 @@ namespace Robotszimulator
             pbFuroFej.Foreground = furoSzin;
 
             FuggolegesSav(sorFuroUres, sorFuroTelt, savFuroTelt, elettartam > 0 ? (double)furoFejMaradek / elettartam : 0, furoSzin);
-            tbFuroFejZarva.Text = furoFejMaradek.ToString();
+            tbFuroFejZarva.Text = furoFejMaradek + "/" + elettartam;
             tbFuroFejZarva.Foreground = furoSzin;
             tbFuroFejInfo.Text = furoFejMaradek == 0
                 ? "E_DRILL_WORN, vegyél újat"
@@ -258,6 +271,8 @@ namespace Robotszimulator
         private void AllapotsorBeallitas(string szoveg, bool hiba)
         {
             tbAllapotsor.Foreground = hiba ? HibaSzin : NormalSzin;
+            ikAllapotsor.Data = (Geometry)FindResource(hiba ? "IkonFigyelmeztetes" : "IkonInfo");
+            ikAllapotsor.Stroke = hiba ? HibaSzin : NormalSzin;
             tbAllapotsor.Text = szoveg;
             if (hiba)
             {
@@ -300,6 +315,7 @@ namespace Robotszimulator
             }
 
             TerkepCanvas.Children.Clear();
+            pnlTerkepUres.Visibility = Visibility.Collapsed;
             TerkepCanvas.Width = oszlopokSzama * CellaMeret;
             TerkepCanvas.Height = sorokSzama * CellaMeret;
 
@@ -398,11 +414,20 @@ namespace Robotszimulator
                         });
                     }
 
+                    if (elozoGrid != null && elozoGrid.Length == sorokSzama && elozoGrid[0].Length == oszlopokSzama && elozoGrid[r][c] != ertek)
+                    {
+                        var villanas = new Border { Background = SargaSzin, IsHitTestVisible = false };
+                        tartalom.Children.Add(villanas);
+                        villanas.BeginAnimation(OpacityProperty, new DoubleAnimation(0.85, 0, TimeSpan.FromMilliseconds(700)));
+                    }
+
                     Canvas.SetLeft(cella, c * CellaMeret);
                     Canvas.SetTop(cella, r * CellaMeret);
                     TerkepCanvas.Children.Add(cella);
                 }
             }
+
+            elozoGrid = grid.Select(sor => (string[])sor.Clone()).ToArray();
         }
 
         private void KozetJelzesek(Grid tartalom, string ertek, bool kepVan)
@@ -582,7 +607,7 @@ namespace Robotszimulator
 
             btnMegallitas.IsEnabled = true;
             lejatszasFut = true;
-            btnMegallitas.Content = "⏹ Megállítás";
+            MegallitasGombBeallit(false);
 
             try
             {
@@ -634,7 +659,7 @@ namespace Robotszimulator
             {
                 lejatszasFut = false;
                 megallva = false;
-                btnMegallitas.Content = "⏹ Megállítás";
+                MegallitasGombBeallit(false);
                 btnMegallitas.IsEnabled = false;
             }
         }
@@ -644,8 +669,17 @@ namespace Robotszimulator
             NyomkovetesInditas();
             lejatszasFut = false;
             megallva = false;
-            btnMegallitas.Content = "⏹ Megállítás";
+            MegallitasGombBeallit(false);
             btnMegallitas.IsEnabled = false;
+        }
+
+        private void MegallitasGombBeallit(bool folytatas)
+        {
+            Brush szin = folytatas ? ZoldSzin : PirosSzin;
+            var tartalom = new StackPanel { Orientation = Orientation.Horizontal };
+            tartalom.Children.Add(Ikonok.Letrehoz(folytatas ? "IkonLejatszas" : "IkonMegallitas", 16, szin, true));
+            tartalom.Children.Add(new TextBlock { Text = folytatas ? "Folytatás" : "Megállítás", Margin = new Thickness(8, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center });
+            btnMegallitas.Content = tartalom;
         }
 
         private void BtnMegallitas_Click(object sender, RoutedEventArgs e)
@@ -654,11 +688,11 @@ namespace Robotszimulator
             if (megallva)
             {
                 megallitasKerve = true;
-                btnMegallitas.Content = "▶ Folytatás";
+                MegallitasGombBeallit(true);
             }
             else
             {
-                btnMegallitas.Content = "⏹ Megállítás";
+                MegallitasGombBeallit(false);
                 megallitasKerve = false;
             }
         }

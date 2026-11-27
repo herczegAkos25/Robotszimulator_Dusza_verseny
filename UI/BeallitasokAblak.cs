@@ -28,8 +28,35 @@ namespace Robotszimulator.UI
             "Egy töltés mennyisége (Wh)"
         };
 
+        private static readonly string[] RovidCimkek =
+        {
+            "Kapacitás",
+            "Élettartam",
+            "Lépés (cellánként)",
+            "Fordulás (negyedfordulatonként)",
+            "Bányászás",
+            "isThere",
+            "Fúrás",
+            "Támasz lerakása",
+            "Támasz felvétele",
+            "Töltőállomás lerakása",
+            "Töltőállomás felvétele",
+            "Új fúrófej vétele",
+            "get type",
+            "get here",
+            "get energy",
+            "get durability",
+            "Egy töltés mennyisége"
+        };
+
+        private static readonly SolidColorBrush Szoveg = new SolidColorBrush(Color.FromRgb(0xE6, 0xED, 0xF3));
+        private static readonly SolidColorBrush Halvany = new SolidColorBrush(Color.FromRgb(0x7D, 0x85, 0x94));
+        private static readonly SolidColorBrush Piros = new SolidColorBrush(Color.FromRgb(0xE0, 0x6C, 0x75));
+        private static readonly SolidColorBrush MezoKeret = new SolidColorBrush(Color.FromRgb(0x3A, 0x3F, 0x4B));
+
         private readonly TextBox[] mezok = new TextBox[Cimkek.Length];
         private readonly TextBlock tbHiba = new TextBlock();
+        private readonly Border hibaDoboz = new Border();
         private readonly EnergiaBeallitasok beallitasok;
 
         public EnergiaBeallitasok? Eredmeny { get; private set; }
@@ -40,61 +67,170 @@ namespace Robotszimulator.UI
 
             Title = "Energia-beállítások";
             SotetCimsor.Alkalmaz(this);
-            Width = 420;
+            Width = 700;
             SizeToContent = SizeToContent.Height;
             ResizeMode = ResizeMode.NoResize;
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            Background = new SolidColorBrush(Color.FromRgb(0x21, 0x25, 0x2B));
+            Background = new SolidColorBrush(Color.FromRgb(0x26, 0x2A, 0x32));
 
             int[] ertekek = Ertekek(beallitasok);
-            var lista = new StackPanel();
-            for (int i = 0; i < Cimkek.Length; i++)
+
+            var bal = new StackPanel();
+            bal.Children.Add(Csoport("IkonAkku", "Akkumulátor", Color.FromRgb(0x98, 0xC3, 0x79), new[] { 0, 16 }, ertekek));
+            bal.Children.Add(Csoport("IkonFuro", "Fúrófej", Color.FromRgb(0x61, 0xAF, 0xEF), new[] { 1, 11 }, ertekek));
+            bal.Children.Add(Csoport("IkonMozgas", "Mozgás", Color.FromRgb(0xE5, 0xC0, 0x7B), new[] { 2, 3 }, ertekek));
+
+            var jobb = new StackPanel();
+            jobb.Children.Add(Csoport("IkonMunka", "Munka", Color.FromRgb(0xD1, 0x9A, 0x66), new[] { 4, 6, 7, 8, 9, 10 }, ertekek));
+            jobb.Children.Add(Csoport("IkonErzekeles", "Érzékelés", Color.FromRgb(0x56, 0xB6, 0xC2), new[] { 5, 12, 13, 14, 15 }, ertekek));
+
+            var oszlopok = new Grid();
+            oszlopok.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            oszlopok.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(10) });
+            oszlopok.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            Grid.SetColumn(bal, 0);
+            Grid.SetColumn(jobb, 2);
+            oszlopok.Children.Add(bal);
+            oszlopok.Children.Add(jobb);
+
+            var panel = new StackPanel { Margin = new Thickness(16) };
+            panel.Children.Add(Fejlec());
+            panel.Children.Add(new ScrollViewer { Content = oszlopok, MaxHeight = 520, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Margin = new Thickness(0, 0, 0, 10) });
+
+            panel.Children.Add(new TextBlock
+            {
+                Text = "A 0 azt jelenti, hogy a művelet nem fogyaszt energiát.",
+                Foreground = Halvany,
+                FontSize = 12,
+                Margin = new Thickness(0, 0, 0, 10)
+            });
+
+            tbHiba.Foreground = Piros;
+            tbHiba.TextWrapping = TextWrapping.Wrap;
+            tbHiba.VerticalAlignment = VerticalAlignment.Center;
+            tbHiba.Margin = new Thickness(8, 0, 0, 0);
+            var hibaSor = new StackPanel { Orientation = Orientation.Horizontal };
+            hibaSor.Children.Add(Ikonok.Letrehoz("IkonFigyelmeztetes", 15, Piros));
+            hibaSor.Children.Add(tbHiba);
+            hibaDoboz.Child = hibaSor;
+            hibaDoboz.Background = new SolidColorBrush(Color.FromArgb(0x20, 0xE0, 0x6C, 0x75));
+            hibaDoboz.BorderBrush = new SolidColorBrush(Color.FromArgb(0x70, 0xE0, 0x6C, 0x75));
+            hibaDoboz.BorderThickness = new Thickness(1);
+            hibaDoboz.CornerRadius = new CornerRadius(6);
+            hibaDoboz.Padding = new Thickness(10, 7, 10, 7);
+            hibaDoboz.Margin = new Thickness(0, 0, 0, 10);
+            hibaDoboz.Visibility = Visibility.Collapsed;
+            panel.Children.Add(hibaDoboz);
+
+            var gombok = new DockPanel();
+            var alap = new Button { Padding = new Thickness(12, 6, 12, 6), Style = (Style)Application.Current.FindResource("DarkButton") };
+            var alapTartalom = new StackPanel { Orientation = Orientation.Horizontal };
+            alapTartalom.Children.Add(Ikonok.Letrehoz("IkonVisszaallit", 15, Szoveg));
+            alapTartalom.Children.Add(new TextBlock { Text = "Alapértékek", Margin = new Thickness(8, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center });
+            alap.Content = alapTartalom;
+            var ok = new Button { Content = "OK", IsDefault = true, Padding = new Thickness(22, 6, 22, 6), Margin = new Thickness(0, 0, 8, 0), Style = (Style)Application.Current.FindResource("RunButton") };
+            var megse = new Button { Content = "Mégse", IsCancel = true, Padding = new Thickness(16, 6, 16, 6), Style = (Style)Application.Current.FindResource("DarkButton") };
+            alap.Click += Alapertekek_Click;
+            ok.Click += Ok_Click;
+            var jobbGombok = new StackPanel { Orientation = Orientation.Horizontal };
+            jobbGombok.Children.Add(ok);
+            jobbGombok.Children.Add(megse);
+            DockPanel.SetDock(jobbGombok, Dock.Right);
+            gombok.Children.Add(jobbGombok);
+            gombok.Children.Add(alap);
+            alap.HorizontalAlignment = HorizontalAlignment.Left;
+            panel.Children.Add(gombok);
+
+            Content = panel;
+        }
+
+        private static UIElement Fejlec()
+        {
+            var ikonHatter = new Border
+            {
+                Width = 36,
+                Height = 36,
+                CornerRadius = new CornerRadius(9),
+                Background = new SolidColorBrush(Color.FromRgb(0x2A, 0x2E, 0x37)),
+                Child = Ikonok.Letrehoz("IkonVilam", 19, new SolidColorBrush(Color.FromRgb(0xD1, 0x9A, 0x66)))
+            };
+
+            var szovegek = new StackPanel { Margin = new Thickness(12, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
+            szovegek.Children.Add(new TextBlock { Text = "Energia-beállítások", Foreground = Szoveg, FontSize = 15, FontWeight = FontWeights.Bold });
+            szovegek.Children.Add(new TextBlock { Text = "Mennyi energiába kerül egy-egy művelet", Foreground = Halvany, FontSize = 12 });
+
+            var sor = new StackPanel { Orientation = Orientation.Horizontal };
+            sor.Children.Add(ikonHatter);
+            sor.Children.Add(szovegek);
+
+            return new Border
+            {
+                Child = sor,
+                BorderBrush = new SolidColorBrush(Color.FromRgb(0x2F, 0x34, 0x3F)),
+                BorderThickness = new Thickness(0, 0, 0, 1),
+                Padding = new Thickness(0, 0, 0, 10),
+                Margin = new Thickness(0, 0, 0, 12)
+            };
+        }
+
+        private Border Csoport(string ikonKulcs, string nev, Color szin, int[] indexek, int[] ertekek)
+        {
+            var tartalom = new StackPanel();
+
+            var cim = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 8) };
+            cim.Children.Add(Ikonok.Letrehoz(ikonKulcs, 17, new SolidColorBrush(szin)));
+            cim.Children.Add(new TextBlock { Text = nev, Foreground = Szoveg, FontWeight = FontWeights.Bold, Margin = new Thickness(9, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center });
+            tartalom.Children.Add(cim);
+
+            foreach (int i in indexek)
             {
                 var sor = new DockPanel { Margin = new Thickness(0, 0, 0, 6) };
                 var mezo = new TextBox
                 {
-                    Width = 80,
+                    Width = 76,
                     Text = ertekek[i].ToString(),
-                    Background = new SolidColorBrush(Color.FromRgb(0x28, 0x2C, 0x34)),
+                    Background = new SolidColorBrush(Color.FromRgb(0x1B, 0x1E, 0x24)),
                     Foreground = Brushes.White,
-                    BorderBrush = new SolidColorBrush(Color.FromRgb(0x3A, 0x3F, 0x4B)),
+                    BorderBrush = MezoKeret,
                     CaretBrush = Brushes.White,
+                    FontFamily = new FontFamily("Consolas"),
                     Padding = new Thickness(4),
                     HorizontalContentAlignment = HorizontalAlignment.Right
                 };
-                DockPanel.SetDock(mezo, Dock.Right);
                 mezok[i] = mezo;
 
+                var egyseg = new TextBlock
+                {
+                    Text = i == 1 ? "fúrás" : "Wh",
+                    Foreground = Halvany,
+                    FontSize = 11,
+                    Width = 34,
+                    Margin = new Thickness(6, 0, 0, 0),
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+
+                DockPanel.SetDock(egyseg, Dock.Right);
+                DockPanel.SetDock(mezo, Dock.Right);
+                sor.Children.Add(egyseg);
                 sor.Children.Add(mezo);
                 sor.Children.Add(new TextBlock
                 {
-                    Text = Cimkek[i],
-                    Foreground = new SolidColorBrush(Color.FromRgb(0xE6, 0xED, 0xF3)),
+                    Text = RovidCimkek[i],
+                    Foreground = new SolidColorBrush(Color.FromRgb(0xC8, 0xCE, 0xD8)),
+                    TextWrapping = TextWrapping.Wrap,
                     VerticalAlignment = VerticalAlignment.Center
                 });
-                lista.Children.Add(sor);
+                tartalom.Children.Add(sor);
             }
 
-            var panel = new StackPanel { Margin = new Thickness(14) };
-            panel.Children.Add(new ScrollViewer { Content = lista, MaxHeight = 480, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Margin = new Thickness(0, 0, 0, 10) });
-
-            tbHiba.Foreground = new SolidColorBrush(Color.FromRgb(0xE0, 0x6C, 0x75));
-            tbHiba.TextWrapping = TextWrapping.Wrap;
-            tbHiba.Margin = new Thickness(0, 0, 0, 10);
-            panel.Children.Add(tbHiba);
-
-            var gombok = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
-            var alap = new Button { Content = "Alapértékek", Padding = new Thickness(14, 6, 14, 6), Margin = new Thickness(0, 0, 8, 0), Style = (Style)Application.Current.FindResource("DarkButton") };
-            var ok = new Button { Content = "OK", IsDefault = true, Padding = new Thickness(18, 6, 18, 6), Margin = new Thickness(0, 0, 8, 0), Style = (Style)Application.Current.FindResource("RunButton") };
-            var megse = new Button { Content = "Mégse", IsCancel = true, Padding = new Thickness(14, 6, 14, 6), Style = (Style)Application.Current.FindResource("DarkButton") };
-            alap.Click += Alapertekek_Click;
-            ok.Click += Ok_Click;
-            gombok.Children.Add(alap);
-            gombok.Children.Add(ok);
-            gombok.Children.Add(megse);
-            panel.Children.Add(gombok);
-
-            Content = panel;
+            return new Border
+            {
+                Child = tartalom,
+                Background = new SolidColorBrush(Color.FromRgb(0x21, 0x25, 0x2B)),
+                CornerRadius = new CornerRadius(9),
+                Padding = new Thickness(14, 10, 14, 4),
+                Margin = new Thickness(0, 0, 0, 10)
+            };
         }
 
         private static int[] Ertekek(EnergiaBeallitasok b)
@@ -114,17 +250,40 @@ namespace Robotszimulator.UI
             {
                 mezok[i].Text = ertekek[i].ToString();
             }
+            HibaTorles();
+        }
+
+        private void HibaTorles()
+        {
             tbHiba.Text = string.Empty;
+            hibaDoboz.Visibility = Visibility.Collapsed;
+            foreach (TextBox mezo in mezok)
+            {
+                mezo.BorderBrush = MezoKeret;
+            }
+        }
+
+        private void HibaMutat(string uzenet, TextBox? mezo)
+        {
+            tbHiba.Text = uzenet;
+            hibaDoboz.Visibility = Visibility.Visible;
+            if (mezo != null)
+            {
+                mezo.BorderBrush = Piros;
+                mezo.Focus();
+            }
         }
 
         private void Ok_Click(object sender, RoutedEventArgs e)
         {
+            HibaTorles();
+
             var ertekek = new int[mezok.Length];
             for (int i = 0; i < mezok.Length; i++)
             {
                 if (!int.TryParse(mezok[i].Text.Trim(), out ertekek[i]))
                 {
-                    tbHiba.Text = "A(z) " + Cimkek[i] + " mezőbe egész számot írj.";
+                    HibaMutat("A(z) " + Cimkek[i] + " mezőbe egész számot írj.", mezok[i]);
                     return;
                 }
             }
@@ -151,7 +310,7 @@ namespace Robotszimulator.UI
             string? hiba = uj.Hiba();
             if (hiba != null)
             {
-                tbHiba.Text = hiba;
+                HibaMutat(hiba, null);
                 return;
             }
 

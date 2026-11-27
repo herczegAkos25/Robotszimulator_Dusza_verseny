@@ -68,6 +68,7 @@ namespace Robotszimulator
 
             List<BlokkSor> sorok = blokkProgram.Lapit();
             lbBlokkok.ItemsSource = sorok;
+            pnlProgramUres.Visibility = sorok.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
             if (kijelolt != null)
             {
@@ -355,11 +356,78 @@ namespace Robotszimulator
         }
 
         // A paletta nyitása/csukása az egész Program kártyát nagyítja/kicsinyíti, a program lista szélessége nem változik.
-        // Blokk nézet nyitott palettával 460, becsukottal 348 (a különbség a paletta két állapotának szélessége).
+        // Blokk nézet nyitott palettával 478, becsukottal 348 (a különbség a paletta két állapotának szélessége).
         // Szöveg nézetben nincs paletta, ott is 348.
         private void ProgramOszlopFrissitese()
         {
-            oszlopProgram.Width = new GridLength(blokkNezet && palettaNyitva ? 460 : 348);
+            oszlopProgram.Width = new GridLength(blokkNezet && palettaNyitva ? 478 : 348);
+        }
+
+        private void BtnKezziToggle_Click(object sender, RoutedEventArgs e)
+        {
+            bool nyit = pnlKezziTartalom.Visibility != Visibility.Visible;
+            pnlKezziTartalom.Visibility = nyit ? Visibility.Visible : Visibility.Collapsed;
+            btnKezziToggle.Content = nyit ? "\uE70D" : "\uE70E";
+            btnKezziToggle.ToolTip = nyit ? "Kézi vezérlés összecsukása" : "Kézi vezérlés megnyitása";
+        }
+
+        private void BtnKategoria_Click(object sender, RoutedEventArgs e)
+        {
+            string kategoria = (string)((Button)sender).Tag;
+
+            palettaNyitva = true;
+            pnlPalettaNyitva.Visibility = Visibility.Visible;
+            pnlPalettaZarva.Visibility = Visibility.Collapsed;
+            ProgramOszlopFrissitese();
+
+            switch (kategoria)
+            {
+                case "Mozgas":
+                    expMozgas.IsExpanded = true;
+                    break;
+                case "Kozet":
+                    expKozet.IsExpanded = true;
+                    break;
+                case "Lista":
+                    expLista.IsExpanded = true;
+                    break;
+                case "Vezerles":
+                    expVezerles.IsExpanded = true;
+                    break;
+            }
+        }
+
+        private static readonly SolidColorBrush KiemeltKategoria = new SolidColorBrush(Color.FromRgb(0x2C, 0x31, 0x3A));
+
+        private void KategoriaKiemeles()
+        {
+            Expander?[] csoportok = { expMozgas, expKozet, expLista, expVezerles };
+            Button?[] gombok = { btnKatMozgas, btnKatKozet, btnKatLista, btnKatVezerles };
+            for (int i = 0; i < csoportok.Length; i++)
+            {
+                if (csoportok[i] != null && gombok[i] != null)
+                {
+                    gombok[i]!.Background = csoportok[i]!.IsExpanded ? KiemeltKategoria : Brushes.Transparent;
+                }
+            }
+        }
+
+        private void PalettaCsoport_Collapsed(object sender, RoutedEventArgs e)
+        {
+            KategoriaKiemeles();
+        }
+
+        private void PalettaCsoport_Expanded(object sender, RoutedEventArgs e)
+        {
+            Expander[] csoportok = { expMozgas, expKozet, expLista, expVezerles };
+            foreach (Expander csoport in csoportok)
+            {
+                if (csoport != null && csoport != sender)
+                {
+                    csoport.IsExpanded = false;
+                }
+            }
+            KategoriaKiemeles();
         }
 
         private void BtnPaletta_Click(object sender, RoutedEventArgs e)

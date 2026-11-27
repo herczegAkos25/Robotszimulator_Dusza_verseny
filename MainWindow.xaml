@@ -371,6 +371,7 @@
         <Style x:Key="KategoriaGomb" TargetType="Button">
             <Setter Property="Foreground" Value="#E5C07B"/>
             <Setter Property="BorderBrush" Value="#8A7440"/>
+            <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Width" Value="32"/>
             <Setter Property="Height" Value="32"/>
             <Setter Property="FontSize" Value="15"/>
@@ -380,7 +381,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="Hatter" Background="Transparent" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="8">
+                        <Border x:Name="Hatter" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="8">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -388,6 +389,131 @@
                                 <Setter TargetName="Hatter" Property="Background" Value="#2C313A"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Léptető gombjai: kerek, halvány, ikon-nyilakkal -->
+        <Style x:Key="LepteToGomb" TargetType="Button">
+            <Setter Property="Foreground" Value="#C8CED8"/>
+            <Setter Property="Width" Value="28"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Hatter" Background="Transparent" CornerRadius="14">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Hatter" Property="Background" Value="#3A3F4B"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Hatter" Property="Background" Value="#4B5263"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Paletta kategóriák: egyszerre egy nyitott (a kódból) -->
+        <Style x:Key="PalettaCsoport" TargetType="Expander">
+            <Setter Property="Margin" Value="0,0,0,6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Expander">
+                        <DockPanel>
+                            <ToggleButton DockPanel.Dock="Top" Cursor="Hand" Focusable="False"
+                                          IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="Hatter" Background="#21252B" CornerRadius="5" Padding="8,5">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <ContentPresenter Grid.Column="0" Content="{Binding Header, RelativeSource={RelativeSource AncestorType=Expander}}"/>
+                                                <TextBlock x:Name="Nyil" Grid.Column="1" Text="&#xE70D;" FontFamily="Segoe MDL2 Assets" FontSize="9" Foreground="#9DA5B4" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                                                    <TextBlock.RenderTransform>
+                                                        <RotateTransform Angle="0"/>
+                                                    </TextBlock.RenderTransform>
+                                                </TextBlock>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="Hatter" Property="Background" Value="#2C313A"/>
+                                            </Trigger>
+                                            <Trigger Property="IsChecked" Value="False">
+                                                <Setter TargetName="Nyil" Property="RenderTransform">
+                                                    <Setter.Value>
+                                                        <RotateTransform Angle="-90"/>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <ContentPresenter x:Name="Tartalom" DockPanel.Dock="Top" Margin="0,6,0,2" Visibility="Collapsed"/>
+                        </DockPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsExpanded" Value="True">
+                                <Setter TargetName="Tartalom" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Sebesség-csúszka: vékony sín, kék kitöltés, kerek fogó -->
+        <Style x:Key="SebessegCsuszka" TargetType="Slider">
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Slider">
+                        <Grid Background="Transparent">
+                            <Border Height="4" CornerRadius="2" Background="#3A3F4B" VerticalAlignment="Center"/>
+                            <Track x:Name="PART_Track">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="Slider.DecreaseLarge" Focusable="False">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="RepeatButton">
+                                                <Border Height="4" CornerRadius="2" Background="#61AFEF" VerticalAlignment="Center"/>
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.DecreaseRepeatButton>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="Slider.IncreaseLarge" Focusable="False">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="RepeatButton">
+                                                <Border Height="20" Background="Transparent"/>
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.IncreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb Width="16" Height="16" Focusable="False" Cursor="Hand">
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Ellipse Fill="#E6EDF3" Stroke="#61AFEF" StrokeThickness="2"/>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -411,28 +537,62 @@
         <Border Grid.Row="0" Style="{StaticResource DarkCard}" Margin="0,0,0,6" Padding="10,8">
             <Grid>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                    <Button Content="📁 Betöltés" ToolTip="Betöltés" Style="{StaticResource DarkButton}" Margin="0,0,6,0" Padding="10,5" x:Name="BtnBetoltes" Click="BtnBetoltes_Click"/>
-                    <Button Content="💾 Mentés" ToolTip="Mentés" Style="{StaticResource DarkButton}" Margin="0,0,10,0" Padding="10,5" x:Name="BtnMentes" Click="BtnMentes_Click"/>
-                    <Button Content="▶  Futtatás" Style="{StaticResource RunButton}" Margin="0,0,10,0" Padding="14,5" Click="BtnFuttatas_Click"/>
-                    <Button Content="🔁 Újraindítás" ToolTip="Újraindítás" Style="{StaticResource DarkButton}" Margin="0,0,6,0" Padding="10,5" Click="BtnNyomkovetes_Click"/>
-                    <Button Content="⏹ Megállítás" ToolTip="Megállítás" Style="{StaticResource DarkButton}" Margin="0,0,14,0" Padding="10,5" x:Name="btnMegallitas" Click="BtnMegallitas_Click"/>
+                    <Button ToolTip="Betöltés" Style="{StaticResource DarkButton}" Margin="0,0,6,0" Padding="10,5" x:Name="BtnBetoltes" Click="BtnBetoltes_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <Viewbox Width="16" Height="16"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonMappa}" Stroke="#E5C07B"/></Canvas></Viewbox>
+                            <TextBlock Text="Betöltés" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button ToolTip="Mentés" Style="{StaticResource DarkButton}" Padding="10,5" x:Name="BtnMentes" Click="BtnMentes_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <Viewbox Width="16" Height="16"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonMentes}" Stroke="#61AFEF"/></Canvas></Viewbox>
+                            <TextBlock Text="Mentés" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Border Width="1" Height="22" Background="#3A3F4B" Margin="10,0" VerticalAlignment="Center"/>
+                    <Button Style="{StaticResource RunButton}" Margin="0,0,6,0" Padding="14,5" Click="BtnFuttatas_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <Viewbox Width="16" Height="16"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonLejatszas}" Stroke="#1E1E1E" Fill="#1E1E1E"/></Canvas></Viewbox>
+                            <TextBlock Text="Futtatás" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="btnUjrainditas" IsEnabled="False" ToolTip="Újraindítás" Style="{StaticResource DarkButton}" Margin="0,0,6,0" Padding="10,5" Click="BtnNyomkovetes_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <Viewbox Width="16" Height="16"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonUjrainditas}" Stroke="#98C379"/></Canvas></Viewbox>
+                            <TextBlock Text="Újraindítás" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button IsEnabled="False" ToolTip="Megállítás" Style="{StaticResource DarkButton}" Padding="10,5" x:Name="btnMegallitas" Click="BtnMegallitas_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <Viewbox Width="16" Height="16"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonMegallitas}" Stroke="#E06C75" Fill="#E06C75"/></Canvas></Viewbox>
+                            <TextBlock Text="Megállítás" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Border Width="1" Height="22" Background="#3A3F4B" Margin="10,0" VerticalAlignment="Center"/>
 
                     <!-- Léptető: ‹ 3 / 12 › -->
-                    <Border Background="#1E1E1E" BorderBrush="#282C34" BorderThickness="1" CornerRadius="16" Padding="3">
+                    <Border Background="#1E1E1E" BorderBrush="#3A3F4B" BorderThickness="1" CornerRadius="17" Padding="3">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Button Content="‹" ToolTip="Vissza" Style="{StaticResource DarkButton}" Width="30" Padding="0,0,0,2" FontSize="16" Click="BtnVissza_Click"/>
+                            <Button Content="&#xE76B;" ToolTip="Vissza" Style="{StaticResource LepteToGomb}" Click="BtnVissza_Click"/>
                             <TextBlock x:Name="tbLepesSzamlalo" Text="0 / 0" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center" MinWidth="64" Foreground="#E6EDF3" FontSize="12" FontWeight="SemiBold"/>
-                            <Button Content="›" ToolTip="Következő" Style="{StaticResource DarkButton}" Width="30" Padding="0,0,0,2" FontSize="16" Click="BtnKovetkezo_Click"/>
+                            <Button Content="&#xE76C;" ToolTip="Következő" Style="{StaticResource LepteToGomb}" Click="BtnKovetkezo_Click"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <CheckBox x:Name="cbNyomkovetes" Content="Nyomkövetés" Style="{StaticResource Kapcsolo}" IsChecked="True" VerticalAlignment="Center" Foreground="#9DA5B4" FontSize="12" Margin="0,0,18,0"/>
+                    <CheckBox x:Name="cbNyomkovetes" Content="Nyomkövetés" Style="{StaticResource Kapcsolo}" IsChecked="True" VerticalAlignment="Center" Foreground="#9DA5B4" FontSize="12"/>
+                    <Border Width="1" Height="22" Background="#3A3F4B" Margin="10,0" VerticalAlignment="Center"/>
                     <TextBlock Text="lassú" VerticalAlignment="Center" Foreground="#9DA5B4" FontSize="12" Margin="0,0,8,0"/>
-                    <Slider Width="120" VerticalAlignment="Center" Minimum="1" Maximum="10" Value="5" Margin="0,0,8,0" x:Name="slSebesseg" TickFrequency="1" IsSnapToTickEnabled="True"/>
-                    <TextBlock Text="gyors" VerticalAlignment="Center" Foreground="#9DA5B4" FontSize="12" Margin="0,0,16,0"/>
-                    <Button Content="⚙  Beállítások" Style="{StaticResource DarkButton}" Padding="12,5" Click="BtnBeallitasok_Click"/>
+                    <Slider Style="{StaticResource SebessegCsuszka}" Width="120" VerticalAlignment="Center" Minimum="1" Maximum="10" Value="5" Margin="0,0,8,0" x:Name="slSebesseg" TickFrequency="1" IsSnapToTickEnabled="True" AutoToolTipPlacement="TopLeft"/>
+                    <TextBlock Text="gyors" VerticalAlignment="Center" Foreground="#9DA5B4" FontSize="12"/>
+                    <Border Width="1" Height="22" Background="#3A3F4B" Margin="10,0" VerticalAlignment="Center"/>
+                    <Button Style="{StaticResource DarkButton}" Padding="12,5" Click="BtnBeallitasok_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <Viewbox Width="16" Height="16"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonBeallitasok}" Stroke="#C8CED8"/></Canvas></Viewbox>
+                            <TextBlock Text="Beállítások" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
             </Grid>
         </Border>
@@ -440,7 +600,7 @@
         <!-- 1. KÖZÉPSŐ FŐ MUNKATERÜLET -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition x:Name="oszlopProgram" Width="460"/>
+                <ColumnDefinition x:Name="oszlopProgram" Width="478"/>
                 <!-- Bal: Program szerkesztő -->
                 <ColumnDefinition Width="*"/>
                 <!-- Közép: Térkép + Kézi vezérlés -->
@@ -476,19 +636,41 @@
                         <Border x:Name="pnlBlokkEszkozok" Grid.Column="0" Margin="0,0,10,0">
                             <Grid>
                                 <!-- nyitott állapot -->
-                                <Border x:Name="pnlPalettaNyitva" Width="158" Background="#1B1E24" BorderBrush="#282C34" BorderThickness="1" CornerRadius="6" Padding="10,8,4,4">
+                                <Border x:Name="pnlPalettaNyitva" Width="176" Background="#1B1E24" BorderBrush="#282C34" BorderThickness="1" CornerRadius="6" Padding="10,8,4,4">
                                     <DockPanel>
                                         <Grid DockPanel.Dock="Top" Margin="0,0,6,8">
                                             <TextBlock Text="Blokkok" FontWeight="Bold" FontSize="12" VerticalAlignment="Center"/>
-                                            <Button Content="‹" ToolTip="Paletta becsukása" Style="{StaticResource SorGomb}" HorizontalAlignment="Right" Margin="0" Click="BtnPalettaToggle_Click"/>
+                                            <Button Content="&#xE76B;" FontFamily="Segoe MDL2 Assets" FontSize="12" Width="28" Height="28" ToolTip="Paletta becsukása" Style="{StaticResource SorGomb}" HorizontalAlignment="Right" Margin="0" Click="BtnPalettaToggle_Click"/>
                                         </Grid>
                                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                                             <StackPanel Margin="0,0,8,0">
-                                                <TextBlock Text="Mozgás" Foreground="#9DA5B4" FontSize="11" Margin="0,0,0,4"/>
+                                                <Expander x:Name="expMozgas" Style="{StaticResource PalettaCsoport}" Expanded="PalettaCsoport_Expanded" Collapsed="PalettaCsoport_Collapsed">
+                                                    <Expander.Header>
+                                                        <Grid>
+                                                            <StackPanel Orientation="Horizontal" Margin="0,0,24,0">
+                                                                <Viewbox Width="15" Height="15"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonMozgas}" Stroke="#E5C07B"/></Canvas></Viewbox>
+                                                                <TextBlock Text="Mozgás" Foreground="#E6EDF3" FontSize="12" FontWeight="SemiBold" Margin="8,0,0,0"/>
+                                                            </StackPanel>
+                                                            <TextBlock Text="3" Foreground="#7D8594" FontSize="11" HorizontalAlignment="Right" Margin="0,0,8,0"/>
+                                                        </Grid>
+                                                    </Expander.Header>
+                                                    <StackPanel>
                                                 <Button Style="{StaticResource PalettaSarga}" Tag="StepForward" Content="step forward" Margin="0,0,0,5" Click="BtnPaletta_Click"/>
                                                 <Button Style="{StaticResource PalettaSarga}" Tag="TurnBy" Content="turn by" Margin="0,0,0,5" Click="BtnPaletta_Click"/>
                                                 <Button Style="{StaticResource PalettaSarga}" Tag="MineHere" Content="mine here" Margin="0,0,0,5" Click="BtnPaletta_Click"/>
-                                                <TextBlock Text="Kőzet, energia" Foreground="#9DA5B4" FontSize="11" Margin="0,8,0,4"/>
+                                                </StackPanel>
+                                                </Expander>
+                                                <Expander x:Name="expKozet" Style="{StaticResource PalettaCsoport}" Expanded="PalettaCsoport_Expanded" Collapsed="PalettaCsoport_Collapsed">
+                                                    <Expander.Header>
+                                                        <Grid>
+                                                            <StackPanel Orientation="Horizontal" Margin="0,0,24,0">
+                                                                <Viewbox Width="15" Height="15"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonKo}" Stroke="#E5C07B"/></Canvas></Viewbox>
+                                                                <TextBlock Text="Kőzet, energia" Foreground="#E6EDF3" FontSize="12" FontWeight="SemiBold" Margin="8,0,0,0"/>
+                                                            </StackPanel>
+                                                            <TextBlock Text="7" Foreground="#7D8594" FontSize="11" HorizontalAlignment="Right" Margin="0,0,8,0"/>
+                                                        </Grid>
+                                                    </Expander.Header>
+                                                    <StackPanel>
                                                 <Button Style="{StaticResource PalettaSarga}" Tag="Drill" Content="drill" Margin="0,0,0,5" Click="BtnPaletta_Click"/>
                                                 <Button Style="{StaticResource PalettaSarga}" Tag="SupportHere" Content="support here" Margin="0,0,0,5" Click="BtnPaletta_Click"/>
                                                 <Button Style="{StaticResource PalettaSarga}" Tag="UnsupportHere" Content="unsupport here" Margin="0,0,0,5" Click="BtnPaletta_Click"/>
@@ -496,17 +678,43 @@
                                                 <Button Style="{StaticResource PalettaSarga}" Tag="RemoveCharger" Content="remove charger" Margin="0,0,0,5" Click="BtnPaletta_Click"/>
                                                 <Button Style="{StaticResource PalettaSarga}" Tag="Charge" Content="charge" Margin="0,0,0,5" Click="BtnPaletta_Click"/>
                                                 <Button Style="{StaticResource PalettaSarga}" Tag="BuyDrill" Content="buy drill" Margin="0,0,0,5" Click="BtnPaletta_Click"/>
-                                                <TextBlock Text="Lista" Foreground="#9DA5B4" FontSize="11" Margin="0,8,0,4"/>
+                                                </StackPanel>
+                                                </Expander>
+                                                <Expander x:Name="expLista" Style="{StaticResource PalettaCsoport}" Expanded="PalettaCsoport_Expanded" Collapsed="PalettaCsoport_Collapsed">
+                                                    <Expander.Header>
+                                                        <Grid>
+                                                            <StackPanel Orientation="Horizontal" Margin="0,0,24,0">
+                                                                <Viewbox Width="15" Height="15"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonLista}" Stroke="#56B6C2"/></Canvas></Viewbox>
+                                                                <TextBlock Text="Lista" Foreground="#E6EDF3" FontSize="12" FontWeight="SemiBold" Margin="8,0,0,0"/>
+                                                            </StackPanel>
+                                                            <TextBlock Text="4" Foreground="#7D8594" FontSize="11" HorizontalAlignment="Right" Margin="0,0,8,0"/>
+                                                        </Grid>
+                                                    </Expander.Header>
+                                                    <StackPanel>
                                                 <Button Style="{StaticResource PalettaTeal}" Tag="ListDecl" Content="list" Margin="0,0,0,5" Click="BtnPaletta_Click"/>
                                                 <Button Style="{StaticResource PalettaTeal}" Tag="Push" Content="push" Margin="0,0,0,5" Click="BtnPaletta_Click"/>
                                                 <Button Style="{StaticResource PalettaTeal}" Tag="Put" Content="put" Margin="0,0,0,5" Click="BtnPaletta_Click"/>
                                                 <Button Style="{StaticResource PalettaTeal}" Tag="Delete" Content="delete" Margin="0,0,0,5" Click="BtnPaletta_Click"/>
-                                                <TextBlock Text="Vezérlés" Foreground="#9DA5B4" FontSize="11" Margin="0,8,0,4"/>
+                                                </StackPanel>
+                                                </Expander>
+                                                <Expander x:Name="expVezerles" Style="{StaticResource PalettaCsoport}" IsExpanded="True" Expanded="PalettaCsoport_Expanded" Collapsed="PalettaCsoport_Collapsed">
+                                                    <Expander.Header>
+                                                        <Grid>
+                                                            <StackPanel Orientation="Horizontal" Margin="0,0,24,0">
+                                                                <Viewbox Width="15" Height="15"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonVezerles}" Stroke="#98C379"/></Canvas></Viewbox>
+                                                                <TextBlock Text="Vezérlés" Foreground="#E6EDF3" FontSize="12" FontWeight="SemiBold" Margin="8,0,0,0"/>
+                                                            </StackPanel>
+                                                            <TextBlock Text="5" Foreground="#7D8594" FontSize="11" HorizontalAlignment="Right" Margin="0,0,8,0"/>
+                                                        </Grid>
+                                                    </Expander.Header>
+                                                    <StackPanel>
                                                 <Button Style="{StaticResource PalettaZold}" Tag="If" Content="if" Margin="0,0,0,5" Click="BtnPaletta_Click"/>
                                                 <Button Style="{StaticResource PalettaZold}" Tag="IfElse" Content="if-else" Margin="0,0,0,5" Click="BtnPaletta_Click"/>
                                                 <Button Style="{StaticResource PalettaZold}" Tag="While" Content="while" Margin="0,0,0,5" Click="BtnPaletta_Click"/>
                                                 <Button Style="{StaticResource PalettaZold}" Tag="Set" Content="set" Margin="0,0,0,5" Click="BtnPaletta_Click"/>
                                                 <Button Style="{StaticResource PalettaZold}" Tag="Print" Content="print" Margin="0,0,0,5" Click="BtnPaletta_Click"/>
+                                                    </StackPanel>
+                                                </Expander>
                                             </StackPanel>
                                         </ScrollViewer>
                                     </DockPanel>
@@ -515,11 +723,11 @@
                                 <!-- becsukott állapot: csak a kategóriák ikonjai -->
                                 <Border x:Name="pnlPalettaZarva" Width="46" Visibility="Collapsed" Background="#1B1E24" BorderBrush="#282C34" BorderThickness="1" CornerRadius="6" Padding="0,8">
                                     <StackPanel HorizontalAlignment="Center">
-                                        <Button Content="›" ToolTip="Paletta megnyitása" Style="{StaticResource SorGomb}" Width="32" Height="28" Margin="0,0,0,10" Click="BtnPalettaToggle_Click"/>
-                                        <Button Content="↑" ToolTip="Mozgás" Style="{StaticResource KategoriaGomb}" Click="BtnPalettaToggle_Click"/>
-                                        <Button Content="⇅" ToolTip="Kőzet, energia" Style="{StaticResource KategoriaGomb}" Click="BtnPalettaToggle_Click"/>
-                                        <Button Content="≡" ToolTip="Lista" Foreground="#56B6C2" BorderBrush="#33707A" Style="{StaticResource KategoriaGomb}" Click="BtnPalettaToggle_Click"/>
-                                        <Button Content="↳" ToolTip="Vezérlés" Foreground="#98C379" BorderBrush="#5A7545" Style="{StaticResource KategoriaGomb}" Click="BtnPalettaToggle_Click"/>
+                                        <Button Content="&#xE76C;" FontFamily="Segoe MDL2 Assets" FontSize="12" ToolTip="Paletta megnyitása" Style="{StaticResource SorGomb}" Width="32" Height="28" Margin="0,0,0,10" Click="BtnPalettaToggle_Click"/>
+                                        <Button x:Name="btnKatMozgas" Tag="Mozgas" ToolTip="Mozgás" Style="{StaticResource KategoriaGomb}" Click="BtnKategoria_Click"><Viewbox Width="18" Height="18"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonMozgas}"/></Canvas></Viewbox></Button>
+                                        <Button x:Name="btnKatKozet" Tag="Kozet" ToolTip="Kőzet, energia" Style="{StaticResource KategoriaGomb}" Click="BtnKategoria_Click"><Viewbox Width="18" Height="18"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonKo}"/></Canvas></Viewbox></Button>
+                                        <Button x:Name="btnKatLista" Tag="Lista" ToolTip="Lista" Foreground="#56B6C2" BorderBrush="#33707A" Style="{StaticResource KategoriaGomb}" Click="BtnKategoria_Click"><Viewbox Width="18" Height="18"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonLista}"/></Canvas></Viewbox></Button>
+                                        <Button x:Name="btnKatVezerles" Tag="Vezerles" ToolTip="Vezérlés" Foreground="#98C379" BorderBrush="#5A7545" Style="{StaticResource KategoriaGomb}" Click="BtnKategoria_Click"><Viewbox Width="18" Height="18"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonVezerles}"/></Canvas></Viewbox></Button>
                                     </StackPanel>
                                 </Border>
                             </Grid>
@@ -593,6 +801,12 @@
                                     </ListBox.ItemTemplate>
                                 </ListBox>
 
+                                <StackPanel x:Name="pnlProgramUres" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
+                                    <Viewbox Width="26" Height="26" HorizontalAlignment="Center"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonLista}" Stroke="#5C6370"/></Canvas></Viewbox>
+                                    <TextBlock Text="A program még üres." Foreground="#7D8594" FontSize="12.5" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                                    <TextBlock Text="Válassz egy blokkot a palettáról." Foreground="#7D8594" FontSize="12.5" HorizontalAlignment="Center"/>
+                                </StackPanel>
+
                                 <Grid x:Name="gdSzovegNezet" Visibility="Collapsed" Background="#181A1F">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
@@ -629,46 +843,107 @@
 
                         <!-- Térkép Canvas / Rács -->
                         <Border Grid.Row="0" Background="#181A1F" CornerRadius="6" BorderBrush="#282C34" BorderThickness="1" ClipToBounds="True">
-                            <Viewbox Stretch="Uniform" Margin="10">
-                                <Canvas x:Name="TerkepCanvas" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                            </Viewbox>
+                            <Grid>
+                                <Viewbox Stretch="Uniform" Margin="10">
+                                    <Canvas x:Name="TerkepCanvas" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Viewbox>
+                                <StackPanel x:Name="pnlTerkepUres" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock Text="Nincs betöltött térkép" Foreground="#C8CED8" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Használd a Betöltés gombot." Foreground="#7D8594" FontSize="12" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Grid>
                         </Border>
 
                         <!-- Jelmagyarázat (kódból töltődik) -->
-                        <StackPanel x:Name="spLegenda" Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0"/>
+                        <WrapPanel x:Name="spLegenda" Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0"/>
                     </Grid>
                 </Border>
 
-                <!-- Kézi vezérlés: tartalma változatlan -->
+                <!-- Kézi vezérlés: összecsukható panel -->
                 <Grid Grid.Row="1" Margin="6,0,6,6">
-                    <!-- Kézi vezérlés panel -->
-                    <Border Background="#1E1E1E" CornerRadius="6" Padding="10">
+                    <Border Background="#1E1E1E" CornerRadius="8" Padding="12,8">
                         <StackPanel>
-                            <TextBlock Text="Kézi vezérlés" FontWeight="SemiBold" Margin="0,0,0,8"/>
-                            <StackPanel Orientation="Horizontal">
-                                <Button Content="Balra fordulás" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnKezziFordulas_Click"/>
-                                <TextBox x:Name="tbKezziFordulas" Width="45" Background="#282C34" Foreground="White" BorderBrush="#3A3F4B" Text="1" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="0,0,15,0"/>
-                                <Button Content="Előre" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnKezziLepes_Click"/>
-                                <TextBox x:Name="tbKezziLepes" Width="45" Background="#282C34" Foreground="White" BorderBrush="#3A3F4B" Text="1" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="0,0,15,0"/>
-                                <StackPanel >
-                                    <Button Content="Bányászás" Style="{StaticResource DarkButton}" Margin="0,0,8,5" Click="BtnKezziBanyaszat_Click"/>
-                                    <Button Content="Fúrás" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnKezziFuras_Click"/>
+                            <Grid>
+                                <TextBlock Text="Kézi vezérlés" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <TextBlock Text="a futás megáll, és nem készül napló" Foreground="#7D8594" FontSize="11" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <Button x:Name="btnKezziToggle" Content="&#xE70E;" FontFamily="Segoe MDL2 Assets" FontSize="12" Width="28" Height="28" ToolTip="Kézi vezérlés megnyitása" Style="{StaticResource SorGomb}" Margin="0" Click="BtnKezziToggle_Click"/>
                                 </StackPanel>
-                                <StackPanel>
-                                    <Button Content="Támasz" Style="{StaticResource DarkButton}" Margin="0,0,8,5" Click="BtnTamaszLerak_Click" />
-                                    <Button Content="Támasz Felvétele" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnTamaszFelvesz_Click" />
+                            </Grid>
+                            <WrapPanel x:Name="pnlKezziTartalom" Margin="0,10,0,0" Visibility="Collapsed">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,16,8">
+                            <Button Style="{StaticResource DarkButton}" Padding="10,6" Margin="0,0,6,0" Click="BtnKezziFordulas_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <Viewbox Width="16" Height="16"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonFordulas}" Stroke="#E5C07B"/></Canvas></Viewbox>
+                                    <TextBlock Text="Balra fordulás" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                 </StackPanel>
-                                <StackPanel>
-                                    <Button Content="Töltőállomás" Style="{StaticResource DarkButton}" Margin="0,0,8,5" Click="BtnToltoallomasLerak_Click" />
-                                    <Button Content="Töltőállomás Felvétele" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnToltoallomasFelvesz_Click" />
+                            </Button>
+                            <TextBox x:Name="tbKezziFordulas" Width="40" Height="30" Background="#1B1E24" Foreground="White" BorderBrush="#3A3F4B" CaretBrush="White" FontFamily="Consolas" Text="1" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="0,0,6,0"/>
+                            <Button Style="{StaticResource DarkButton}" Padding="10,6" Margin="0,0,6,0" Click="BtnKezziLepes_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <Viewbox Width="16" Height="16"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonElore}" Stroke="#E5C07B"/></Canvas></Viewbox>
+                                    <TextBlock Text="Előre" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                 </StackPanel>
-                                <StackPanel>
-                                    <Button Content="Töltés" Style="{StaticResource DarkButton}" Margin="0,0,8,5" Click="BtnToltes_Click" />
-                                    <Button Content="Fúrófej" Style="{StaticResource DarkButton}" Margin="0,0,8,0" Click="BtnFuroFejVasarlas_Click" />
+                            </Button>
+                            <TextBox x:Name="tbKezziLepes" Width="40" Height="30" Background="#1B1E24" Foreground="White" BorderBrush="#3A3F4B" CaretBrush="White" FontFamily="Consolas" Text="1" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="0,0,6,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,16,8">
+                            <Button Style="{StaticResource DarkButton}" Padding="10,6" Margin="0,0,6,0" Click="BtnKezziBanyaszat_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <Viewbox Width="16" Height="16"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonBanyaszas}" Stroke="#D19A66"/></Canvas></Viewbox>
+                                    <TextBlock Text="Bányászás" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                 </StackPanel>
-
-                            </StackPanel>
-                            <TextBlock Text="Kézi vezérlésnél a futás megáll, és nem készül napló." Foreground="#5C6370" FontSize="11" Margin="0,6,0,0"/>
+                            </Button>
+                            <Button Style="{StaticResource DarkButton}" Padding="10,6" Margin="0" Click="BtnKezziFuras_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <Viewbox Width="16" Height="16"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonFuro}" Stroke="#61AFEF"/></Canvas></Viewbox>
+                                    <TextBlock Text="Fúrás" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,16,8">
+                            <Button Style="{StaticResource DarkButton}" Padding="10,6" Margin="0,0,6,0" Click="BtnTamaszLerak_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <Viewbox Width="16" Height="16"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonTamasz}" Stroke="#98C379"/></Canvas></Viewbox>
+                                    <TextBlock Text="Támasz" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource DarkButton}" Padding="10,6" Margin="0" Click="BtnTamaszFelvesz_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <Viewbox Width="16" Height="16"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonTamaszFel}" Stroke="#98C379"/></Canvas></Viewbox>
+                                    <TextBlock Text="Felvétel" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,16,8">
+                            <Button Style="{StaticResource DarkButton}" Padding="10,6" Margin="0,0,6,0" Click="BtnToltoallomasLerak_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <Viewbox Width="16" Height="16"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonVilam}" Stroke="#E5C07B"/></Canvas></Viewbox>
+                                    <TextBlock Text="Töltőállomás" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource DarkButton}" Padding="10,6" Margin="0" Click="BtnToltoallomasFelvesz_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <Viewbox Width="16" Height="16"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonToltoFel}" Stroke="#E5C07B"/></Canvas></Viewbox>
+                                    <TextBlock Text="Felvétel" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,16,8">
+                            <Button Style="{StaticResource DarkButton}" Padding="10,6" Margin="0,0,6,0" Click="BtnToltes_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <Viewbox Width="16" Height="16"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonAkku}" Stroke="#98C379"/></Canvas></Viewbox>
+                                    <TextBlock Text="Töltés" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource DarkButton}" Padding="10,6" Margin="0" Click="BtnFuroFejVasarlas_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <Viewbox Width="16" Height="16"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonFuro}" Stroke="#61AFEF"/></Canvas></Viewbox>
+                                    <TextBlock Text="Új fúrófej" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                            </WrapPanel>
                         </StackPanel>
                     </Border>
                 </Grid>
@@ -680,7 +955,7 @@
                 <DockPanel x:Name="pnlAllapotNyitva">
                     <Grid DockPanel.Dock="Top" Margin="8,4,6,10">
                         <TextBlock Text="Állapot" FontWeight="Bold" FontSize="13" Foreground="#C8CED8" VerticalAlignment="Center"/>
-                        <Button Content="›" ToolTip="Állapot becsukása" Style="{StaticResource SorGomb}" HorizontalAlignment="Right" Margin="0" Click="BtnAllapotToggle_Click"/>
+                        <Button Content="&#xE76C;" FontFamily="Segoe MDL2 Assets" FontSize="12" Width="28" Height="28" ToolTip="Állapot becsukása" Style="{StaticResource SorGomb}" HorizontalAlignment="Right" Margin="0" Click="BtnAllapotToggle_Click"/>
                     </Grid>
                     <Grid>
                         <Grid.RowDefinitions>
@@ -695,7 +970,7 @@
                         <Border Grid.Row="0" Style="{StaticResource MutatoKartya}" Margin="6,6,6,8">
                             <StackPanel>
                                 <TextBlock Text="Energia" Foreground="#9DA5B4" FontSize="11"/>
-                                <TextBlock x:Name="tbEnergia" Text="" FontWeight="Bold" FontSize="22" Foreground="#98C379" Margin="0,4,0,6"/>
+                                <TextBlock x:Name="tbEnergia" Text="–" FontWeight="Bold" FontSize="22" Foreground="#98C379" Margin="0,4,0,6"/>
                                 <ProgressBar x:Name="pbEnergia" Style="{StaticResource KijelzoSav}" Minimum="0" Maximum="1" Value="0"/>
                                 <TextBlock x:Name="tbEnergiaInfo" Text="" Foreground="#9DA5B4" FontSize="11" Margin="0,6,0,0"/>
                             </StackPanel>
@@ -705,7 +980,7 @@
                         <Border Grid.Row="1" Style="{StaticResource MutatoKartya}">
                             <StackPanel>
                                 <TextBlock Text="Fúrófej" Foreground="#9DA5B4" FontSize="11"/>
-                                <TextBlock x:Name="tbFuroFej" Text="" FontWeight="Bold" FontSize="22" Foreground="#61AFEF" Margin="0,4,0,6"/>
+                                <TextBlock x:Name="tbFuroFej" Text="–" FontWeight="Bold" FontSize="22" Foreground="#61AFEF" Margin="0,4,0,6"/>
                                 <ProgressBar x:Name="pbFuroFej" Style="{StaticResource KijelzoSav}" Foreground="#61AFEF" Minimum="0" Maximum="1" Value="0"/>
                                 <TextBlock x:Name="tbFuroFejInfo" Text="" Foreground="#9DA5B4" FontSize="11" Margin="0,6,0,0"/>
                             </StackPanel>
@@ -723,7 +998,7 @@
                         <Border Grid.Row="3" Style="{StaticResource MutatoKartya}">
                             <StackPanel>
                                 <TextBlock Text="Irány" Foreground="#9DA5B4" FontSize="11"/>
-                                <TextBlock x:Name="tbIrány" Text="" FontWeight="Bold" FontSize="16" Margin="0,4,0,0"/>
+                                <TextBlock x:Name="tbIrány" Text="–" FontWeight="Bold" FontSize="16" Margin="0,4,0,0"/>
                             </StackPanel>
                         </Border>
 
@@ -731,7 +1006,7 @@
                         <Border Grid.Row="4" Style="{StaticResource MutatoKartya}">
                             <StackPanel>
                                 <TextBlock Text="Szenzor, a robot előtt" Foreground="#9DA5B4" FontSize="11"/>
-                                <TextBlock x:Name="tbSzenzor" Text="" FontWeight="Bold" FontSize="16" Margin="0,4,0,0"/>
+                                <TextBlock x:Name="tbSzenzor" Text="–" FontWeight="Bold" FontSize="16" Margin="0,4,0,0"/>
                             </StackPanel>
                         </Border>
                     </Grid>
@@ -750,8 +1025,11 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <Button Grid.Row="0" Content="‹" ToolTip="Állapot megnyitása" Style="{StaticResource SorGomb}" Width="32" Height="28" HorizontalAlignment="Center" Margin="0,0,0,12" Click="BtnAllapotToggle_Click"/>
-                        <TextBlock Grid.Row="1" Text="🔋" FontSize="14" HorizontalAlignment="Center" ToolTip="Energia"/>
+                        <Button Grid.Row="0" Content="&#xE76B;" FontFamily="Segoe MDL2 Assets" FontSize="12" ToolTip="Állapot megnyitása" Style="{StaticResource SorGomb}" Width="32" Height="28" HorizontalAlignment="Center" Margin="0,0,0,12" Click="BtnAllapotToggle_Click"/>
+                        <StackPanel Grid.Row="1" HorizontalAlignment="Center" ToolTip="Energia">
+                            <Viewbox Width="20" Height="20"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonAkku}" Stroke="#98C379"/></Canvas></Viewbox>
+                            <TextBlock Text="ENERGIA" FontSize="9" Foreground="#7D8594" HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                        </StackPanel>
                         <!-- Energia: a kitöltés magasságát a kód állítja (üres / teli sor arány) -->
                         <Border Grid.Row="2" Width="8" Margin="0,6" HorizontalAlignment="Center" Background="#3A3F4B" CornerRadius="4">
                             <Grid>
@@ -763,7 +1041,10 @@
                             </Grid>
                         </Border>
                         <TextBlock Grid.Row="3" x:Name="tbEnergiaZarva" FontSize="11" FontWeight="Bold" Foreground="#98C379" HorizontalAlignment="Center" Margin="0,0,0,12"/>
-                        <TextBlock Grid.Row="4" Text="⇕" FontSize="15" Foreground="#61AFEF" HorizontalAlignment="Center" ToolTip="Fúrófej"/>
+                        <StackPanel Grid.Row="4" HorizontalAlignment="Center" ToolTip="Fúrófej">
+                            <Viewbox Width="20" Height="20"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonFuro}" Stroke="#61AFEF"/></Canvas></Viewbox>
+                            <TextBlock Text="FÚRÓ" FontSize="9" Foreground="#7D8594" HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                        </StackPanel>
                         <!-- Furo: a kitöltés magasságát a kód állítja (üres / teli sor arány) -->
                         <Border Grid.Row="5" Width="8" Margin="0,6" HorizontalAlignment="Center" Background="#3A3F4B" CornerRadius="4">
                             <Grid>
@@ -776,7 +1057,8 @@
                         </Border>
                         <TextBlock Grid.Row="6" x:Name="tbFuroFejZarva" FontSize="11" FontWeight="Bold" Foreground="#61AFEF" HorizontalAlignment="Center" Margin="0,0,0,12"/>
                         <StackPanel Grid.Row="7" HorizontalAlignment="Center">
-                            <TextBlock Text="arany" Foreground="#9DA5B4" FontSize="11" HorizontalAlignment="Center"/>
+                            <Viewbox Width="20" Height="20"><Canvas Width="24" Height="24"><Path Style="{StaticResource Ikon}" Data="{StaticResource IkonArany}" Stroke="#E5C07B"/></Canvas></Viewbox>
+                            <TextBlock Text="ARANY" FontSize="9" Foreground="#7D8594" HorizontalAlignment="Center" Margin="0,2,0,0"/>
                             <TextBlock x:Name="tbAranyZarva" Text="0" FontSize="15" FontWeight="Bold" Foreground="#E5C07B" HorizontalAlignment="Center" Margin="0,2,0,0"/>
                         </StackPanel>
                     </Grid>
@@ -853,7 +1135,7 @@
                             <GridView>
                                 <GridViewColumn Header="Név" Width="90" DisplayMemberBinding="{Binding Name}"/>
                                 <GridViewColumn Header="Típus" Width="100" DisplayMemberBinding="{Binding Type}"/>
-                                <GridViewColumn Header="Érték" Width="190" DisplayMemberBinding="{Binding Value}"/>
+                                <GridViewColumn Header="Érték" Width="210" DisplayMemberBinding="{Binding Value}"/>
                             </GridView>
                         </ListView.View>
                     </ListView>
@@ -863,7 +1145,10 @@
 
         <!-- 3. ÁLLAPOTSOR -->
         <Border Grid.Row="3" Style="{StaticResource DarkCard}" Margin="0,6,0,0" Padding="10,6">
-            <TextBlock x:Name="tbAllapotsor" Text="Kezdőállapot" Foreground="#9DA5B4" FontSize="12"/>
+            <StackPanel Orientation="Horizontal">
+                <Viewbox Width="15" Height="15"><Canvas Width="24" Height="24"><Path x:Name="ikAllapotsor" Style="{StaticResource Ikon}" Data="{StaticResource IkonInfo}" Stroke="#9DA5B4"/></Canvas></Viewbox>
+                <TextBlock x:Name="tbAllapotsor" Text="Kezdőállapot" Foreground="#9DA5B4" FontSize="12" Margin="8,0,0,0" VerticalAlignment="Center"/>
+            </StackPanel>
         </Border>
     </Grid>
 </Window>
