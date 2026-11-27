@@ -1,0 +1,47 @@
+5 14
+##############
+#>+&+..@.....#
+#.##.###.....#
+#.@.....@....#
+##############
+list tavok int
+list jelek bool
+set e to get energy
+print e
+set t to get type
+push tavok t
+drill
+set t to get type
+push tavok t
+drill
+mine here
+support here
+unsupport here
+set t to get type
+push tavok t
+drill
+place charger
+set i to 0
+set sok to i < 4
+while sok
+  support here
+  unsupport here
+  set i to i + 1
+  set sok to i < 4
+charge
+buy drill
+set d to get durability
+print d
+remove charger
+set fal to isThere 1
+set megy to not fal
+while megy
+  set arany to isThere 2
+  push jelek arany
+  step forward 1
+  set fal to isThere 1
+  set megy to not fal
+set n to size jelek
+print n
+set e to get energy
+print e
